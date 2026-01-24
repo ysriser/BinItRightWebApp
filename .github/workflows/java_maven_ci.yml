@@ -1,4 +1,4 @@
-name: BinItRight Private Quality Pipeline (Multi-Job)
+name: BinItRight DO DevSecOps Pipeline
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ "master" ]
 
 jobs:
-  # JOB 1: UNIT TESTING
+  # BOX 1-4: (Unit-test, SCA, SAST, Build) - Remains the same as previous versions
   unit-test:
     runs-on: ubuntu-latest
     steps:
@@ -20,35 +20,19 @@ jobs:
           cache: maven
       - name: Run Unit Tests
         run: mvn -B test -Dmaven.test.failure.ignore=true
-      - name: Upload Test Reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: junit-test-reports
-          path: target/surefire-reports/
 
-  # JOB 2: SCA (TRIVY)
   sca-scan:
-    needs: unit-test # This creates the link between boxes
+    needs: unit-test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run Trivy SCA Scan
-        uses: aquasecurity/trivy-action@0.33.1
+      - name: Run Trivy SCA
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: 'fs'
           format: 'table'
-          output: 'trivy-report.txt'
-          exit-code: '0' # Keeps bypass mode active
-          severity: 'CRITICAL,HIGH'
-      - name: Upload Trivy Report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: trivy-security-report
-          path: trivy-report.txt
+          exit-code: '0'
 
-  # JOB 3: SAST (SONARCLOUD)
   sast-scan:
     needs: sca-scan
     runs-on: ubuntu-latest
@@ -56,25 +40,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-          cache: maven
-      - name: Run SonarCloud SAST
+      - name: Run SonarCloud
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          mvn -B verify sonar:sonar \
-          -Dsonar.projectKey=BinItRight \
-          -Dsonar.organization=binitright \
-          -Dsonar.host.url=https://sonarcloud.io \
-          -DskipTests \
-          -Dsonar.qualitygate.wait=false
+        run: mvn -B verify sonar:sonar -Dsonar.projectKey=BinItRight -Dsonar.organization=binitright -Dsonar.host.url=https://sonarcloud.io -DskipTests -Dsonar.qualitygate.wait=false
 
-  # JOB 4: BUILD & PACKAGE
   build:
     needs: sast-scan
     runs-on: ubuntu-latest
@@ -88,9 +59,35 @@ jobs:
           cache: maven
       - name: Final Package
         run: mvn -B package -DskipTests
-      - name: Upload Final Build
-        if: always()
+      - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
           name: binitright-app-binaries
           path: target/*.jar
+
+  # BOX 5: DOCKER PACKAGING (Back to DigitalOcean Registry)
+  docker-build:
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/master'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: binitright-app-binaries
+          path: target/
+      - name: Login to DOCR
+        uses: docker/login-action@v3
+        with:
+          registry: registry.digitalocean.com
+          username: ${{ secrets.DO_ACCESS_TOKEN }}
+          password: ${{ secrets.DO_ACCESS_TOKEN }}
+      - name: Build and Push
+        run: |
+          # REPLACE 'your-reg' with your actual registry name
+          REG=registry.digitalocean.com/binitright
+          docker build -t $REG:latest .
+          docker tag $REG:latest $REG:${{ github.sha }}
+          docker push $REG:latest
+          docker push $REG:${{ github.sha }}
