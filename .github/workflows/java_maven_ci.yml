@@ -1,4 +1,4 @@
-name: BinItRight Private Quality Pipeline (BYPASS MODE)
+name: BinItRight Private Quality Pipeline (Multi-Job)
 
 on:
   push:
@@ -7,26 +7,19 @@ on:
     branches: [ "master" ]
 
 jobs:
-  pipeline:
+  # JOB 1: UNIT TESTING
+  unit-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
+      - uses: actions/checkout@v4
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
-
-      # PHASE 1: Unit Test (Bypass test failures)
       - name: Run Unit Tests
-        # -Dmaven.test.failure.ignore=true allows the build to continue even if tests fail
         run: mvn -B test -Dmaven.test.failure.ignore=true
-
       - name: Upload Test Reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -34,17 +27,20 @@ jobs:
           name: junit-test-reports
           path: target/surefire-reports/
 
-      # PHASE 2: SCA (Trivy) (Bypass security failures)
+  # JOB 2: SCA (TRIVY)
+  sca-scan:
+    needs: unit-test # This creates the link between boxes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
       - name: Run Trivy SCA Scan
         uses: aquasecurity/trivy-action@0.33.1
         with:
           scan-type: 'fs'
           format: 'table'
           output: 'trivy-report.txt'
-          # CHANGE: set exit-code to '0' to prevent the scan from stopping the pipeline
-          exit-code: '0'
+          exit-code: '0' # Keeps bypass mode active
           severity: 'CRITICAL,HIGH'
-
       - name: Upload Trivy Report
         if: always()
         uses: actions/upload-artifact@v4
@@ -52,7 +48,20 @@ jobs:
           name: trivy-security-report
           path: trivy-report.txt
 
-      # PHASE 3: SAST (SonarCloud)
+  # JOB 3: SAST (SONARCLOUD)
+  sast-scan:
+    needs: sca-scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
       - name: Run SonarCloud SAST
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -63,14 +72,23 @@ jobs:
           -Dsonar.organization=binitright \
           -Dsonar.host.url=https://sonarcloud.io \
           -DskipTests \
-          -Dsonar.qualitygate.wait=false # Ensures build doesn't fail on Sonar Quality Gate
+          -Dsonar.qualitygate.wait=false
 
-      # PHASE 4: Final Build Artifact
+  # JOB 4: BUILD & PACKAGE
+  build:
+    needs: sast-scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
       - name: Final Package
-        # This will now always run because previous steps "passed"
         run: mvn -B package -DskipTests
-
-      - name: Upload Final Build (JAR)
+      - name: Upload Final Build
         if: always()
         uses: actions/upload-artifact@v4
         with:
