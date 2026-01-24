@@ -129,6 +129,14 @@ jobs:
         run: |
           IP=$(doctl compute droplet get ${{ steps.create-droplet.outputs.id }} --format PublicIPv4 --no-header)
           echo "ip=$IP" >> $GITHUB_OUTPUT
+
+      # NEW: Ensure the droplet is actually ready to talk over SSH
+      - name: Wait for SSH to wake up
+        run: |
+          for i in {1..10}; do 
+            nc -zv ${{ steps.get-ip.outputs.ip }} 22 && break || sleep 10; 
+          done
+
       - name: Deploy via SSH
         uses: appleboy/ssh-action@master
         with:
@@ -136,6 +144,7 @@ jobs:
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            # Login as underscore (_) using your PAT as the password
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
             docker run -d -p 80:8080 registry.digitalocean.com/binitright/binitright-app:${{ github.sha }}
 
