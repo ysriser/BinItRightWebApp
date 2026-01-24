@@ -67,27 +67,30 @@ jobs:
 
   # BOX 5: DOCKER PACKAGING (Back to DigitalOcean Registry)
   docker-build:
-    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/master'
     needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Download JAR
         uses: actions/download-artifact@v4
         with:
           name: binitright-app-binaries
           path: target/
-      - name: Login to DOCR
+
+      # STABLE LOGIN: Use underscore (_) as username for DigitalOcean Registry
+      - name: Login to DigitalOcean Container Registry
         uses: docker/login-action@v3
         with:
           registry: registry.digitalocean.com
-          username: ${{ secrets.DO_ACCESS_TOKEN }}
+          username: _
           password: ${{ secrets.DO_ACCESS_TOKEN }}
+
       - name: Build and Push
         run: |
-          # REPLACE 'your-reg' with your actual registry name
-          REG=registry.digitalocean.com/binitright
-          docker build -t $REG:latest .
-          docker tag $REG:latest $REG:${{ github.sha }}
-          docker push $REG:latest
-          docker push $REG:${{ github.sha }}
+          # Ensure 'your-reg' is your ACTUAL registry name from the DO dashboard
+          IMAGE_NAME=registry.digitalocean.com/your-reg/binitright
+          docker build -t $IMAGE_NAME:latest .
+          docker tag $IMAGE_NAME:latest $IMAGE_NAME:${{ github.sha }}
+          docker push $IMAGE_NAME:latest
+          docker push $IMAGE_NAME:${{ github.sha }}
