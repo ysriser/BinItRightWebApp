@@ -151,6 +151,9 @@ jobs:
     if: github.event_name == 'pull_request'
     needs: deploy-temp
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
     steps:
       - name: OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.15.0
