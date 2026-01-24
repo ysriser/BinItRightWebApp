@@ -60,7 +60,7 @@ jobs:
         run: |
           mvn -B verify sonar:sonar \
           -Dsonar.projectKey=BinItRight \
-          -Dsonar.organization=yuesheng \
+          -Dsonar.organization=binitright \
           -Dsonar.host.url=https://sonarcloud.io \
           -DskipTests \
           -Dsonar.qualitygate.wait=false # Ensures build doesn't fail on Sonar Quality Gate
