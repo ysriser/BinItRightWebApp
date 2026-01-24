@@ -7,7 +7,7 @@ on:
     branches: [ "master" ]
 
 jobs:
-  # BOX 1: UNIT TESTING
+  # BOX 1: UNIT TESTING (Added Artifacts)
   unit-test:
     runs-on: ubuntu-latest
     steps:
@@ -21,7 +21,15 @@ jobs:
       - name: Run Unit Tests
         run: mvn -B test -Dmaven.test.failure.ignore=true
 
-  # BOX 2: SCA (LIBRARIES)
+      # CAPTURE: Saves test result XMLs and reports
+      - name: Upload Unit Test Reports
+        if: always() # Ensures reports are uploaded even if tests fail
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-reports
+          path: target/surefire-reports/
+
+  # BOX 2: SCA (Added Artifacts)
   sca-scan:
     needs: unit-test
     runs-on: ubuntu-latest
@@ -32,9 +40,17 @@ jobs:
         with:
           scan-type: 'fs'
           format: 'table'
+          output: 'trivy-results.txt' # NEW: Saves table to a file
           exit-code: '0'
 
-  # BOX 3: SAST (CODE QUALITY)
+      # CAPTURE: Saves the security scan findings
+      - name: Upload SCA Scan Findings
+        uses: actions/upload-artifact@v4
+        with:
+          name: sca-scan-results
+          path: trivy-results.txt
+
+  # BOX 3: SAST (Added Artifacts)
   sast-scan:
     needs: sca-scan
     runs-on: ubuntu-latest
@@ -52,7 +68,15 @@ jobs:
           -Dsonar.organization=binitright \
           -Dsonar.host.url=https://sonarcloud.io \
           -DskipTests \
-          -Dsonar.qualitygate.wait=false
+          -Dsonar.qualitygate.wait=true # Wait for analysis to finish
+
+      # CAPTURE: Since SAST is on SonarCloud, we capture the analysis logs
+      - name: Upload SAST Scan Summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sast-sonar-logs
+          path: target/sonar/
 
   # BOX 4: THE BINARY BUILD
   build:
@@ -74,7 +98,7 @@ jobs:
           name: binitright-app-binaries
           path: target/*.jar
 
-  # BOX 5: DOCKER PACKAGING (Conditional for PR/Master)
+  # BOX 5: DOCKER PACKAGING (Remains Same)
   docker-build:
     if: github.event_name == 'pull_request' || github.ref == 'refs/heads/master'
     needs: build
@@ -86,25 +110,21 @@ jobs:
         with:
           name: binitright-app-binaries
           path: target/
-
-      # STABLE LOGIN: Using underscore (_) is the DO standard for PAT auth
       - name: Login to DigitalOcean Container Registry
         uses: docker/login-action@v3
         with:
           registry: registry.digitalocean.com
           username: _
           password: ${{ secrets.DO_ACCESS_TOKEN }}
-
       - name: Build and Push
         run: |
-          # The registry name is 'binitright'
           REG=registry.digitalocean.com/binitright/binitright-app
           docker build -t $REG:latest .
           docker tag $REG:latest $REG:${{ github.sha }}
           docker push $REG:latest
           docker push $REG:${{ github.sha }}
 
-  # BOX 6: TRANSIENT DEPLOY (Only on Pull Requests)
+  # BOX 6: TRANSIENT DEPLOY (Remains Same)
   deploy-temp:
     if: github.event_name == 'pull_request'
     needs: docker-build
@@ -117,29 +137,23 @@ jobs:
         uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DO_ACCESS_TOKEN }}
-
       - name: Create Temporary Droplet
         id: create-droplet
         run: |
-          # FIX: Using 'docker-20-04' image ensures Docker is pre-installed
           ID=$(doctl compute droplet create temp-dast-${{ github.sha }} \
             --region nyc1 --size s-1vcpu-1gb --image docker-20-04 \
             --ssh-keys ${{ secrets.SSH_KEY_ID }} --wait --format ID --no-header)
           echo "id=$ID" >> $GITHUB_OUTPUT
-
       - name: Get Droplet IP
         id: get-ip
         run: |
           IP=$(doctl compute droplet get ${{ steps.create-droplet.outputs.id }} --format PublicIPv4 --no-header)
           echo "ip=$IP" >> $GITHUB_OUTPUT
-
       - name: Wait for SSH to wake up
         run: |
-          # FIX: Added the IP variable correctly into the netcat command
           for i in {1..10}; do 
             nc -zv ${{ steps.get-ip.outputs.ip }} 22 && break || sleep 10; 
           done
-
       - name: Deploy via SSH
         uses: appleboy/ssh-action@master
         with:
@@ -150,7 +164,7 @@ jobs:
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
             docker run -d -p 80:8080 registry.digitalocean.com/binitright/binitright-app:${{ github.sha }}
 
-  # BOX 7: DAST ATTACK & REPORTING
+  # BOX 7: DAST ATTACK & REPORTING (Remains Same)
   dast-scan:
     if: github.event_name == 'pull_request'
     needs: deploy-temp
@@ -163,11 +177,9 @@ jobs:
         uses: zaproxy/action-baseline@v0.15.0
         with:
           target: 'http://${{ needs.deploy-temp.outputs.droplet_ip }}'
-          fail_action: false # Keeps the pipeline moving so we can get the report
-
-      # NEW: Captures the security finding reports
+          fail_action: false
       - name: Upload DAST Report
-        if: always() # Ensures report is saved even if vulnerabilities are found
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: zap-security-findings
@@ -175,7 +187,7 @@ jobs:
             report_html.html
             report_json.json
 
-  # BOX 8: CLEANUP (Always runs if droplet was created)
+  # BOX 8: CLEANUP (Remains Same)
   cleanup-droplet:
     needs: [deploy-temp, dast-scan]
     if: always() && needs.deploy-temp.result == 'success'
@@ -188,7 +200,7 @@ jobs:
       - name: Destroy Droplet
         run: doctl compute droplet delete ${{ needs.deploy-temp.outputs.droplet_id }} --force
 
-  # BOX 10: REGISTRY CLEANUP (Keeps storage < 500MB)
+  # BOX 10: REGISTRY CLEANUP (Remains Same)
   prune-registry:
     needs: [cleanup-droplet]
     if: always()
