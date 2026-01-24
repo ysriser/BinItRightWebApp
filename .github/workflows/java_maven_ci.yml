@@ -1,4 +1,4 @@
-name: BinItRight DO DevSecOps Pipeline
+name: BinItRight Ultimate DO Pipeline
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ "master" ]
 
 jobs:
-  # BOX 1-4: (Unit-test, SCA, SAST, Build) - Remains the same as previous versions
+  # BOX 1: UNIT TESTING
   unit-test:
     runs-on: ubuntu-latest
     steps:
@@ -21,6 +21,7 @@ jobs:
       - name: Run Unit Tests
         run: mvn -B test -Dmaven.test.failure.ignore=true
 
+  # BOX 2: SCA (LIBRARIES)
   sca-scan:
     needs: unit-test
     runs-on: ubuntu-latest
@@ -33,6 +34,7 @@ jobs:
           format: 'table'
           exit-code: '0'
 
+  # BOX 3: SAST (CODE QUALITY)
   sast-scan:
     needs: sca-scan
     runs-on: ubuntu-latest
@@ -44,8 +46,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify sonar:sonar -Dsonar.projectKey=BinItRight -Dsonar.organization=binitright -Dsonar.host.url=https://sonarcloud.io -DskipTests -Dsonar.qualitygate.wait=false
+        run: |
+          mvn -B verify sonar:sonar \
+          -Dsonar.projectKey=BinItRight \
+          -Dsonar.organization=binitright \
+          -Dsonar.host.url=https://sonarcloud.io \
+          -DskipTests \
+          -Dsonar.qualitygate.wait=false
 
+  # BOX 4: THE BINARY BUILD
   build:
     needs: sast-scan
     runs-on: ubuntu-latest
@@ -65,20 +74,20 @@ jobs:
           name: binitright-app-binaries
           path: target/*.jar
 
-  # BOX 5: DOCKER PACKAGING (Back to DigitalOcean Registry)
+  # BOX 5: DOCKER PACKAGING (Conditional for PR/Master)
   docker-build:
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/master'
     needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Download JAR
         uses: actions/download-artifact@v4
         with:
           name: binitright-app-binaries
           path: target/
 
-      # STABLE LOGIN: Use underscore (_) as username for DigitalOcean Registry
+      # STABLE LOGIN: Using underscore (_) is the DO standard for PAT auth
       - name: Login to DigitalOcean Container Registry
         uses: docker/login-action@v3
         with:
@@ -88,9 +97,9 @@ jobs:
 
       - name: Build and Push
         run: |
-          # Ensure 'your-reg' is your ACTUAL registry name from the DO dashboard
-          IMAGE_NAME=registry.digitalocean.com/your-reg/binitright
-          docker build -t $IMAGE_NAME:latest .
-          docker tag $IMAGE_NAME:latest $IMAGE_NAME:${{ github.sha }}
-          docker push $IMAGE_NAME:latest
-          docker push $IMAGE_NAME:${{ github.sha }}
+          # The registry name is 'binitright'
+          REG=registry.digitalocean.com/binitright/binitright-app
+          docker build -t $REG:latest .
+          docker tag $REG:latest $REG:${{ github.sha }}
+          docker push $REG:latest
+          docker push $REG:${{ github.sha }}
