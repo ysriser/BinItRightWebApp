@@ -1,34 +1,56 @@
-steps:
-  - uses: actions/checkout@v4
+name: BinItRight Security Pipeline
 
-  - name: Set up JDK 21
-    uses: actions/setup-java@v4
-    with:
-      java-version: '21'
-      distribution: 'temurin'
-      cache: maven
+on:
+  push:
+    branches: [ "master" ]  # Triggers on merge to master
+  pull_request:
+    branches: [ "master" ]  # Triggers on PR creation/update
 
-  # 1. UNIT TEST (Safe to keep here if you want fast feedback)
-  - name: Run Unit Tests
-    run: mvn -B test
+permissions:
+  contents: write
+  security-events: write
 
-  # 2. SCA
-  - name: Update Dependency Graph
-    uses: advanced-security/maven-dependency-submission-action@v4
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-  # 3. SAST (CODEQL START)
-  - name: Initialize CodeQL
-    uses: github/codeql-action/init@v3
-    with:
-      languages: java-kotlin
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
 
-  # CRITICAL STEP: CodeQL needs to "see" a clean build to extract the code
-  - name: Build for CodeQL
-    run: mvn -B clean compile -DskipTests
+      # PHASE 1: Unit Testing (JUnit 5)
+      - name: Run Unit Tests
+        run: mvn -B test
 
-  - name: Perform CodeQL Analysis
-    uses: github/codeql-action/analyze@v3
+      # PHASE 2: SCA (Software Composition Analysis)
+      # This uploads your dependency list to GitHub's security engine
+      - name: SCA - Dependency Submission
+        uses: advanced-security/maven-dependency-submission-action@v4
 
-  # 4. FINAL BUILD (Optional, since 'compile' already happened)
-  - name: Final Build
-    run: mvn -B package -DskipTests
+      # PHASE 3: SAST (Static Application Security Testing)
+      # CodeQL scans YOUR custom Java code for security holes
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: java-kotlin
+
+      # IMPORTANT: We run 'clean compile' here so CodeQL can "watch"
+      # a fresh build. This prevents the "No source code seen" error.
+      - name: Build for SAST Analysis
+        run: mvn -B clean compile -DskipTests
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+      # PHASE 4: Final Build
+      # Only reached if Tests, SCA, and SAST all pass
+      - name: Final Package
+        run: mvn -B package -DskipTests
