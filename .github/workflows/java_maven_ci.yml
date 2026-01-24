@@ -1,14 +1,15 @@
-name: BinItRight Security Pipeline
+name: BinItRight Quality Pipeline
 
 on:
   push:
-    branches: [ "master" ]  # Triggers on merge to master
+    branches: [ "master" ]
   pull_request:
-    branches: [ "master" ]  # Triggers on PR creation/update
+    branches: [ "master" ]
 
 permissions:
   contents: write
   security-events: write
+  actions: read           # Fixes the telemetry status report error
 
 jobs:
   quality-gate:
@@ -26,24 +27,21 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      # PHASE 1: Unit Testing (JUnit 5)
+      # PHASE 1: Unit Testing
       - name: Run Unit Tests
         run: mvn -B test
 
-      # PHASE 2: SCA (Software Composition Analysis)
-      # This uploads your dependency list to GitHub's security engine
+      # PHASE 2: SCA (Dependency Scanning)
       - name: SCA - Dependency Submission
         uses: advanced-security/maven-dependency-submission-action@v4
 
-      # PHASE 3: SAST (Static Application Security Testing)
-      # CodeQL scans YOUR custom Java code for security holes
+      # PHASE 3: SAST (CodeQL Analysis)
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
           languages: java-kotlin
 
-      # IMPORTANT: We run 'clean compile' here so CodeQL can "watch"
-      # a fresh build. This prevents the "No source code seen" error.
+      # 'clean compile' ensures CodeQL extracts all source code correctly
       - name: Build for SAST Analysis
         run: mvn -B clean compile -DskipTests
 
@@ -51,6 +49,5 @@ jobs:
         uses: github/codeql-action/analyze@v3
 
       # PHASE 4: Final Build
-      # Only reached if Tests, SCA, and SAST all pass
       - name: Final Package
         run: mvn -B package -DskipTests
