@@ -103,3 +103,76 @@ jobs:
           docker tag $REG:latest $REG:${{ github.sha }}
           docker push $REG:latest
           docker push $REG:${{ github.sha }}
+
+  # BOX 6: TRANSIENT DEPLOY (Only on Pull Requests)
+  deploy-temp:
+    if: github.event_name == 'pull_request'
+    needs: docker-build
+    runs-on: ubuntu-latest
+    outputs:
+      droplet_ip: ${{ steps.get-ip.outputs.ip }}
+      droplet_id: ${{ steps.create-droplet.outputs.id }}
+    steps:
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_ACCESS_TOKEN }}
+      - name: Create Temporary Droplet
+        id: create-droplet
+        run: |
+          ID=$(doctl compute droplet create temp-dast-${{ github.sha }} \
+            --region nyc1 --size s-1vcpu-1gb --image ubuntu-22-04-x64 \
+            --ssh-keys ${{ secrets.SSH_KEY_ID }} --wait --format ID --no-header)
+          echo "id=$ID" >> $GITHUB_OUTPUT
+      - name: Get Droplet IP
+        id: get-ip
+        run: |
+          IP=$(doctl compute droplet get ${{ steps.create-droplet.outputs.id }} --format PublicIPv4 --no-header)
+          echo "ip=$IP" >> $GITHUB_OUTPUT
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ steps.get-ip.outputs.ip }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
+            docker run -d -p 80:8080 registry.digitalocean.com/binitright/binitright-app:${{ github.sha }}
+
+  # BOX 7: DAST SCAN
+  dast-scan:
+    if: github.event_name == 'pull_request'
+    needs: deploy-temp
+    runs-on: ubuntu-latest
+    steps:
+      - name: OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.14.0
+        with:
+          target: 'http://${{ needs.deploy-temp.outputs.droplet_ip }}'
+          fail_action: false
+
+  # BOX 8: CLEANUP (Always runs if droplet was created)
+  cleanup-droplet:
+    needs: [deploy-temp, dast-scan]
+    if: always() && needs.deploy-temp.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_ACCESS_TOKEN }}
+      - name: Destroy Droplet
+        run: doctl compute droplet delete ${{ needs.deploy-temp.outputs.droplet_id }} --force
+
+  # BOX 10: REGISTRY CLEANUP (Keeps storage < 500MB)
+  prune-registry:
+    needs: [cleanup-droplet]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_ACCESS_TOKEN }}
+      - name: Garbage Collection
+        run: doctl registry garbage-collection start --include-untagged-manifests --force
