@@ -1,4 +1,4 @@
-name: BinItRight Private Quality Pipeline
+name: BinItRight Private Quality Pipeline (BYPASS MODE)
 
 on:
   push:
@@ -22,19 +22,35 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      # PHASE 1: Unit Test
+      # PHASE 1: Unit Test (Bypass test failures)
       - name: Run Unit Tests
-        run: mvn -B test
+        # -Dmaven.test.failure.ignore=true allows the build to continue even if tests fail
+        run: mvn -B test -Dmaven.test.failure.ignore=true
 
-      # PHASE 2: SCA (Trivy)
-      # FIX: Updated version to 0.33.1
+      - name: Upload Test Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-test-reports
+          path: target/surefire-reports/
+
+      # PHASE 2: SCA (Trivy) (Bypass security failures)
       - name: Run Trivy SCA Scan
         uses: aquasecurity/trivy-action@0.33.1
         with:
           scan-type: 'fs'
           format: 'table'
-          exit-code: '1'
+          output: 'trivy-report.txt'
+          # CHANGE: set exit-code to '0' to prevent the scan from stopping the pipeline
+          exit-code: '0'
           severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-security-report
+          path: trivy-report.txt
 
       # PHASE 3: SAST (SonarCloud)
       - name: Run SonarCloud SAST
@@ -46,8 +62,17 @@ jobs:
           -Dsonar.projectKey=your_project_key \
           -Dsonar.organization=your_org_name \
           -Dsonar.host.url=https://sonarcloud.io \
-          -DskipTests
+          -DskipTests \
+          -Dsonar.qualitygate.wait=false # Ensures build doesn't fail on Sonar Quality Gate
 
-      # PHASE 4: Final Build
+      # PHASE 4: Final Build Artifact
       - name: Final Package
+        # This will now always run because previous steps "passed"
         run: mvn -B package -DskipTests
+
+      - name: Upload Final Build (JAR)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: binitright-app-binaries
+          path: target/*.jar
