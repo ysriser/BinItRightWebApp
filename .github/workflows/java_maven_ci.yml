@@ -59,8 +59,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           mvn -B verify sonar:sonar \
-          -Dsonar.projectKey=your_project_key \
-          -Dsonar.organization=your_org_name \
+          -Dsonar.projectKey=yuesheng \
+          -Dsonar.organization=yuesheng \
           -Dsonar.host.url=https://sonarcloud.io \
           -DskipTests \
           -Dsonar.qualitygate.wait=false # Ensures build doesn't fail on Sonar Quality Gate
