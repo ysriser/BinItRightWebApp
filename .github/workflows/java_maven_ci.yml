@@ -120,8 +120,9 @@ jobs:
       - name: Create Temporary Droplet
         id: create-droplet
         run: |
+          # FIX: Use 'docker-20-04' so Docker is pre-installed
           ID=$(doctl compute droplet create temp-dast-${{ github.sha }} \
-            --region nyc1 --size s-1vcpu-1gb --image ubuntu-22-04-x64 \
+            --region nyc1 --size s-1vcpu-1gb --image docker-20-04 \
             --ssh-keys ${{ secrets.SSH_KEY_ID }} --wait --format ID --no-header)
           echo "id=$ID" >> $GITHUB_OUTPUT
       - name: Get Droplet IP
@@ -130,12 +131,10 @@ jobs:
           IP=$(doctl compute droplet get ${{ steps.create-droplet.outputs.id }} --format PublicIPv4 --no-header)
           echo "ip=$IP" >> $GITHUB_OUTPUT
 
-      # NEW: Ensure the droplet is actually ready to talk over SSH
-      - name: Wait for SSH to wake up
+      # WAIT: Ensure SSH and Docker daemon are fully awake
+      - name: Wait for SSH
         run: |
-          for i in {1..10}; do 
-            nc -zv ${{ steps.get-ip.outputs.ip }} 22 && break || sleep 10; 
-          done
+          for i in {1..10}; do nc -zv ${{ steps.get-ip.outputs.ip }} 22 && break || sleep 10; done
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@master
@@ -144,21 +143,30 @@ jobs:
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            # Login as underscore (_) using your PAT as the password
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
             docker run -d -p 80:8080 registry.digitalocean.com/binitright/binitright-app:${{ github.sha }}
 
-  # BOX 7: DAST SCAN
+  # BOX 7: DAST ATTACK & REPORTING
   dast-scan:
     if: github.event_name == 'pull_request'
     needs: deploy-temp
     runs-on: ubuntu-latest
     steps:
       - name: OWASP ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.14.0
+        uses: zaproxy/action-baseline@v0.15.0
         with:
           target: 'http://${{ needs.deploy-temp.outputs.droplet_ip }}'
-          fail_action: false
+          fail_action: false # Keeps the pipeline moving so we can get the report
+
+      # NEW: Captures the security finding reports
+      - name: Upload DAST Report
+        if: always() # Ensures report is saved even if vulnerabilities are found
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-security-findings
+          path: |
+            report_html.html
+            report_json.json
 
   # BOX 8: CLEANUP (Always runs if droplet was created)
   cleanup-droplet:
