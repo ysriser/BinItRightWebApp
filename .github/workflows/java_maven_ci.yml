@@ -1,4 +1,4 @@
-name: BinItRight Quality Pipeline
+name: BinItRight Private Quality Pipeline
 
 on:
   push:
@@ -6,19 +6,14 @@ on:
   pull_request:
     branches: [ "master" ]
 
-permissions:
-  contents: write
-  security-events: write
-  actions: read           # Fixes the telemetry status report error
-
 jobs:
-  quality-gate:
+  pipeline:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Required for SonarCloud to analyze history
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -27,26 +22,32 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      # PHASE 1: Unit Testing
+      # PHASE 1: Unit Test
       - name: Run Unit Tests
         run: mvn -B test
 
-      # PHASE 2: SCA (Dependency Scanning)
-      - name: SCA - Dependency Submission
-        uses: advanced-security/maven-dependency-submission-action@v4
-
-      # PHASE 3: SAST (CodeQL Analysis)
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+      # PHASE 2: SCA (Trivy)
+      # Scans the filesystem/pom.xml. Blocks build on HIGH/CRITICAL flaws.
+      - name: Run Trivy SCA Scan
+        uses: aquasecurity/trivy-action@v0.28.0
         with:
-          languages: java-kotlin
+          scan-type: 'fs'
+          format: 'table'
+          exit-code: '1' # Fails the build if vulnerabilities are found
+          severity: 'CRITICAL,HIGH'
 
-      # 'clean compile' ensures CodeQL extracts all source code correctly
-      - name: Build for SAST Analysis
-        run: mvn -B clean compile -DskipTests
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+      # PHASE 3: SAST (SonarCloud)
+      # You must replace YOUR_PROJECT_KEY and YOUR_ORG_NAME
+      - name: Run SonarCloud SAST
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          mvn -B verify sonar:sonar \
+          -Dsonar.projectKey=yuesheng \
+          -Dsonar.organization=yuesheng \
+          -Dsonar.host.url=https://sonarcloud.io \
+          -DskipTests
 
       # PHASE 4: Final Build
       - name: Final Package
