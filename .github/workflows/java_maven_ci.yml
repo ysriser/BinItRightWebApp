@@ -50,37 +50,35 @@ jobs:
           name: sca-scan-results
           path: trivy-results.txt
 
-  # BOX 3: SAST (Code Quality & Security)
+  # BOX 3: SAST (Code Security Enforcer - Semgrep)
   sast-scan:
+    name: SAST (Semgrep)
     needs: sca-scan
     runs-on: ubuntu-latest
+    # We use the official Semgrep image to ensure all rulesets are available
+    container:
+      image: returntocorp/semgrep
+    permissions:
+      security-events: write # Required if you want to see results in GitHub Security tab
+      contents: read
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Run SonarCloud
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          # We run the scan and ensure the quality gate is enforced
-          mvn -B verify sonar:sonar \
-          -Dsonar.projectKey=BinItRight \
-          -Dsonar.organization=binitright \
-          -Dsonar.host.url=https://sonarcloud.io \
-          -DskipTests \
-          -Dsonar.qualitygate.wait=true 
 
-      # NEW: This captures the internal Sonar analysis files and logs
-      # into a downloadable "report" folder
-      - name: Archive SAST Analysis Results
+      - name: Run Semgrep Scan
+        run: |
+          # 'auto' detects Java/Spring and applies the best rulesets automatically
+          # We generate JSON for the artifact and SARIF for the GitHub UI
+          semgrep scan --config auto --json --output semgrep-results.json
+          semgrep scan --config auto --sarif --output semgrep-results.sarif
+
+      - name: Upload SAST Artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: sast-sonar-report
+          name: java-sast-results
           path: |
-            target/sonar/report-task.txt
-            target/site/sonar/
+            semgrep-results.json
+            semgrep-results.sarif
 
   # BOX 4: THE BINARY BUILD
   build:
