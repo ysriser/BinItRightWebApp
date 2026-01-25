@@ -50,7 +50,7 @@ jobs:
           name: sca-scan-results
           path: trivy-results.txt
 
-  # BOX 3: SAST (Added Artifacts)
+  # BOX 3: SAST (Code Quality & Security)
   sast-scan:
     needs: sca-scan
     runs-on: ubuntu-latest
@@ -63,20 +63,24 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
+          # We run the scan and ensure the quality gate is enforced
           mvn -B verify sonar:sonar \
           -Dsonar.projectKey=BinItRight \
           -Dsonar.organization=binitright \
           -Dsonar.host.url=https://sonarcloud.io \
           -DskipTests \
-          -Dsonar.qualitygate.wait=true # Wait for analysis to finish
+          -Dsonar.qualitygate.wait=true 
 
-      # CAPTURE: Since SAST is on SonarCloud, we capture the analysis logs
-      - name: Upload SAST Scan Summary
+      # NEW: This captures the internal Sonar analysis files and logs
+      # into a downloadable "report" folder
+      - name: Archive SAST Analysis Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: sast-sonar-logs
-          path: target/sonar/
+          name: sast-sonar-report
+          path: |
+            target/sonar/report-task.txt
+            target/site/sonar/
 
   # BOX 4: THE BINARY BUILD
   build:
@@ -98,7 +102,7 @@ jobs:
           name: binitright-app-binaries
           path: target/*.jar
 
-  # BOX 5: DOCKER PACKAGING (Remains Same)
+  # BOX 5: DOCKER PACKAGING
   docker-build:
     if: github.event_name == 'pull_request' || github.ref == 'refs/heads/master'
     needs: build
@@ -116,15 +120,15 @@ jobs:
           registry: registry.digitalocean.com
           username: _
           password: ${{ secrets.DO_ACCESS_TOKEN }}
-      - name: Build and Push
+      - name: Build and Push (Shared Repository Hack)
         run: |
           REG=registry.digitalocean.com/binitright/binitright-app
-          docker build -t $REG:latest .
-          docker tag $REG:latest $REG:${{ github.sha }}
-          docker push $REG:latest
-          docker push $REG:${{ github.sha }}
+          docker build -t $REG:java-latest .
+          docker tag $REG:java-latest $REG:java-${{ github.sha }}
+          docker push $REG:java-latest
+          docker push $REG:java-${{ github.sha }}
 
-  # BOX 6: TRANSIENT DEPLOY (Remains Same)
+  # BOX 6: TRANSIENT DEPLOY
   deploy-temp:
     if: github.event_name == 'pull_request'
     needs: docker-build
@@ -162,7 +166,12 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
-            docker run -d -p 80:8080 registry.digitalocean.com/binitright/binitright-app:${{ github.sha }}
+            # Stop and remove any old version to prevent port 80 conflicts
+            docker stop binitright-java || true
+            docker rm binitright-java || true
+            # Pull and run the specific JAVA tag
+            docker pull registry.digitalocean.com/binitright/binitright-app:java-${{ github.sha }}
+            docker run -d --name binitright-java -p 80:8080 registry.digitalocean.com/binitright/binitright-app:java-${{ github.sha }}
 
   # BOX 7: DAST ATTACK & REPORTING (Remains Same)
   dast-scan:
@@ -212,3 +221,26 @@ jobs:
           token: ${{ secrets.DO_ACCESS_TOKEN }}
       - name: Garbage Collection
         run: doctl registry garbage-collection start --include-untagged-manifests --force
+
+  deploy-production:
+    name: 🚀 Production Deploy
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    needs: [ docker-build ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Prod via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_IP }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
+            docker stop binitright-java-prod || true
+            docker rm binitright-java-prod || true
+            docker pull registry.digitalocean.com/binitright/binitright-app:java-latest
+            docker run -d \
+              --name binitright-java-prod \
+              --restart always \
+              -p 8080:8080 \
+              registry.digitalocean.com/binitright/binitright-app:java-latest
