@@ -1,0 +1,244 @@
+name: BinItRight Ultimate DO Pipeline
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  # BOX 1: UNIT TESTING (Added Artifacts)
+  unit-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+      - name: Run Unit Tests
+        run: mvn -B test -Dmaven.test.failure.ignore=true
+
+      # CAPTURE: Saves test result XMLs and reports
+      - name: Upload Unit Test Reports
+        if: always() # Ensures reports are uploaded even if tests fail
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-reports
+          path: target/surefire-reports/
+
+  # BOX 2: SCA (Added Artifacts)
+  sca-scan:
+    needs: unit-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Trivy SCA
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: 'fs'
+          format: 'table'
+          output: 'trivy-results.txt' # NEW: Saves table to a file
+          exit-code: '0'
+
+      # CAPTURE: Saves the security scan findings
+      - name: Upload SCA Scan Findings
+        uses: actions/upload-artifact@v4
+        with:
+          name: sca-scan-results
+          path: trivy-results.txt
+
+  # BOX 3: SAST (Code Security Enforcer - Semgrep)
+  sast-scan:
+    name: SAST (Semgrep)
+    needs: sca-scan
+    runs-on: ubuntu-latest
+    # We use the official Semgrep image to ensure all rulesets are available
+    container:
+      image: returntocorp/semgrep
+    permissions:
+      security-events: write # Required if you want to see results in GitHub Security tab
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Semgrep Scan
+        run: |
+          # 'auto' detects Java/Spring and applies the best rulesets automatically
+          # We generate JSON for the artifact and SARIF for the GitHub UI
+          semgrep scan --config auto --json --output semgrep-results.json
+          semgrep scan --config auto --sarif --output semgrep-results.sarif
+
+      - name: Upload SAST Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-sast-results
+          path: |
+            semgrep-results.json
+            semgrep-results.sarif
+
+  # BOX 4: THE BINARY BUILD
+  build:
+    needs: sast-scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+      - name: Final Package
+        run: mvn -B package -DskipTests
+      - name: Upload JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: binitright-app-binaries
+          path: target/*.jar
+
+  # BOX 5: DOCKER PACKAGING
+  docker-build:
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/master'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: binitright-app-binaries
+          path: target/
+      - name: Login to DigitalOcean Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: registry.digitalocean.com
+          username: _
+          password: ${{ secrets.DO_ACCESS_TOKEN }}
+      - name: Build and Push (Shared Repository Hack)
+        run: |
+          REG=registry.digitalocean.com/binitright/binitright-app
+          docker build -t $REG:java-latest .
+          docker tag $REG:java-latest $REG:java-${{ github.sha }}
+          docker push $REG:java-latest
+          docker push $REG:java-${{ github.sha }}
+
+  # BOX 6: TRANSIENT DEPLOY
+  deploy-temp:
+    if: github.event_name == 'pull_request'
+    needs: docker-build
+    runs-on: ubuntu-latest
+    outputs:
+      droplet_ip: ${{ steps.get-ip.outputs.ip }}
+      droplet_id: ${{ steps.create-droplet.outputs.id }}
+    steps:
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_ACCESS_TOKEN }}
+      - name: Create Temporary Droplet
+        id: create-droplet
+        run: |
+          ID=$(doctl compute droplet create temp-dast-${{ github.sha }} \
+            --region nyc1 --size s-1vcpu-1gb --image docker-20-04 \
+            --ssh-keys ${{ secrets.SSH_KEY_ID }} --wait --format ID --no-header)
+          echo "id=$ID" >> $GITHUB_OUTPUT
+      - name: Get Droplet IP
+        id: get-ip
+        run: |
+          IP=$(doctl compute droplet get ${{ steps.create-droplet.outputs.id }} --format PublicIPv4 --no-header)
+          echo "ip=$IP" >> $GITHUB_OUTPUT
+      - name: Wait for SSH to wake up
+        run: |
+          for i in {1..10}; do 
+            nc -zv ${{ steps.get-ip.outputs.ip }} 22 && break || sleep 10; 
+          done
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ steps.get-ip.outputs.ip }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
+            # Stop and remove any old version to prevent port 80 conflicts
+            docker stop binitright-java || true
+            docker rm binitright-java || true
+            # Pull and run the specific JAVA tag
+            docker pull registry.digitalocean.com/binitright/binitright-app:java-${{ github.sha }}
+            docker run -d --name binitright-java -p 80:8080 registry.digitalocean.com/binitright/binitright-app:java-${{ github.sha }}
+
+  # BOX 7: DAST ATTACK & REPORTING (Remains Same)
+  dast-scan:
+    if: github.event_name == 'pull_request'
+    needs: deploy-temp
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    steps:
+      - name: OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.15.0
+        with:
+          target: 'http://${{ needs.deploy-temp.outputs.droplet_ip }}'
+          fail_action: false
+      - name: Upload DAST Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-security-findings
+          path: |
+            report_html.html
+            report_json.json
+
+  # BOX 8: CLEANUP (Remains Same)
+  cleanup-droplet:
+    needs: [deploy-temp, dast-scan]
+    if: always() && needs.deploy-temp.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_ACCESS_TOKEN }}
+      - name: Destroy Droplet
+        run: doctl compute droplet delete ${{ needs.deploy-temp.outputs.droplet_id }} --force
+
+  # BOX 10: REGISTRY CLEANUP (Remains Same)
+  prune-registry:
+    needs: [cleanup-droplet]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_ACCESS_TOKEN }}
+      - name: Garbage Collection
+        run: doctl registry garbage-collection start --include-untagged-manifests --force
+
+  deploy-production:
+    name: 🚀 Production Deploy
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    needs: [ docker-build ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Prod via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_IP }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
+            docker stop binitright-java-prod || true
+            docker rm binitright-java-prod || true
+            docker pull registry.digitalocean.com/binitright/binitright-app:java-latest
+            docker run -d \
+              --name binitright-java-prod \
+              --restart always \
+              -p 8080:8080 \
+              registry.digitalocean.com/binitright/binitright-app:java-latest
