@@ -216,35 +216,36 @@ jobs:
 
   deploy-production:
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      # This step sends BOTH files to the droplet automatically
-      - name: Sync Compose Files
+      # 1. Sync BOTH files to the production droplet
+      - name: Sync Production Files
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.PROD_IP }}
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "docker-compose.yml,docker-compose.prod.yml"
-          target: "/root/binitright-stack/"
+          target: "/root/binitright-prod/"
 
-      - name: Deploy via SSH
+      # 2. Deploy with Production Overrides (MERGE)
+      - name: Deploy Production Stack
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.PROD_IP }}
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /root/binitright-stack/
-            docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
-            
-            # Set the variables
+            cd /root/binitright-prod/
             export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             export DB_ACTION=update
             export JAVA_PORT=8080
             export JAVA_IMAGE=registry.digitalocean.com/binitright/binitright-app:java-latest
             
-            # THE MAGIC LINE: Docker merges both files in the order they are listed
+            docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
+            
+            # MERGE: -f base -f prod
             docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --pull always
