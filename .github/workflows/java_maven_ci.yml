@@ -128,7 +128,7 @@ jobs:
 
   deploy-temp:
     if: github.event_name == 'pull_request'
-    needs: build
+    needs: docker-build
     runs-on: ubuntu-latest
     outputs:
       droplet_ip: ${{ steps.get-ip.outputs.ip }}
@@ -149,7 +149,6 @@ jobs:
           source: "docker-compose.yml"
           target: "/root/"
 
-      # 3. Deploy without production overrides
       - name: Deploy Transient Stack
         uses: appleboy/ssh-action@master
         with:
@@ -164,6 +163,10 @@ jobs:
             
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
             docker compose -f docker-compose.yml up -d
+            
+            # CRITICAL: Wait for Spring Boot to finish booting and connect to DB
+            echo "Waiting for services to stabilize..."
+            sleep 30
 
   # BOX 7: DAST ATTACK & REPORTING (Remains Same)
   dast-scan:
@@ -216,7 +219,7 @@ jobs:
 
   deploy-production:
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-    needs: build
+    needs: docker-build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
