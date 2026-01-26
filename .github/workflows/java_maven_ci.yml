@@ -238,7 +238,6 @@ jobs:
           command_timeout: 5m    # Gives the untar process more time
           use_insecure_cipher: true # Sometimes helps with older SSH handshakes during high load
 
-      # 2. Deploy with Production Overrides (MERGE)
       - name: Deploy Production Stack
         uses: appleboy/ssh-action@master
         with:
@@ -247,6 +246,11 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /root/binitright-prod/
+            
+            # --- NEW: Force kill any container using 8080 that isn't part of this stack ---
+            docker ps -q --filter "publish=8080" | xargs -r docker stop
+            docker ps -q --filter "publish=8080" | xargs -r docker rm
+            
             export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             export DB_ACTION=update
             export JAVA_PORT=8080
@@ -254,5 +258,5 @@ jobs:
             
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
             
-            # MERGE: -f base -f prod
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --pull always
+            # The --remove-orphans flag is key here!
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --pull always --remove-orphans
