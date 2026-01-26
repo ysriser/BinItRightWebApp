@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  db:
+    restart: always
+    volumes:
+      - mysql_prod_data:/var/lib/mysql # Persistent storage
+
+  java-app:
+    restart: always
+
+volumes:
+  mysql_prod_data:
