@@ -1,6 +1,8 @@
 version: '3.8'
 services:
   db:
+    ports:
+      - "3306:3306"  # <--- Add this line
     restart: always
     volumes:
       - mysql_prod_data:/var/lib/mysql # Persistent storage
