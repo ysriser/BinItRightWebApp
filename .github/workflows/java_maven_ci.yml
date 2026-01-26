@@ -221,24 +221,35 @@ jobs:
         run: doctl registry garbage-collection start --include-untagged-manifests --force
 
   deploy-production:
-    name: 🚀 Production Deploy
+    name: 🚀 Production Deploy (Compose)
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-    needs: [ docker-build ]
+    needs: [docker-build]
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to Prod via SSH
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Copy Compose file to Droplet
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.PROD_IP }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "docker-compose.yml"
+          target: "/root/binitright-java/"
+
+      - name: Execute Deploy via SSH
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.PROD_IP }}
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            cd /root/binitright-java/
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
-            docker stop binitright-java-prod || true
-            docker rm binitright-java-prod || true
-            docker pull registry.digitalocean.com/binitright/binitright-app:java-latest
-            docker run -d \
-              --name binitright-java-prod \
-              --restart always \
-              -p 8080:8080 \
-              registry.digitalocean.com/binitright/binitright-app:java-latest
+            
+            # Use environment variables so we don't leak passwords in the file
+            export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            
+            docker compose pull
+            docker compose up -d --remove-orphans

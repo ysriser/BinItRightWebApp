@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  # --- The Database Service ---
+  db-prod:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: binitright_prod
+    volumes:
+      - mysql_data:/var/lib/mysql
+    # No ports exposed! The App talks to it internally over the network.
+
+  # --- Your Java Application ---
+  app-java:
+    image: registry.digitalocean.com/binitright/binitright-app:java-latest
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db-prod:3306/binitright_prod
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      - db-prod
+
+volumes:
+  mysql_data:
