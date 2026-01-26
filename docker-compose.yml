@@ -5,6 +5,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: binitright_db
+      MYSQL_USER: my_app_user
+      MYSQL_PASSWORD: ${DB_PASSWORD}
 
   java-app:
     image: ${JAVA_IMAGE}
