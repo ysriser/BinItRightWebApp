@@ -233,6 +233,10 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "docker-compose.yml,docker-compose.prod.yml"
           target: "/root/binitright-prod/"
+            # --- ADD THESE THREE LINES ---
+          timeout: 120s          # Gives the server 2 minutes to respond
+          command_timeout: 5m    # Gives the untar process more time
+          use_insecure_cipher: true # Sometimes helps with older SSH handshakes during high load
 
       # 2. Deploy with Production Overrides (MERGE)
       - name: Deploy Production Stack
