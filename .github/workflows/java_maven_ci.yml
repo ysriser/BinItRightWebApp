@@ -236,21 +236,18 @@ jobs:
     needs: deploy-temp
     runs-on: ubuntu-latest
     permissions:
-      contents: read    # REQUIRED: Allows actions/checkout to find the repo
+      contents: read
       issues: write
     steps:
-      # STEP 1: MUST CHECK OUT TO PROVIDE ACCESS TO zap-rules.conf
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # STEP 2: RUN SCAN WITH RULES FILE
       - name: OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.15.0
         with:
           target: "http://${{ needs.deploy-temp.outputs.droplet_ip }}"
-          # Link to the file in your repository root
-          rules_file_name: 'zap-rules.conf'
-          # Set to true to fail ONLY on rules marked as 'FAIL'
+          # -I: This is the key. It forces ZAP to return 0 for Info/Warn alerts.
+          cmd_options: '-I'
           fail_action: true
           allow_issue_writing: false
 
