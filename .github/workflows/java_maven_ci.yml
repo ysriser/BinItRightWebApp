@@ -210,6 +210,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "docker-compose.yml" # This file now exists thanks to the checkout step
           target: "/root/"
+          timeout: 120s
 
       - name: Deploy Java Stack via SSH
         uses: appleboy/ssh-action@master
