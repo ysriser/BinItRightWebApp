@@ -169,6 +169,9 @@ jobs:
       droplet_ip: ${{ steps.get-ip.outputs.ip }}
       droplet_id: ${{ steps.create-droplet.outputs.id }}
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4 # CRITICAL: Downloads docker-compose.yml for SCP
+
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
         with:
@@ -199,12 +202,13 @@ jobs:
           done
           exit 1
 
-      - uses: appleboy/scp-action@master
+      - name: Sync Compose File
+        uses: appleboy/scp-action@master
         with:
           host: ${{ steps.get-ip.outputs.ip }}
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "docker-compose.yml"
+          source: "docker-compose.yml" # This file now exists thanks to the checkout step
           target: "/root/"
 
       - name: Deploy Java Stack via SSH
@@ -267,7 +271,7 @@ jobs:
         run: doctl compute droplet delete ${{ needs.deploy-temp.outputs.droplet_id }} --force
 
   # ==========================================
-  # BOX 8: PRODUCTION DEPLOY
+  # BOX 8: PRODUCTION DEPLOY (Fixed)
   # ==========================================
   deploy-production:
     name: Production Deploy
@@ -275,7 +279,9 @@ jobs:
     needs: [docker-build]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4 # CRITICAL: Downloads both compose files for SCP
+
       - name: Sync Production Files
         uses: appleboy/scp-action@master
         with:
