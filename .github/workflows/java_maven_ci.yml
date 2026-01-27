@@ -138,6 +138,13 @@ jobs:
           username: _
           password: ${{ secrets.DO_ACCESS_TOKEN }}
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          # This automatically switches to the 'docker-container' driver
+          # which supports GHA cache export.
+          driver: docker-container
+
       - name: Build and Push
         uses: docker/build-push-action@v5
         with:
