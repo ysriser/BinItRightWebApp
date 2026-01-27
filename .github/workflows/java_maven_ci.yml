@@ -332,28 +332,28 @@ jobs:
         run: |
           # 1. Fetch tags - handles empty registry gracefully
           RAW_TAGS=$(doctl registry repository list-tags binitright-app --format Tag,UpdatedAt --no-header || echo "")
-
+          
           if [ -z "$RAW_TAGS" ]; then
             echo "No tags found. Skipping prune."
             exit 0
           fi
-
-          # 2. Filter for java- prefix, sort newest first, skip TOP 5
-          # NR>5 tells awk to only print lines after the 5th one.
+          
+          # 2. Filter for java- prefix, sort newest first (reverse), skip TOP 5
           TAGS_TO_DELETE=$(echo "$RAW_TAGS" | grep "^java-" | sort -k2 -r | awk 'NR>5 {print $1}')
-
+          
           echo "Found tags to prune: $TAGS_TO_DELETE"
-
+          
           if [ -z "$TAGS_TO_DELETE" ]; then
             echo "Registry is already clean (5 or fewer Java tags)."
             exit 0
           fi
-
-          # 3. Deletion Loop (Removed --force as it's unsupported)
+          
+          # 3. Deletion Loop
           for TAG in $TAGS_TO_DELETE; do
             # SAFETY: Never delete 'latest' or the specific SHA we just pushed
             if [[ "$TAG" != "java-latest" && "$TAG" != "java-${{ github.sha }}" ]]; then
               echo "Pruning old tag: $TAG"
-              doctl registry repository delete-tag binitright-app $TAG 
+              # The --force flag is required here for non-interactive deletion
+              doctl registry repository delete-tag binitright-app "$TAG" --force
             fi
           done
