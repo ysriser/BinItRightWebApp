@@ -1,14 +1,24 @@
 version: '3.8'
 services:
   db:
-    ports:
-      - "0.0.0.0:3306:3306"
+    # No ports section here! Keep it private.
     restart: always
+    environment:
+      MYSQL_DATABASE: binitright_db
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
-      - mysql_prod_data:/var/lib/mysql # Persistent storage
+      - mysql_prod_data:/var/lib/mysql
 
   java-app:
     restart: always
+    # This ensures that if the DB restarts, the app waits for it to be 'healthy'
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   mysql_prod_data:

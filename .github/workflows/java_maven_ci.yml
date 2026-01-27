@@ -1,132 +1,160 @@
-name: BinItRight Ultimate DO Pipeline
+name: BinItRight Java Spring CICD Pipeline
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["**"]
   pull_request:
-    branches: [ "master" ]
+    branches: ["master"]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
 
 jobs:
-  # BOX 1: UNIT TESTING (Added Artifacts)
-  unit-test:
+  # ==========================================
+  # BOX 1: QUALITY & LOGIC (MySQL Integrated)
+  # ==========================================
+  quality-checks:
+    name: Build & Test
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.event.pull_request == null || github.ref == 'refs/heads/master'
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: binitright_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
-      - name: Run Unit Tests
-        run: mvn -B test -Dmaven.test.failure.ignore=true
 
-      # CAPTURE: Saves test result XMLs and reports
-      - name: Upload Unit Test Reports
-        if: always() # Ensures reports are uploaded even if tests fail
+      - name: Maven Verify (Unit & Integration)
+        run: mvn -B verify
+        env:
+          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/binitright_test
+          SPRING_DATASOURCE_USERNAME: root
+          SPRING_DATASOURCE_PASSWORD: root
+
+      - name: Upload Test Results
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: unit-test-reports
+          name: java-unit-reports
           path: target/surefire-reports/
 
-  # BOX 2: SCA (Added Artifacts)
+  # ==========================================
+  # BOX 2: SCA (Dependency Security)
+  # ==========================================
   sca-scan:
-    needs: unit-test
+    name: SCA (Trivy)
+    needs: [quality-checks]
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.event.pull_request == null || github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v4
+
       - name: Run Trivy SCA
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'fs'
-          format: 'table'
-          output: 'trivy-results.txt' # NEW: Saves table to a file
-          exit-code: '0'
+          scan-type: "fs"
+          format: "table"
+          output: "sca-report.txt"
+          exit-code: "1" # Fail the build on critical/high
+          severity: "CRITICAL,HIGH"
 
-      # CAPTURE: Saves the security scan findings
-      - name: Upload SCA Scan Findings
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: sca-scan-results
-          path: trivy-results.txt
+          name: java-sca-results
+          path: sca-report.txt
 
-  # BOX 3: SAST (Code Security Enforcer - Semgrep)
+  # ==========================================
+  # BOX 3: SAST (Code Security Enforcer)
+  # ==========================================
   sast-scan:
     name: SAST (Semgrep)
-    needs: sca-scan
+    needs: [quality-checks, sca-scan]
     runs-on: ubuntu-latest
-    # We use the official Semgrep image to ensure all rulesets are available
+    if: github.event_name == 'pull_request' || github.event.pull_request == null || github.ref == 'refs/heads/master'
     container:
       image: returntocorp/semgrep
-    permissions:
-      security-events: write # Required if you want to see results in GitHub Security tab
-      contents: read
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run Semgrep Scan
+      - name: Run Semgrep
         run: |
-          # 'auto' detects Java/Spring and applies the best rulesets automatically
-          # We generate JSON for the artifact and SARIF for the GitHub UI
           semgrep scan --config auto --json --output semgrep-results.json
-          semgrep scan --config auto --sarif --output semgrep-results.sarif
 
       - name: Upload SAST Artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: java-sast-results
-          path: |
-            semgrep-results.json
-            semgrep-results.sarif
+          path: semgrep-results.json
 
-  # BOX 4: THE BINARY BUILD
-  build:
+      - name: Check for High Risks
+        run: |
+          if grep -q '"severity": "ERROR"' semgrep-results.json; then
+            echo "HIGH SEVERITY VULNERABILITIES DETECTED"
+            exit 1
+          fi
+
+  # ==========================================
+  # BOX 4: SHARED REGISTRY BUILD
+  # ==========================================
+  docker-build:
+    name: Shared Build
     needs: sast-scan
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.event.pull_request == null || github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
-      - name: Final Package
-        run: mvn -B package -DskipTests
-      - name: Upload JAR
-        uses: actions/upload-artifact@v4
-        with:
-          name: binitright-app-binaries
-          path: target/*.jar
 
-  # BOX 5: DOCKER PACKAGING
-  docker-build:
-    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/master'
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download JAR
-        uses: actions/download-artifact@v4
-        with:
-          name: binitright-app-binaries
-          path: target/
-      - name: Login to DigitalOcean Container Registry
+      - name: Package JAR
+        run: mvn -B package -DskipTests
+
+      - name: Login to DigitalOcean Registry
         uses: docker/login-action@v3
         with:
           registry: registry.digitalocean.com
           username: _
           password: ${{ secrets.DO_ACCESS_TOKEN }}
-      - name: Build and Push (Shared Repository Hack)
-        run: |
-          REG=registry.digitalocean.com/binitright/binitright-app
-          docker build -t $REG:java-latest .
-          docker tag $REG:java-latest $REG:java-${{ github.sha }}
-          docker push $REG:java-latest
-          docker push $REG:java-${{ github.sha }}
 
+      - name: Build and Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          provenance: false
+          tags: |
+            registry.digitalocean.com/binitright/binitright-app:java-latest
+            registry.digitalocean.com/binitright/binitright-app:java-${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ==========================================
+  # BOX 5: TRANSIENT DEPLOY
+  # ==========================================
   deploy-temp:
+    name: Deploy to Temp Droplet
     if: github.event_name == 'pull_request'
     needs: docker-build
     runs-on: ubuntu-latest
@@ -134,14 +162,37 @@ jobs:
       droplet_ip: ${{ steps.get-ip.outputs.ip }}
       droplet_id: ${{ steps.create-droplet.outputs.id }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_ACCESS_TOKEN }}
 
-      # 1. Create Temporary Droplet (Existing logic)
-      # ... [Insert your doctl droplet creation logic here] ...
+      - name: Create Temporary Droplet
+        id: create-droplet
+        run: |
+          ID=$(doctl compute droplet create temp-dast-java-${{ github.sha }} \
+            --region nyc1 --size s-1vcpu-1gb --image docker-20-04 \
+            --ssh-keys ${{ secrets.SSH_KEY_ID }} --wait --format ID --no-header)
+          echo "id=$ID" >> $GITHUB_OUTPUT
 
-      # 2. Sync ONLY the base compose file
-      - name: Sync Compose File
-        uses: appleboy/scp-action@master
+      - name: Get Droplet IP
+        id: get-ip
+        run: |
+          IP=$(doctl compute droplet get ${{ steps.create-droplet.outputs.id }} --format PublicIPv4 --no-header)
+          echo "ip=$IP" >> $GITHUB_OUTPUT
+
+      - name: Wait for SSH to wake up
+        run: |
+          for i in {1..20}; do 
+            if nc -zv -w 5 ${{ steps.get-ip.outputs.ip }} 22; then
+              sleep 15
+              exit 0
+            fi
+            sleep 5
+          done
+          exit 1
+
+      - uses: appleboy/scp-action@master
         with:
           host: ${{ steps.get-ip.outputs.ip }}
           username: root
@@ -149,7 +200,7 @@ jobs:
           source: "docker-compose.yml"
           target: "/root/"
 
-      - name: Deploy Transient Stack
+      - name: Deploy Java Stack via SSH
         uses: appleboy/ssh-action@master
         with:
           host: ${{ steps.get-ip.outputs.ip }}
@@ -160,71 +211,64 @@ jobs:
             export DB_ACTION=create-drop
             export JAVA_PORT=80
             export JAVA_IMAGE=registry.digitalocean.com/binitright/binitright-app:java-${{ github.sha }}
-            
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
-            docker compose -f docker-compose.yml up -d
-            
-            # CRITICAL: Wait for Spring Boot to finish booting and connect to DB
-            echo "Waiting for services to stabilize..."
+            docker compose -f /root/docker-compose.yml up -d
             sleep 30
 
-  # BOX 7: DAST ATTACK & REPORTING (Remains Same)
+  # ==========================================
+  # BOX 6: DAST ATTACK (ZAP Baseline)
+  # ==========================================
   dast-scan:
+    name: DAST (ZAP Attack)
     if: github.event_name == 'pull_request'
     needs: deploy-temp
     runs-on: ubuntu-latest
     permissions:
       issues: write
-      contents: read
     steps:
       - name: OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.15.0
         with:
-          target: 'http://${{ needs.deploy-temp.outputs.droplet_ip }}'
-          fail_action: false
-      - name: Upload DAST Report
+          target: "http://${{ needs.deploy-temp.outputs.droplet_ip }}"
+          fail_action: true
+          allow_issue_writing: false
+
+      - name: Upload DAST Findings
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: zap-security-findings
+          name: java-zap-report
           path: |
             report_html.html
             report_json.json
 
-  # BOX 8: CLEANUP (Remains Same)
-  cleanup-droplet:
+  # ==========================================
+  # BOX 7: CLEANUP
+  # ==========================================
+  cleanup:
+    name: Cleanup Droplet
     needs: [deploy-temp, dast-scan]
-    if: always() && needs.deploy-temp.result == 'success'
+    if: always() && github.ref != 'refs/heads/master' && needs.deploy-temp.outputs.droplet_id != ''
     runs-on: ubuntu-latest
     steps:
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DO_ACCESS_TOKEN }}
+
       - name: Destroy Droplet
         run: doctl compute droplet delete ${{ needs.deploy-temp.outputs.droplet_id }} --force
 
-  # BOX 10: REGISTRY CLEANUP (Remains Same)
-  prune-registry:
-    needs: [cleanup-droplet]
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install doctl
-        uses: digitalocean/action-doctl@v2
-        with:
-          token: ${{ secrets.DO_ACCESS_TOKEN }}
-      - name: Garbage Collection
-        run: doctl registry garbage-collection start --include-untagged-manifests --force
-
+  # ==========================================
+  # BOX 8: PRODUCTION DEPLOY
+  # ==========================================
   deploy-production:
+    name: Production Deploy
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-    needs: docker-build
+    needs: [docker-build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      # 1. Sync BOTH files to the production droplet
       - name: Sync Production Files
         uses: appleboy/scp-action@master
         with:
@@ -233,10 +277,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "docker-compose.yml,docker-compose.prod.yml"
           target: "/root/binitright-prod/"
-            # --- ADD THESE THREE LINES ---
-          timeout: 120s          # Gives the server 2 minutes to respond
-          command_timeout: 5m    # Gives the untar process more time
-          use_insecure_cipher: true # Sometimes helps with older SSH handshakes during high load
+          timeout: 120s
 
       - name: Deploy Production Stack
         uses: appleboy/ssh-action@master
@@ -246,17 +287,34 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /root/binitright-prod/
-            
-            # --- NEW: Force kill any container using 8080 that isn't part of this stack ---
-            docker ps -q --filter "publish=8080" | xargs -r docker stop
-            docker ps -q --filter "publish=8080" | xargs -r docker rm
-            
             export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             export DB_ACTION=update
             export JAVA_PORT=8080
             export JAVA_IMAGE=registry.digitalocean.com/binitright/binitright-app:java-latest
-            
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
-            
-            # The --remove-orphans flag is key here!
             docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --pull always --remove-orphans
+
+  # ==========================================
+  # BOX 9: TARGETED JAVA CLEANUP
+  # ==========================================
+  registry-maintenance:
+    name: Prune Java Tags
+    needs: [docker-build, deploy-production, cleanup]
+    if: always() && needs.docker-build.result == 'success' && !cancelled()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_ACCESS_TOKEN }}
+
+      - name: Delete Old Java Tags (Keep 5)
+        run: |
+          RAW_TAGS=$(doctl registry repository list-tags binitright-app --format Tag,UpdatedAt --no-header || echo "")
+          if [ -z "$RAW_TAGS" ]; then exit 0; fi
+          TAGS_TO_DELETE=$(echo "$RAW_TAGS" | grep "^java-" | sort -k2 -r | awk 'NR>5 {print $1}')
+          for TAG in $TAGS_TO_DELETE; do
+            if [[ "$TAG" != "java-latest" && "$TAG" != "java-${{ github.sha }}" ]]; then
+              doctl registry registry delete-tag binitright-app $TAG --force
+            fi
+          done

@@ -5,17 +5,21 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: binitright_db
-      MYSQL_USER: my_app_user
-      MYSQL_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   java-app:
     image: ${JAVA_IMAGE}
     ports:
-      - "${JAVA_PORT}:8080"
+      - "${JAVA_PORT:-8080}:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/binitright_db
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/binitright_db?allowPublicKeyRetrieval=true&useSSL=false
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_JPA_HIBERNATE_DDL_AUTO: ${DB_ACTION}
     depends_on:
-      - db
+      db:
+        condition: service_healthy # Wait for MySQL to be fully ready, not just "started"
