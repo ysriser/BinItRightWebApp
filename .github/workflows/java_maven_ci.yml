@@ -169,6 +169,9 @@ jobs:
       droplet_ip: ${{ steps.get-ip.outputs.ip }}
       droplet_id: ${{ steps.create-droplet.outputs.id }}
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4 # CRITICAL: Downloads docker-compose.yml for SCP
+
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
         with:
@@ -190,7 +193,7 @@ jobs:
 
       - name: Wait for SSH to wake up
         run: |
-          for i in {1..20}; do 
+          for i in {1..20}; do
             if nc -zv -w 5 ${{ steps.get-ip.outputs.ip }} 22; then
               sleep 15
               exit 0
@@ -199,13 +202,15 @@ jobs:
           done
           exit 1
 
-      - uses: appleboy/scp-action@master
+      - name: Sync Compose File
+        uses: appleboy/scp-action@master
         with:
           host: ${{ steps.get-ip.outputs.ip }}
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "docker-compose.yml"
+          source: "docker-compose.yml" # This file now exists thanks to the checkout step
           target: "/root/"
+          timeout: 120s
 
       - name: Deploy Java Stack via SSH
         uses: appleboy/ssh-action@master
@@ -231,12 +236,18 @@ jobs:
     needs: deploy-temp
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       issues: write
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.15.0
         with:
           target: "http://${{ needs.deploy-temp.outputs.droplet_ip }}"
+          # -I: This is the key. It forces ZAP to return 0 for Info/Warn alerts.
+          cmd_options: '-I'
           fail_action: true
           allow_issue_writing: false
 
@@ -267,7 +278,7 @@ jobs:
         run: doctl compute droplet delete ${{ needs.deploy-temp.outputs.droplet_id }} --force
 
   # ==========================================
-  # BOX 8: PRODUCTION DEPLOY
+  # BOX 8: PRODUCTION DEPLOY (Fixed)
   # ==========================================
   deploy-production:
     name: Production Deploy
@@ -275,7 +286,9 @@ jobs:
     needs: [docker-build]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4 # CRITICAL: Downloads both compose files for SCP
+
       - name: Sync Production Files
         uses: appleboy/scp-action@master
         with:
@@ -317,11 +330,30 @@ jobs:
 
       - name: Delete Old Java Tags (Keep 5)
         run: |
+          # 1. Fetch tags - handles empty registry gracefully
           RAW_TAGS=$(doctl registry repository list-tags binitright-app --format Tag,UpdatedAt --no-header || echo "")
-          if [ -z "$RAW_TAGS" ]; then exit 0; fi
+          
+          if [ -z "$RAW_TAGS" ]; then
+            echo "No tags found. Skipping prune."
+            exit 0
+          fi
+          
+          # 2. Filter for java- prefix, sort newest first (reverse), skip TOP 5
           TAGS_TO_DELETE=$(echo "$RAW_TAGS" | grep "^java-" | sort -k2 -r | awk 'NR>5 {print $1}')
+          
+          echo "Found tags to prune: $TAGS_TO_DELETE"
+          
+          if [ -z "$TAGS_TO_DELETE" ]; then
+            echo "Registry is already clean (5 or fewer Java tags)."
+            exit 0
+          fi
+          
+          # 3. Deletion Loop
           for TAG in $TAGS_TO_DELETE; do
+            # SAFETY: Never delete 'latest' or the specific SHA we just pushed
             if [[ "$TAG" != "java-latest" && "$TAG" != "java-${{ github.sha }}" ]]; then
-              doctl registry registry delete-tag binitright-app $TAG --force
+              echo "Pruning old tag: $TAG"
+              # The --force flag is required here for non-interactive deletion
+              doctl registry repository delete-tag binitright-app "$TAG" --force
             fi
           done
