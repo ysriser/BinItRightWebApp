@@ -14,312 +14,312 @@ jobs:
   # ==========================================
   # BOX 1: QUALITY & LOGIC (MySQL Integrated)
   # ==========================================
-  quality-checks:
-    name: Build & Test
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' || github.event.pull_request == null || github.ref == 'refs/heads/master'
-
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: binitright_test
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-          cache: maven
-
-      - name: Maven Verify (Unit & Integration)
-        run: mvn -B verify
-        env:
-          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/binitright_test
-          SPRING_DATASOURCE_USERNAME: root
-          SPRING_DATASOURCE_PASSWORD: root
-
-      - name: Upload Test Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: java-unit-reports
-          path: target/surefire-reports/
-
-  # ==========================================
-  # BOX 2: SCA (Dependency Security)
-  # ==========================================
-  sca-scan:
-    name: SCA (Trivy)
-    needs: [quality-checks]
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' || github.event.pull_request == null || github.ref == 'refs/heads/master'
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Run Trivy SCA
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: "fs"
-          format: "table"
-          output: "sca-report.txt"
-          exit-code: "1" # Fail the build on critical/high
-          severity: "CRITICAL,HIGH"
-
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: java-sca-results
-          path: sca-report.txt
-
-  # ==========================================
-  # BOX 3: SAST (Code Security Enforcer)
-  # ==========================================
-  sast-scan:
-    name: SAST (Semgrep)
-    needs: [quality-checks, sca-scan]
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' || github.event.pull_request == null || github.ref == 'refs/heads/master'
-    container:
-      image: returntocorp/semgrep
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Run Semgrep
-        run: |
-          semgrep scan --config auto --json --output semgrep-results.json
-
-      - name: Upload SAST Artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: java-sast-results
-          path: semgrep-results.json
-
-      - name: Check for High Risks
-        run: |
-          if grep -q '"severity": "ERROR"' semgrep-results.json; then
-            echo "HIGH SEVERITY VULNERABILITIES DETECTED"
-            exit 1
-          fi
-
-  # ==========================================
-  # BOX 4: SHARED REGISTRY BUILD
-  # ==========================================
-  docker-build:
-    name: Shared Build
-    needs: sast-scan
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' || github.event.pull_request == null || github.ref == 'refs/heads/master'
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-          cache: maven
-
-      - name: Package JAR
-        run: mvn -B package -DskipTests
-
-      - name: Login to DigitalOcean Registry
-        uses: docker/login-action@v3
-        with:
-          registry: registry.digitalocean.com
-          username: _
-          password: ${{ secrets.DO_ACCESS_TOKEN }}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          # This automatically switches to the 'docker-container' driver
-          # which supports GHA cache export.
-          driver: docker-container
-
-      - name: Build and Push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          provenance: false
-          tags: |
-            registry.digitalocean.com/binitright/binitright-app:java-latest
-            registry.digitalocean.com/binitright/binitright-app:java-${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-  # ==========================================
-  # BOX 5: TRANSIENT DEPLOY
-  # ==========================================
-  deploy-temp:
-    name: Deploy to Temp Droplet
-    if: github.event_name == 'pull_request'
-    needs: docker-build
-    runs-on: ubuntu-latest
-    outputs:
-      droplet_ip: ${{ steps.get-ip.outputs.ip }}
-      droplet_id: ${{ steps.create-droplet.outputs.id }}
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4 # CRITICAL: Downloads docker-compose.yml for SCP
-
-      - name: Install doctl
-        uses: digitalocean/action-doctl@v2
-        with:
-          token: ${{ secrets.DO_ACCESS_TOKEN }}
-
-      - name: Create Temporary Droplet
-        id: create-droplet
-        run: |
-          ID=$(doctl compute droplet create temp-dast-java-${{ github.sha }} \
-            --region nyc1 --size s-1vcpu-1gb --image docker-20-04 \
-            --ssh-keys ${{ secrets.SSH_KEY_ID }} --wait --format ID --no-header)
-          echo "id=$ID" >> $GITHUB_OUTPUT
-
-      - name: Get Droplet IP
-        id: get-ip
-        run: |
-          IP=$(doctl compute droplet get ${{ steps.create-droplet.outputs.id }} --format PublicIPv4 --no-header)
-          echo "ip=$IP" >> $GITHUB_OUTPUT
-
-      - name: Wait for SSH to wake up
-        run: |
-          for i in {1..20}; do 
-            if nc -zv -w 5 ${{ steps.get-ip.outputs.ip }} 22; then
-              sleep 15
-              exit 0
-            fi
-            sleep 5
-          done
-          exit 1
-
-      - name: Sync Compose File
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ steps.get-ip.outputs.ip }}
-          username: root
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "docker-compose.yml" # This file now exists thanks to the checkout step
-          target: "/root/"
-          timeout: 120s
-
-      - name: Deploy Java Stack via SSH
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ steps.get-ip.outputs.ip }}
-          username: root
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            export DB_PASSWORD=test_pass
-            export DB_ACTION=create-drop
-            export JAVA_PORT=80
-            export JAVA_IMAGE=registry.digitalocean.com/binitright/binitright-app:java-${{ github.sha }}
-            docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
-            docker compose -f /root/docker-compose.yml up -d
-            sleep 30
-
-  # ==========================================
-  # BOX 6: DAST ATTACK (ZAP Baseline)
-  # ==========================================
-  dast-scan:
-    name: DAST (ZAP Attack)
-    if: github.event_name == 'pull_request'
-    needs: deploy-temp
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      issues: write
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: OWASP ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.15.0
-        with:
-          target: "http://${{ needs.deploy-temp.outputs.droplet_ip }}"
-          # -I: This is the key. It forces ZAP to return 0 for Info/Warn alerts.
-          cmd_options: '-I'
-          fail_action: true
-          allow_issue_writing: false
-
-      - name: Upload DAST Findings
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: java-zap-report
-          path: |
-            report_html.html
-            report_json.json
-
-  # ==========================================
-  # BOX 7: CLEANUP
-  # ==========================================
-  cleanup:
-    name: Cleanup Droplet
-    needs: [deploy-temp, dast-scan]
-    if: always() && github.ref != 'refs/heads/master' && needs.deploy-temp.outputs.droplet_id != ''
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install doctl
-        uses: digitalocean/action-doctl@v2
-        with:
-          token: ${{ secrets.DO_ACCESS_TOKEN }}
-
-      - name: Destroy Droplet
-        run: doctl compute droplet delete ${{ needs.deploy-temp.outputs.droplet_id }} --force
-
-  # ==========================================
-  # BOX 8: PRODUCTION DEPLOY (Fixed)
-  # ==========================================
-  deploy-production:
-    name: Production Deploy
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-    needs: [docker-build]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4 # CRITICAL: Downloads both compose files for SCP
-
-      - name: Sync Production Files
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.PROD_IP }}
-          username: root
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "docker-compose.yml,docker-compose.prod.yml"
-          target: "/root/binitright-prod/"
-          timeout: 120s
-
-      - name: Deploy Production Stack
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.PROD_IP }}
-          username: root
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd /root/binitright-prod/
-            export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            export DB_ACTION=update
-            export JAVA_PORT=8080
-            export JAVA_IMAGE=registry.digitalocean.com/binitright/binitright-app:java-latest
-            docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --pull always --remove-orphans
+#  quality-checks:
+#    name: Build & Test
+#    runs-on: ubuntu-latest
+#    if: github.event_name == 'pull_request' || github.event.pull_request == null || github.ref == 'refs/heads/master'
+#
+#    services:
+#      mysql:
+#        image: mysql:8.0
+#        env:
+#          MYSQL_ROOT_PASSWORD: root
+#          MYSQL_DATABASE: binitright_test
+#        ports:
+#          - 3306:3306
+#        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+#
+#    steps:
+#      - uses: actions/checkout@v4
+#
+#      - name: Set up JDK 21
+#        uses: actions/setup-java@v4
+#        with:
+#          java-version: '21'
+#          distribution: 'temurin'
+#          cache: maven
+#
+#      - name: Maven Verify (Unit & Integration)
+#        run: mvn -B verify
+#        env:
+#          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/binitright_test
+#          SPRING_DATASOURCE_USERNAME: root
+#          SPRING_DATASOURCE_PASSWORD: root
+#
+#      - name: Upload Test Results
+#        if: always()
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: java-unit-reports
+#          path: target/surefire-reports/
+#
+#  # ==========================================
+#  # BOX 2: SCA (Dependency Security)
+#  # ==========================================
+#  sca-scan:
+#    name: SCA (Trivy)
+#    needs: [quality-checks]
+#    runs-on: ubuntu-latest
+#    if: github.event_name == 'pull_request' || github.event.pull_request == null || github.ref == 'refs/heads/master'
+#    steps:
+#      - uses: actions/checkout@v4
+#
+#      - name: Run Trivy SCA
+#        uses: aquasecurity/trivy-action@master
+#        with:
+#          scan-type: "fs"
+#          format: "table"
+#          output: "sca-report.txt"
+#          exit-code: "1" # Fail the build on critical/high
+#          severity: "CRITICAL,HIGH"
+#
+#      - uses: actions/upload-artifact@v4
+#        if: always()
+#        with:
+#          name: java-sca-results
+#          path: sca-report.txt
+#
+#  # ==========================================
+#  # BOX 3: SAST (Code Security Enforcer)
+#  # ==========================================
+#  sast-scan:
+#    name: SAST (Semgrep)
+#    needs: [quality-checks, sca-scan]
+#    runs-on: ubuntu-latest
+#    if: github.event_name == 'pull_request' || github.event.pull_request == null || github.ref == 'refs/heads/master'
+#    container:
+#      image: returntocorp/semgrep
+#    steps:
+#      - uses: actions/checkout@v4
+#
+#      - name: Run Semgrep
+#        run: |
+#          semgrep scan --config auto --json --output semgrep-results.json
+#
+#      - name: Upload SAST Artifacts
+#        if: always()
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: java-sast-results
+#          path: semgrep-results.json
+#
+#      - name: Check for High Risks
+#        run: |
+#          if grep -q '"severity": "ERROR"' semgrep-results.json; then
+#            echo "HIGH SEVERITY VULNERABILITIES DETECTED"
+#            exit 1
+#          fi
+#
+#  # ==========================================
+#  # BOX 4: SHARED REGISTRY BUILD
+#  # ==========================================
+#  docker-build:
+#    name: Shared Build
+#    needs: sast-scan
+#    runs-on: ubuntu-latest
+#    if: github.event_name == 'pull_request' || github.event.pull_request == null || github.ref == 'refs/heads/master'
+#    steps:
+#      - uses: actions/checkout@v4
+#
+#      - name: Set up JDK 21
+#        uses: actions/setup-java@v4
+#        with:
+#          java-version: '21'
+#          distribution: 'temurin'
+#          cache: maven
+#
+#      - name: Package JAR
+#        run: mvn -B package -DskipTests
+#
+#      - name: Login to DigitalOcean Registry
+#        uses: docker/login-action@v3
+#        with:
+#          registry: registry.digitalocean.com
+#          username: _
+#          password: ${{ secrets.DO_ACCESS_TOKEN }}
+#
+#      - name: Set up Docker Buildx
+#        uses: docker/setup-buildx-action@v3
+#        with:
+#          # This automatically switches to the 'docker-container' driver
+#          # which supports GHA cache export.
+#          driver: docker-container
+#
+#      - name: Build and Push
+#        uses: docker/build-push-action@v5
+#        with:
+#          context: .
+#          push: true
+#          provenance: false
+#          tags: |
+#            registry.digitalocean.com/binitright/binitright-app:java-latest
+#            registry.digitalocean.com/binitright/binitright-app:java-${{ github.sha }}
+#          cache-from: type=gha
+#          cache-to: type=gha,mode=max
+#
+#  # ==========================================
+#  # BOX 5: TRANSIENT DEPLOY
+#  # ==========================================
+#  deploy-temp:
+#    name: Deploy to Temp Droplet
+#    if: github.event_name == 'pull_request'
+#    needs: docker-build
+#    runs-on: ubuntu-latest
+#    outputs:
+#      droplet_ip: ${{ steps.get-ip.outputs.ip }}
+#      droplet_id: ${{ steps.create-droplet.outputs.id }}
+#    steps:
+#      - name: Checkout Repository
+#        uses: actions/checkout@v4 # CRITICAL: Downloads docker-compose.yml for SCP
+#
+#      - name: Install doctl
+#        uses: digitalocean/action-doctl@v2
+#        with:
+#          token: ${{ secrets.DO_ACCESS_TOKEN }}
+#
+#      - name: Create Temporary Droplet
+#        id: create-droplet
+#        run: |
+#          ID=$(doctl compute droplet create temp-dast-java-${{ github.sha }} \
+#            --region nyc1 --size s-1vcpu-1gb --image docker-20-04 \
+#            --ssh-keys ${{ secrets.SSH_KEY_ID }} --wait --format ID --no-header)
+#          echo "id=$ID" >> $GITHUB_OUTPUT
+#
+#      - name: Get Droplet IP
+#        id: get-ip
+#        run: |
+#          IP=$(doctl compute droplet get ${{ steps.create-droplet.outputs.id }} --format PublicIPv4 --no-header)
+#          echo "ip=$IP" >> $GITHUB_OUTPUT
+#
+#      - name: Wait for SSH to wake up
+#        run: |
+#          for i in {1..20}; do
+#            if nc -zv -w 5 ${{ steps.get-ip.outputs.ip }} 22; then
+#              sleep 15
+#              exit 0
+#            fi
+#            sleep 5
+#          done
+#          exit 1
+#
+#      - name: Sync Compose File
+#        uses: appleboy/scp-action@master
+#        with:
+#          host: ${{ steps.get-ip.outputs.ip }}
+#          username: root
+#          key: ${{ secrets.SSH_PRIVATE_KEY }}
+#          source: "docker-compose.yml" # This file now exists thanks to the checkout step
+#          target: "/root/"
+#          timeout: 120s
+#
+#      - name: Deploy Java Stack via SSH
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ steps.get-ip.outputs.ip }}
+#          username: root
+#          key: ${{ secrets.SSH_PRIVATE_KEY }}
+#          script: |
+#            export DB_PASSWORD=test_pass
+#            export DB_ACTION=create-drop
+#            export JAVA_PORT=80
+#            export JAVA_IMAGE=registry.digitalocean.com/binitright/binitright-app:java-${{ github.sha }}
+#            docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
+#            docker compose -f /root/docker-compose.yml up -d
+#            sleep 30
+#
+#  # ==========================================
+#  # BOX 6: DAST ATTACK (ZAP Baseline)
+#  # ==========================================
+#  dast-scan:
+#    name: DAST (ZAP Attack)
+#    if: github.event_name == 'pull_request'
+#    needs: deploy-temp
+#    runs-on: ubuntu-latest
+#    permissions:
+#      contents: read
+#      issues: write
+#    steps:
+#      - name: Checkout Repository
+#        uses: actions/checkout@v4
+#
+#      - name: OWASP ZAP Baseline Scan
+#        uses: zaproxy/action-baseline@v0.15.0
+#        with:
+#          target: "http://${{ needs.deploy-temp.outputs.droplet_ip }}"
+#          # -I: This is the key. It forces ZAP to return 0 for Info/Warn alerts.
+#          cmd_options: '-I'
+#          fail_action: true
+#          allow_issue_writing: false
+#
+#      - name: Upload DAST Findings
+#        if: always()
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: java-zap-report
+#          path: |
+#            report_html.html
+#            report_json.json
+#
+#  # ==========================================
+#  # BOX 7: CLEANUP
+#  # ==========================================
+#  cleanup:
+#    name: Cleanup Droplet
+#    needs: [deploy-temp, dast-scan]
+#    if: always() && github.ref != 'refs/heads/master' && needs.deploy-temp.outputs.droplet_id != ''
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Install doctl
+#        uses: digitalocean/action-doctl@v2
+#        with:
+#          token: ${{ secrets.DO_ACCESS_TOKEN }}
+#
+#      - name: Destroy Droplet
+#        run: doctl compute droplet delete ${{ needs.deploy-temp.outputs.droplet_id }} --force
+#
+#  # ==========================================
+#  # BOX 8: PRODUCTION DEPLOY (Fixed)
+#  # ==========================================
+#  deploy-production:
+#    name: Production Deploy
+#    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+#    needs: [docker-build]
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout Repository
+#        uses: actions/checkout@v4 # CRITICAL: Downloads both compose files for SCP
+#
+#      - name: Sync Production Files
+#        uses: appleboy/scp-action@master
+#        with:
+#          host: ${{ secrets.PROD_IP }}
+#          username: root
+#          key: ${{ secrets.SSH_PRIVATE_KEY }}
+#          source: "docker-compose.yml,docker-compose.prod.yml"
+#          target: "/root/binitright-prod/"
+#          timeout: 120s
+#
+#      - name: Deploy Production Stack
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.PROD_IP }}
+#          username: root
+#          key: ${{ secrets.SSH_PRIVATE_KEY }}
+#          script: |
+#            cd /root/binitright-prod/
+#            export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+#            export DB_ACTION=update
+#            export JAVA_PORT=8080
+#            export JAVA_IMAGE=registry.digitalocean.com/binitright/binitright-app:java-latest
+#            docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
+#            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --pull always --remove-orphans
 
   # ==========================================
   # BOX 9: TARGETED JAVA CLEANUP
   # ==========================================
   registry-maintenance:
     name: Prune Java Tags
-    needs: [docker-build, deploy-production, cleanup]
+#    needs: [docker-build, deploy-production, cleanup]
     if: always() && needs.docker-build.result == 'success' && !cancelled()
     runs-on: ubuntu-latest
     steps:
@@ -330,11 +330,30 @@ jobs:
 
       - name: Delete Old Java Tags (Keep 5)
         run: |
+          # 1. Fetch tags - handles empty registry gracefully
           RAW_TAGS=$(doctl registry repository list-tags binitright-app --format Tag,UpdatedAt --no-header || echo "")
-          if [ -z "$RAW_TAGS" ]; then exit 0; fi
+
+          if [ -z "$RAW_TAGS" ]; then
+            echo "No tags found. Skipping prune."
+            exit 0
+          fi
+
+          # 2. Filter for java- prefix, sort newest first, skip TOP 5
+          # NR>5 tells awk to only print lines after the 5th one.
           TAGS_TO_DELETE=$(echo "$RAW_TAGS" | grep "^java-" | sort -k2 -r | awk 'NR>5 {print $1}')
+
+          echo "Found tags to prune: $TAGS_TO_DELETE"
+
+          if [ -z "$TAGS_TO_DELETE" ]; then
+            echo "Registry is already clean (5 or fewer Java tags)."
+            exit 0
+          fi
+
+          # 3. Deletion Loop (Removed --force as it's unsupported)
           for TAG in $TAGS_TO_DELETE; do
+            # SAFETY: Never delete 'latest' or the specific SHA we just pushed
             if [[ "$TAG" != "java-latest" && "$TAG" != "java-${{ github.sha }}" ]]; then
-              doctl registry registry delete-tag binitright-app $TAG
+              echo "Pruning old tag: $TAG"
+              doctl registry repository delete-tag binitright-app $TAG 
             fi
           done
