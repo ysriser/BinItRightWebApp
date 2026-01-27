@@ -335,6 +335,6 @@ jobs:
           TAGS_TO_DELETE=$(echo "$RAW_TAGS" | grep "^java-" | sort -k2 -r | awk 'NR>5 {print $1}')
           for TAG in $TAGS_TO_DELETE; do
             if [[ "$TAG" != "java-latest" && "$TAG" != "java-${{ github.sha }}" ]]; then
-              doctl registry registry delete-tag binitright-app $TAG --force
+              doctl registry registry delete-tag binitright-app $TAG
             fi
           done
