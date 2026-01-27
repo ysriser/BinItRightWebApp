@@ -6,8 +6,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.StaticHeadersWriter;
+import org.springframework.boot.web.servlet.server.CookieSameSiteSupplier;
 
-// THIS IS THE MISSING PIECE:
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
@@ -17,22 +17,25 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // Fixes "Absence of Anti-CSRF Tokens"
+                // Fix: Absence of Anti-CSRF Tokens
                 .csrf(withDefaults())
 
                 .headers(headers -> headers
-                        // Fixes "Missing Anti-clickjacking Header"
+                        // Fix: Missing Anti-clickjacking (X-Frame-Options)
                         .frameOptions(frame -> frame.deny())
 
-                        // Fixes "X-Content-Type-Options Header Missing"
+                        // Fix: X-Content-Type-Options Header Missing
                         .contentTypeOptions(withDefaults())
 
-                        // Fixes "Content Security Policy (CSP) Header Not Set"
+                        // Fix: CSP: Failure to Define Directive with No Fallback
                         .contentSecurityPolicy(csp -> csp
-                                .policyDirectives("default-src 'self';")
+                                .policyDirectives("default-src 'self'; frame-ancestors 'none'; form-action 'self';")
                         )
 
-                        // Fixes "Insufficient Site Isolation Against Spectre"
+                        // Fix: Permissions Policy Header Not Set
+                        .addHeaderWriter(new StaticHeadersWriter("Permissions-Policy", "camera=(), microphone=(), geolocation=()"))
+
+                        // Fix: Insufficient Site Isolation (Spectre)
                         .addHeaderWriter(new StaticHeadersWriter("Cross-Origin-Resource-Policy", "same-origin"))
                         .addHeaderWriter(new StaticHeadersWriter("Cross-Origin-Embedder-Policy", "require-corp"))
                         .addHeaderWriter(new StaticHeadersWriter("Cross-Origin-Opener-Policy", "same-origin"))
@@ -42,5 +45,11 @@ public class SecurityConfig {
                 );
 
         return http.build();
+    }
+
+    // Fix: Cookie without SameSite Attribute for JSESSIONID
+    @Bean
+    public CookieSameSiteSupplier applicationCookieSameSiteSupplier() {
+        return CookieSameSiteSupplier.ofLax();
     }
 }
