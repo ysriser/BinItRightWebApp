@@ -320,7 +320,7 @@ jobs:
   registry-maintenance:
     name: Prune Java Tags
 #    needs: [docker-build, deploy-production, cleanup]
-    if: always() && needs.docker-build.result == 'success' && !cancelled()
+#    if: always() && needs.docker-build.result == 'success' && !cancelled()
     runs-on: ubuntu-latest
     steps:
       - name: Install doctl
