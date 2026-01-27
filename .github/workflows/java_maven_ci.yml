@@ -236,6 +236,7 @@ jobs:
     needs: deploy-temp
     runs-on: ubuntu-latest
     permissions:
+      contents: read    # REQUIRED: Allows actions/checkout to find the repo
       issues: write
     steps:
       # STEP 1: MUST CHECK OUT TO PROVIDE ACCESS TO zap-rules.conf
