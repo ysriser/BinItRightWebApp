@@ -63,15 +63,14 @@ jobs:
   sast-scan:
     name: SAST (Semgrep)
     runs-on: ubuntu-latest
+    container:
+      image: returntocorp/semgrep
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run Semgrep
-        uses: returntocorp/semgrep-action@v1
-        with:
-          # Remove 'scan' from the start.
-          # The Action already knows it is doing a scan.
-          args: --config auto --json --output semgrep-results.json
+      - name: Run Semgrep Scan
+        # We run the command exactly as it's meant to be run in the CLI
+        run: semgrep scan --config auto --json --output semgrep-results.json
 
       - name: Upload SAST Artifacts
         if: always()
