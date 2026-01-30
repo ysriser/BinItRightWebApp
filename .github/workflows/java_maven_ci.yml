@@ -69,7 +69,9 @@ jobs:
       - name: Run Semgrep
         uses: returntocorp/semgrep-action@v1
         with:
-          args: scan --config auto --json --output semgrep-results.json
+          # Remove 'scan' from the start.
+          # The Action already knows it is doing a scan.
+          args: --config auto --json --output semgrep-results.json
 
       - name: Upload SAST Artifacts
         if: always()
