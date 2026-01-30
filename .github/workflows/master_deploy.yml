@@ -1,4 +1,4 @@
-name: Master Deployment (The Gauntlet)
+name: Master Deployment
 
 on:
   push:
