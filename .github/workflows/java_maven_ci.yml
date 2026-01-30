@@ -65,11 +65,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Run Semgrep
         uses: returntocorp/semgrep-action@v1
         with:
-          config: auto
-          extraArgs: --json --output semgrep-results.json
+          args: scan --config auto --json --output semgrep-results.json
+
       - name: Upload SAST Artifacts
         if: always()
         uses: actions/upload-artifact@v4
