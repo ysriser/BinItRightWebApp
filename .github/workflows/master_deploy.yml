@@ -62,7 +62,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "docker-compose.yml"
           target: "/root/binitright-test/"
-          timeout: 150s  # MATCHED PROD: Gives the network/disk more time to breathe
+          timeout: 120s  # MATCHED PROD: Gives the network/disk more time to breathe
 
       - name: SSH Deploy to Test
         uses: appleboy/ssh-action@master
@@ -153,7 +153,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "docker-compose.yml,docker-compose.prod.yml"
           target: "/root/binitright-prod/"
-          timeout: 150s  # MATCHED PROD: Gives the network/disk more time to breathe
       - name: SSH Deploy Production
         uses: appleboy/ssh-action@master
         with:
