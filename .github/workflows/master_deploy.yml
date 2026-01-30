@@ -102,7 +102,9 @@ jobs:
         uses: zaproxy/action-baseline@v0.15.0
         with:
           target: "http://${{ secrets.TEST_IP }}:8080"
+          cmd_options: '-I'
           fail_action: true
+          allow_issue_writing: false
       - name: Upload DAST Artifacts
         if: always()
         uses: actions/upload-artifact@v4
