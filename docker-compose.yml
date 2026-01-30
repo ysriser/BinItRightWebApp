@@ -3,20 +3,11 @@ services:
   db:
     image: mysql:8.0
     ports:
+      # Format: [Host IP]:[Host Port]:[Container Port]
       - "127.0.0.1:3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: binitright_db
-    # FIX: Prevent privilege escalation
-    security_opt:
-      - no-new-privileges:true
-    # FIX: Prevent modification of system files
-    read_only: true
-    # Required: MySQL needs writable access to these specific locations to run
-    tmpfs:
-      - /tmp
-      - /var/run/mysqld
-      - /var/lib/mysql-files
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 5s
@@ -32,14 +23,6 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_JPA_HIBERNATE_DDL_AUTO: ${DB_ACTION}
-    # FIX: Prevent privilege escalation
-    security_opt:
-      - no-new-privileges:true
-    # FIX: Prevent modification of system files
-    read_only: true
-    # Required: Java/Tomcat needs to write temporary work files/logs
-    tmpfs:
-      - /tmp
     depends_on:
       db:
-        condition: service_healthy
+        condition: service_healthy # Wait for MySQL to be fully ready, not just "started"
