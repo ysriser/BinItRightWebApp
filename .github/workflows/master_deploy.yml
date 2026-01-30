@@ -1,4 +1,4 @@
-name: Master Deployment (The Gauntlet)
+name: Master Deployment
 
 on:
   push:
@@ -52,16 +52,19 @@ jobs:
     runs-on: ubuntu-latest
     environment: test
     steps:
+      # CRITICAL: This pulls your docker-compose.yml into the runner
+      - uses: actions/checkout@v4
+
       - name: Sync Files (SCP)
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.TEST_IP }}
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          # The tool can now find this file because of the checkout step above
           source: "docker-compose.yml"
           target: "/root/binitright-test/"
-          timeout: 60s  # Increase timeout from default
-          rm: true      # Remove old files before syncing
+
       - name: SSH Deploy
         uses: appleboy/ssh-action@master
         with:
