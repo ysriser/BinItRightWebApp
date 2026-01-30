@@ -59,13 +59,23 @@ jobs:
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            # 1. Set the image variable for Docker Compose
             export JAVA_IMAGE=registry.digitalocean.com/binitright/binitright-app:${{ github.sha }}
+            
+            # 2. Login to the registry on the server
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
-            cd /path/to/your/project
+            
+            # 3. CHANGE THIS to your actual project directory on the server
+            # Use 'pwd' on your server to find the correct path
+            cd /root/binitright-web-app || cd /home/root/binitright-web-app
+            
+            # 4. Pull and update the container
             docker compose pull java-app
             docker compose up -d --no-deps java-app
+            
+            # 5. Cleanup and wait for startup
             docker image prune -f
-            sleep 30
+            sleep 45
 
   # ==========================================
   # BOX 7a: INTEGRATION TESTS
@@ -112,9 +122,16 @@ jobs:
       - name: Wait for App to be Responsive
         run: |
           timeout 300s bash -c 'until curl -sSf http://${{ secrets.TEST_IP }}:8080 > /dev/null; do echo "Waiting for app..."; sleep 5; done'
-
       - name: Run ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.15.0
         with:
           target: "http://${{ secrets.TEST_IP }}:8080"
           fail_action: true
+      - name: Upload DAST Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-dast-results
+          path: |
+            report_html.html
+            report_json.json
