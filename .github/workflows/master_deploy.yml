@@ -80,6 +80,7 @@ jobs:
   # ==========================================
   dast-scan:
     name: DAST Security Scan
+    needs: deploy-test
     runs-on: ubuntu-latest
     steps:
       - name: Wait for App to be Responsive
@@ -98,3 +99,56 @@ jobs:
           path: |
             report_html.html
             report_json.json
+
+  # ==========================================
+  # BOX 7c: TAG FOR PRODUCTION
+  # ==========================================
+  tag-production:
+    name: Tag Production Image
+    needs: dast-scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to DigitalOcean
+        uses: docker/login-action@v3
+        with:
+          registry: registry.digitalocean.com
+          username: _
+          password: ${{ secrets.DO_ACCESS_TOKEN }}
+      - name: Pull, Tag, and Push
+        run: |
+          docker pull registry.digitalocean.com/binitright/binitright-app:${{ github.sha }}
+          docker tag registry.digitalocean.com/binitright/binitright-app:${{ github.sha }} \
+                     registry.digitalocean.com/binitright/binitright-app:production
+          docker push registry.digitalocean.com/binitright/binitright-app:production
+
+  # ==========================================
+  # BOX 8: PRODUCTION RELEASE (PAUSES FOR APPROVAL)
+  # ==========================================
+  deploy-production:
+    name: Production Release
+    needs: tag-production
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sync Production Files (SCP)
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.PROD_IP }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "docker-compose.yml,docker-compose.prod.yml"
+          target: "/root/binitright-prod/"
+      - name: SSH Deploy Production
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_IP }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /root/binitright-prod/
+            export MYSQL_ROOT_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
+            export JAVA_IMAGE=registry.digitalocean.com/binitright/binitright-app:production
+            docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --pull always --remove-orphans java-app
+            docker image prune -f
