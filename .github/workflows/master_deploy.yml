@@ -54,7 +54,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Sync Files (SCP)
+      - name: Sync Test Files (SCP)
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.TEST_IP }}
@@ -62,22 +62,29 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "docker-compose.yml"
           target: "/root/binitright-test/"
-          # Increase timeout for handshake
-          timeout: 30s
-          command_timeout: 10m
+          timeout: 120s  # MATCHED PROD: Gives the network/disk more time to breathe
 
-      - name: SSH Deploy
+      - name: SSH Deploy to Test
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.TEST_IP }}
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            # Ensure the directory exists just in case SCP had a partial fail
+            mkdir -p /root/binitright-test/
             cd /root/binitright-test/
+            
+            # Match your Prod Export Logic
             export MYSQL_ROOT_PASSWORD=${{ secrets.TEST_DB_PASSWORD }}
             export JAVA_IMAGE=registry.digitalocean.com/binitright/binitright-app:${{ github.sha }}
+            
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
+            
+            # Using --pull always to match your prod command
             docker compose up -d --pull always --remove-orphans java-app
+            
+            docker image prune -f
             sleep 45
 
   # ==========================================
