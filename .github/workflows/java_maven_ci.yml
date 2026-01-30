@@ -203,25 +203,25 @@ jobs:
           SPRING_DATASOURCE_USERNAME: root
           SPRING_DATASOURCE_PASSWORD: root
 
-    # ==========================================
-    # BOX 7b: DAST (OWASP ZAP)
-    # ==========================================
-    dast-scan:
-      name: DAST Security Scan
-      if: github.ref == 'refs/heads/master'
-      needs: deploy-test
-      runs-on: ubuntu-latest
-      steps:
-        - name: Run ZAP Baseline Scan
-          uses: zaproxy/action-baseline@v0.15.0
-          with:
-            target: "http://${{ secrets.TEST_IP }}"
-            fail_action: true
-        - name: Upload DAST Artifacts
-          if: always()
-          uses: actions/upload-artifact@v4
-          with:
-            name: java-dast-results
-            path: |
-              report_html.html
-              report_json.json
+  # ==========================================
+  # BOX 7b: DAST (OWASP ZAP)
+  # ==========================================
+  dast-scan:
+    name: DAST Security Scan
+    if: github.ref == 'refs/heads/master'
+    needs: deploy-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.15.0
+        with:
+          target: "http://${{ secrets.TEST_IP }}"
+          fail_action: true
+      - name: Upload DAST Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-dast-results
+          path: |
+            report_html.html
+            report_json.json
