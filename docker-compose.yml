@@ -2,44 +2,40 @@ version: '3.8'
 services:
   db:
     image: mysql:8.0
+    # FIX: Remove read_only: true for the DB.
+    # Use volumes to persist your data instead of losing it on every restart.
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD} # Match the variable in your SSH script
+      MYSQL_DATABASE: binitright_db
+    # Port 3306 is now restricted to the Droplet's localhost for security
     ports:
       - "127.0.0.1:3306:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: binitright_db
-    # FIX: Prevent privilege escalation
-    security_opt:
-      - no-new-privileges:true
-    # FIX: Prevent modification of system files
-    read_only: true
-    # Required: MySQL needs writable access to these specific locations to run
-    tmpfs:
-      - /tmp
-      - /var/run/mysqld
-      - /var/lib/mysql-files
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 5s
+      interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 5
 
   java-app:
     image: ${JAVA_IMAGE}
+    # Keep your strict security for the App - it works well here!
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp
     ports:
-      - "${JAVA_PORT:-8080}:8080"
+      - "8080:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/binitright_db?allowPublicKeyRetrieval=true&useSSL=false
       SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-      SPRING_JPA_HIBERNATE_DDL_AUTO: ${DB_ACTION}
-    # FIX: Prevent privilege escalation
-    security_opt:
-      - no-new-privileges:true
-    # FIX: Prevent modification of system files
-    read_only: true
-    # Required: Java/Tomcat needs to write temporary work files/logs
-    tmpfs:
-      - /tmp
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
     depends_on:
       db:
         condition: service_healthy
+
+volumes:
+  mysql_data: # This keeps your database from being wiped on every deploy
