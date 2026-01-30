@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BinItRight - Login</title>
+    <title>BinItRight - Welcome</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -14,54 +14,28 @@
             height: 100vh;
             margin: 0;
         }
-        .login-container {
+        .container {
             background: white;
             padding: 2rem;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             width: 100%;
-            max-width: 350px;
+            max-width: 400px;
             text-align: center;
         }
         h1 { color: #2d5a27; margin-bottom: 1.5rem; }
-        input {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            display: inline-block;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        button {
-            width: 100%;
-            background-color: #4CAF50;
-            color: white;
-            padding: 14px 20px;
-            margin: 15px 0;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover { background-color: #45a049; }
-        .footer-text { font-size: 0.8rem; color: #666; margin-top: 1rem; }
+        p { color: #333; line-height: 1.6; }
+        .footer-text { font-size: 0.8rem; color: #666; margin-top: 1.5rem; }
     </style>
 </head>
 <body>
 
-<div class="login-container">
+<div class="container">
     <h1>BinItRight</h1>
-    <p>Please log in to manage your waste</p>
-
-    <form th:action="@{/login}" method="post">
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <button type="submit">Login</button>
-    </form>
+    <p>Welcome to the BinItRight waste management platform. Your application has been successfully deployed through the CI/CD pipeline.</p>
 
     <div class="footer-text">
-        <p>CI/CD Status: <strong>Ready for Pipeline</strong></p>
+        <p>Current Status: <strong>Verified & Secure</strong></p>
     </div>
 </div>
 
