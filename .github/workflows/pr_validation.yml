@@ -75,7 +75,6 @@ jobs:
   # ==========================================
   maven-build:
     name: Maven Build Verification
-    needs: [lint-and-unit, sca-scan, sast-scan]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
