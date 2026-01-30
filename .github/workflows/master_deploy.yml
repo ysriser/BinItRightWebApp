@@ -80,6 +80,7 @@ jobs:
   # ==========================================
   dast-scan:
     name: DAST Security Scan
+    needs: deploy-test
     runs-on: ubuntu-latest
     steps:
       - name: Wait for App to be Responsive
