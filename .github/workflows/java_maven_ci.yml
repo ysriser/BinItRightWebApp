@@ -90,6 +90,7 @@ jobs:
     # MODIFICATION: This now runs on PRs (to verify the build) OR on Master (to prepare the image)
     if: github.event_name == 'pull_request' || github.ref == 'refs/heads/master'
     # MODIFICATION: We make the 'needs' optional so it can jump ahead on Master
+    needs: []
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
