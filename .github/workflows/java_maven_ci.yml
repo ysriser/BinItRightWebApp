@@ -129,8 +129,8 @@ jobs:
           context: .
           push: true
           tags: |
-            registry.digitalocean.com/binitright/app:${{ github.sha }}
-            registry.digitalocean.com/binitright/app:${{ github.head_ref || github.ref_name }}
+            registry.digitalocean.com/binitright/binitright-app:${{ github.sha }}
+            registry.digitalocean.com/binitright/binitright-app:${{ github.head_ref || github.ref_name }}
 
   # ==========================================
   # BOX 6: DEPLOY TO TEST
@@ -151,7 +151,7 @@ jobs:
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            export JAVA_IMAGE=registry.digitalocean.com/binitright/app:${{ github.sha }}
+            export JAVA_IMAGE=registry.digitalocean.com/binitright/binitright-app:${{ github.sha }}
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
             
             # Navigate to your specific project folder
