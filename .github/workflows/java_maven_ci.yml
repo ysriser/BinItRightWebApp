@@ -170,32 +170,25 @@ jobs:
             sleep 30
 
   # ==========================================
-  # BOX 7a: INTEGRATION TESTS
+  # BOX 7a: INTEGRATION TESTS (Gate 1)
   # ==========================================
   integration-tests:
     name: Integration Tests
-    if: github.ref == 'refs/heads/master'
-    needs: deploy-test
+    needs: deploy-test # Starts after Test deploy
     runs-on: ubuntu-latest
     services:
       mysql:
         image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: root
+        env: { MYSQL_ROOT_PASSWORD: root }
         ports: ["3306:3306"]
         options: >-
           --health-cmd="mysqladmin ping" 
-          --health-interval=10s 
-          --health-timeout=5s 
-          --health-retries=10
+          --health-retries=10 
           --execute="CREATE DATABASE IF NOT EXISTS binitright;"
     steps:
       - uses: actions/checkout@v4
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
+      - uses: actions/setup-java@v4
+        with: { java-version: '21', distribution: 'temurin' }
       - name: Run Integration Tests
         run: mvn verify -DskipUnitTests
         env:
@@ -204,12 +197,11 @@ jobs:
           SPRING_DATASOURCE_PASSWORD: root
 
   # ==========================================
-  # BOX 7b: DAST (OWASP ZAP)
+  # BOX 7b: DAST SECURITY SCAN (Gate 2)
   # ==========================================
   dast-scan:
     name: DAST Security Scan
-    if: github.ref == 'refs/heads/master'
-    needs: deploy-test
+    needs: integration-tests # MUST WAIT FOR INTEGRATION
     runs-on: ubuntu-latest
     steps:
       - name: Run ZAP Baseline Scan
@@ -217,11 +209,3 @@ jobs:
         with:
           target: "http://${{ secrets.TEST_IP }}"
           fail_action: true
-      - name: Upload DAST Artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: java-dast-results
-          path: |
-            report_html.html
-            report_json.json
