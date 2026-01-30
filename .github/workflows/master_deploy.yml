@@ -52,7 +52,6 @@ jobs:
     runs-on: ubuntu-latest
     environment: test
     steps:
-      # CRITICAL: This pulls your docker-compose.yml into the runner
       - uses: actions/checkout@v4
 
       - name: Sync Files (SCP)
@@ -61,9 +60,11 @@ jobs:
           host: ${{ secrets.TEST_IP }}
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          # The tool can now find this file because of the checkout step above
           source: "docker-compose.yml"
           target: "/root/binitright-test/"
+          # Increase timeout for handshake
+          timeout: 30s
+          command_timeout: 10m
 
       - name: SSH Deploy
         uses: appleboy/ssh-action@master
