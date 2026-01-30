@@ -129,8 +129,8 @@ jobs:
           context: .
           push: true
           tags: |
-            registry.digitalocean.com/binitright/app:${{ github.sha }}
-            registry.digitalocean.com/binitright/app:${{ github.head_ref || github.ref_name }}
+            registry.digitalocean.com/binitright/binitright-app:${{ github.sha }}
+            registry.digitalocean.com/binitright/binitright-app:${{ github.head_ref || github.ref_name }}
 
   # ==========================================
   # BOX 6: DEPLOY TO TEST
@@ -151,7 +151,7 @@ jobs:
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            export JAVA_IMAGE=registry.digitalocean.com/binitright/app:${{ github.sha }}
+            export JAVA_IMAGE=registry.digitalocean.com/binitright/binitright-app:${{ github.sha }}
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
             
             # Navigate to your specific project folder
@@ -174,25 +174,39 @@ jobs:
   # ==========================================
   integration-tests:
     name: Integration Tests
-    needs: deploy-test # Starts after Test deploy
+    needs: deploy-test
     runs-on: ubuntu-latest
     services:
       mysql:
         image: mysql:8.0
-        env: { MYSQL_ROOT_PASSWORD: root }
-        ports: ["3306:3306"]
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping" 
-          --health-retries=10 
-          --execute="CREATE DATABASE IF NOT EXISTS binitright;"
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with: { java-version: '21', distribution: 'temurin' }
+
+      # NEW STEP: Initialize the database once the service is healthy
+      - name: Create Database
+        run: |
+          sudo apt-get update && sudo apt-get install -y mysql-client
+          mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS binitright;"
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
       - name: Run Integration Tests
         run: mvn verify -DskipUnitTests
         env:
-          SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/binitright
+          SPRING_DATASOURCE_URL: jdbc:mysql://127.0.0.1:3306/binitright
           SPRING_DATASOURCE_USERNAME: root
           SPRING_DATASOURCE_PASSWORD: root
 
