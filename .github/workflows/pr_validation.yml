@@ -1,0 +1,95 @@
+name: PR Validation (Quality Gates)
+
+on:
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  # ==========================================
+  # BOX 1: LINT & UNIT TESTS
+  # ==========================================
+  lint-and-unit:
+    name: Lint & Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+      - name: Run Unit Tests
+        run: mvn -B test
+      - name: Upload Unit Test Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-unit-reports
+          path: target/surefire-reports/
+
+  # ==========================================
+  # BOX 2: SCA (Dependency Security)
+  # ==========================================
+  sca-scan:
+    name: SCA (Trivy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Trivy SCA
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          format: "table"
+          output: "sca-report.txt"
+          exit-code: "1"
+          severity: "CRITICAL,HIGH"
+      - name: Upload SCA Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-sca-results
+          path: sca-report.txt
+
+  # ==========================================
+  # BOX 3: SAST (Code Security)
+  # ==========================================
+  sast-scan:
+    name: SAST (Semgrep)
+    runs-on: ubuntu-latest
+    container:
+      image: returntocorp/semgrep
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Semgrep Scan
+        run: semgrep scan --config auto --json --output semgrep-results.json
+      - name: Upload SAST Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-sast-results
+          path: semgrep-results.json
+
+  # ==========================================
+  # BOX 4: MAVEN BUILD (Verification)
+  # ==========================================
+  maven-build:
+    name: Maven Build Verification
+    needs: [lint-and-unit, sca-scan, sast-scan]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+      - name: Package JAR
+        run: mvn -B package -DskipTests
+      - name: Upload JAR Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-binary-pr
+          path: target/*.jar
+          retention-days: 1
