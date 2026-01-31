@@ -1,4 +1,4 @@
-package com.binitright.performance;
+package tech3.binitright.performance;
 
 import static us.abstracta.jmeter.javadsl.JmeterDsl.*;
 import java.io.IOException;
