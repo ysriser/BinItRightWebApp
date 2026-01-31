@@ -1,4 +1,4 @@
-package tech3.binitright.performance; // Ensure this matches your folder structure
+package tech3.binitright.performance; 
 
 import static us.abstracta.jmeter.javadsl.JmeterDsl.*;
 import java.io.IOException;
