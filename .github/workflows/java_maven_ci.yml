@@ -249,7 +249,7 @@ jobs:
         run: mkdir -p tests
 
       - name: Generate JMX Script
-        run: mvn exec:java
+        run: mvn exec:java -Dtarget_port=80
 
       - name: Install & Run Apache JMeter
         run: |
