@@ -1,4 +1,4 @@
-package tech3.binitright.Controller;
+package tech3.binitright.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class TestController {
 
     @GetMapping("/")
-    public String Test(){
+    public String test(){
         return "home";
     }
 }
