@@ -86,6 +86,7 @@ jobs:
             
             docker image prune -f
             sleep 45
+
   # ==========================================
   # BOX 7a: JMETER LOAD TEST (Stability Gate)
   # ==========================================
