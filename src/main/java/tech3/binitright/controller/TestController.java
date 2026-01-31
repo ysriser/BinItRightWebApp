@@ -1,16 +1,20 @@
 package tech3.binitright.controller;
 
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Controller for testing system connectivity.
+ * Controller for handling home page requests.
  */
-@RestController
+@Controller
 public final class TestController { // Added 'final' here
 
-    @GetMapping("/test")
+    /**
+     * Maps the root URL to the home view.
+     * @return the name of the home template
+     */
+    @GetMapping("/")
     public String test() {
-        return "Connected";
+        return "home";
     }
 }
