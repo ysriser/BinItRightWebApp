@@ -259,13 +259,56 @@ jobs:
           path: |
             report_html.html
             report_json.json
+  # ==========================================
+  # BOX 7: APACHE JMETER LOAD TEST
+  # ==========================================
+  jmeter-test:
+    name: Apache JMeter Load Test
+    if: github.event_name == 'pull_request'
+    needs: deploy-temp
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Install Apache JMeter
+        run: |
+          wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.6.3.tgz
+          tar -xzf apache-jmeter-5.6.3.tgz
+          echo "$(pwd)/apache-jmeter-5.6.3/bin" >> $GITHUB_PATH
+
+      - name: Run JMeter Test
+        run: |
+          mkdir -p jmeter-results
+          jmeter -n -t tests/load_test.jmx \
+            -l jmeter-results/results.jtl \
+            -e -o jmeter-results/dashboard \
+            -Jtarget_host=${{ needs.deploy-temp.outputs.droplet_ip }} \
+            -Jtarget_port=80
+        # -n: Non-GUI mode
+        # -t: Path to your .jmx file
+        # -l: Path to results file
+        # -e -o: Generate HTML dashboard report
+        # -J: Pass dynamic property to the script
+
+      - name: Upload JMeter Dashboard
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jmeter-performance-dashboard
+          path: jmeter-results/dashboard/
 
   # ==========================================
-  # BOX 7: CLEANUP
+  # BOX 8: CLEANUP
   # ==========================================
   cleanup:
     name: Cleanup Droplet
-    needs: [deploy-temp, dast-scan]
+    needs: [deploy-temp, dast-scan,jmeter-test]
     if: always() && github.ref != 'refs/heads/master' && needs.deploy-temp.outputs.droplet_id != ''
     runs-on: ubuntu-latest
     steps:
@@ -278,7 +321,7 @@ jobs:
         run: doctl compute droplet delete ${{ needs.deploy-temp.outputs.droplet_id }} --force
 
   # ==========================================
-  # BOX 8: PRODUCTION DEPLOY (Fixed)
+  # BOX 9: PRODUCTION DEPLOY (Fixed)
   # ==========================================
   deploy-production:
     name: Production Deploy
@@ -315,7 +358,7 @@ jobs:
             docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --pull always --remove-orphans
 
   # ==========================================
-  # BOX 9: TARGETED JAVA CLEANUP
+  # BOX 10: TARGETED JAVA CLEANUP
   # ==========================================
   registry-maintenance:
     name: Prune Java Tags
