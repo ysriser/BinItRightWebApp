@@ -154,36 +154,60 @@ jobs:
             report_json.json
 
   # ==========================================
-  # BOX 7c: TAG FOR PRODUCTION
+  # BOX 8: PRODUCTION RELEASE & VERSION TAGGING
   # ==========================================
-  tag-production:
-    name: Tag Production Image
+  deploy-production:
+    name: Production Release
     needs: dast-scan
     runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: write
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Calculate Next Version
+        id: vars
+        run: |
+          # --- CONFIGURATION AREA ---
+          # Update this BASE variable whenever you want to bump Major/Minor versions
+          BASE="v1.0."
+          # --------------------------
+
+          git fetch --tags
+          
+          # Find the latest tag that starts with our current BASE
+          LATEST_TAG=$(git tag -l "${BASE}*" | sort -V | tail -n 1)
+
+          if [ -z "$LATEST_TAG" ]; then
+              # If no tags exist for this base (e.g., first run or new major version)
+              NEXT_NUM=1
+          else
+              # Extract the number after the base (e.g., v1.0.15 -> 15)
+              VERSION_NUM=${LATEST_TAG#$BASE}
+              NEXT_NUM=$((VERSION_NUM + 1))
+          fi
+
+          NEW_TAG="${BASE}${NEXT_NUM}"
+          echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
+          echo "Calculated Version: $NEW_TAG"
+
       - name: Login to DigitalOcean
         uses: docker/login-action@v3
         with:
           registry: registry.digitalocean.com
           username: _
           password: ${{ secrets.DO_ACCESS_TOKEN }}
-      - name: Pull, Tag, and Push
+
+      - name: Tag and Push Docker Image
         run: |
           docker pull registry.digitalocean.com/binitright/binitright-app:${{ github.sha }}
           docker tag registry.digitalocean.com/binitright/binitright-app:${{ github.sha }} \
-                     registry.digitalocean.com/binitright/binitright-app:production
-          docker push registry.digitalocean.com/binitright/binitright-app:production
+                     registry.digitalocean.com/binitright/binitright-app:${{ env.NEW_TAG }}
+          docker push registry.digitalocean.com/binitright/binitright-app:${{ env.NEW_TAG }}
 
-  # ==========================================
-  # BOX 8: PRODUCTION RELEASE (PAUSES FOR APPROVAL)
-  # ==========================================
-  deploy-production:
-    name: Production Release
-    needs: tag-production
-    runs-on: ubuntu-latest
-    environment: production
-    steps:
-      - uses: actions/checkout@v4
       - name: Sync Production Files (SCP)
         uses: appleboy/scp-action@master
         with:
@@ -193,6 +217,7 @@ jobs:
           source: "docker-compose.yml,docker-compose.prod.yml"
           target: "/root/binitright-prod/"
           timeout: 150s  # MATCHED PROD: Gives the network/disk more time to breathe
+
       - name: SSH Deploy Production
         uses: appleboy/ssh-action@master
         with:
@@ -202,7 +227,14 @@ jobs:
           script: |
             cd /root/binitright-prod/
             export MYSQL_ROOT_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
-            export JAVA_IMAGE=registry.digitalocean.com/binitright/binitright-app:production
+            export JAVA_IMAGE=registry.digitalocean.com/binitright/binitright-app:${{ env.NEW_TAG }}
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
             docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --pull always --remove-orphans java-app
             docker image prune -f
+
+      - name: Push Git Tag
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag ${{ env.NEW_TAG }}
+          git push origin ${{ env.NEW_TAG }}
