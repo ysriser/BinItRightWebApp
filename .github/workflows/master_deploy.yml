@@ -115,8 +115,8 @@ jobs:
           wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.6.3.tgz
           tar -xzf apache-jmeter-5.6.3.tgz
           ./apache-jmeter-5.6.3/bin/jmeter -n -t tests/load_test.jmx \
-            -l results.jtl -e -o dashboard \
-            -Jtarget_host=${{ secrets.TEST_IP }}
+           -l results.jtl -e -o dashboard \
+           -Jtarget_host=${{ secrets.TEST_IP }}
 
       - name: Upload Performance Dashboard
         if: always()
