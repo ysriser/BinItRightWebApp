@@ -228,49 +228,45 @@ jobs:
             sleep 30
 
   # ==========================================
-  # BOX 6: APACHE JMETER LOAD TEST
+  # BOX 6: JMETER LOAD TEST (Stability Gate)
   # ==========================================
-  jmeter-test:
-    name: Apache JMeter Load Test
-    if: github.event_name == 'pull_request'
+  load-test:
+    name: JMeter Load Test
     needs: deploy-temp
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Java
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
+          cache: maven
 
-      - name: Install Apache JMeter
+      - name: Create Tests Directory
+        run: mkdir -p tests
+
+      - name: Generate JMX Script
+        run: mvn exec:java
+
+      - name: Install & Run Apache JMeter
         run: |
           wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.6.3.tgz
           tar -xzf apache-jmeter-5.6.3.tgz
-          echo "$(pwd)/apache-jmeter-5.6.3/bin" >> $GITHUB_PATH
-
-      - name: Run JMeter Test
-        run: |
-          mkdir -p jmeter-results
-          jmeter -n -t tests/load_test.jmx \
-            -l jmeter-results/results.jtl \
-            -e -o jmeter-results/dashboard \
+          ./apache-jmeter-5.6.3/bin/jmeter -n -t tests/load_test.jmx \
+            -l results.jtl -e -o dashboard \
             -Jtarget_host=${{ needs.deploy-temp.outputs.droplet_ip }} \
             -Jtarget_port=80
-        # -n: Non-GUI mode
-        # -t: Path to your .jmx file
-        # -l: Path to results file
-        # -e -o: Generate HTML dashboard report
-        # -J: Pass dynamic property to the script
 
-      - name: Upload JMeter Dashboard
+      - name: Upload Performance Dashboard
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: jmeter-performance-dashboard
-          path: jmeter-results/dashboard/
-
+          name: jmeter-performance-report
+          path: dashboard/
+  
 
   # ==========================================
   # BOX 7: DAST ATTACK (ZAP Baseline)
