@@ -228,39 +228,7 @@ jobs:
             sleep 30
 
   # ==========================================
-  # BOX 6: DAST ATTACK (ZAP Baseline)
-  # ==========================================
-  dast-scan:
-    name: DAST (ZAP Attack)
-    if: github.event_name == 'pull_request'
-    needs: deploy-temp
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      issues: write
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: OWASP ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.15.0
-        with:
-          target: "http://${{ needs.deploy-temp.outputs.droplet_ip }}"
-          # -I: This is the key. It forces ZAP to return 0 for Info/Warn alerts.
-          cmd_options: '-I'
-          fail_action: true
-          allow_issue_writing: false
-
-      - name: Upload DAST Findings
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: java-zap-report
-          path: |
-            report_html.html
-            report_json.json
-  # ==========================================
-  # BOX 7: APACHE JMETER LOAD TEST
+  # BOX 6: APACHE JMETER LOAD TEST
   # ==========================================
   jmeter-test:
     name: Apache JMeter Load Test
@@ -303,12 +271,46 @@ jobs:
           name: jmeter-performance-dashboard
           path: jmeter-results/dashboard/
 
+
+  # ==========================================
+  # BOX 7: DAST ATTACK (ZAP Baseline)
+  # ==========================================
+  dast-scan:
+    name: DAST (ZAP Attack)
+    if: github.event_name == 'pull_request'
+    needs: deploy-temp
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.15.0
+        with:
+          target: "http://${{ needs.deploy-temp.outputs.droplet_ip }}"
+          # -I: This is the key. It forces ZAP to return 0 for Info/Warn alerts.
+          cmd_options: '-I'
+          fail_action: true
+          allow_issue_writing: false
+
+      - name: Upload DAST Findings
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-zap-report
+          path: |
+            report_html.html
+            report_json.json
+ 
   # ==========================================
   # BOX 8: CLEANUP
   # ==========================================
   cleanup:
     name: Cleanup Droplet
-    needs: [deploy-temp, dast-scan,jmeter-test]
+    needs: [deploy-temp,jmeter-test, dast-scan]
     if: always() && github.ref != 'refs/heads/master' && needs.deploy-temp.outputs.droplet_id != ''
     runs-on: ubuntu-latest
     steps:
