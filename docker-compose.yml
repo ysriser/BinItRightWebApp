@@ -18,6 +18,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 40s
 
   java-app:
     image: ${JAVA_IMAGE}
