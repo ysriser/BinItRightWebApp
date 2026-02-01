@@ -75,20 +75,19 @@ jobs:
             mkdir -p /root/binitright-test/
             cd /root/binitright-test/
             
-            export MYSQL_ROOT_PASSWORD=${{ secrets.TEST_DB_PASSWORD }}
-            export JAVA_IMAGE=registry.digitalocean.com/binitright/binitright-app:${{ github.sha }}
+            # Local variables for the script
+            TEST_PASS="${{ secrets.TEST_DB_PASSWORD }}"
+            IMG="registry.digitalocean.com/binitright/binitright-app:${{ github.sha }}"
             
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
+            docker pull $IMG
             
-            # Pull the new image first (minimizes downtime)
-            docker pull $JAVA_IMAGE
-            
-            # Bring the stack DOWN to ensure port 8080 is released
-            # Using -v if you want to wipe test data, or leave it out to keep the DB persistent
+            # 1. Satisfy the parser for the 'down' command
+            JAVA_IMAGE=$IMG MYSQL_ROOT_PASSWORD=$TEST_PASS \
             docker compose down --remove-orphans
             
-            # Start everything fresh
-            JAVA_IMAGE=$JAVA_IMAGE MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD \
+            # 2. Start the test environment with inline variables
+            JAVA_IMAGE=$IMG MYSQL_ROOT_PASSWORD=$TEST_PASS \
             docker compose up -d
             
             docker image prune -f
@@ -234,25 +233,24 @@ jobs:
           script: |
             cd /root/binitright-prod/
             
-            # Setup variables
-            export MYSQL_ROOT_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
-            export JAVA_IMAGE=registry.digitalocean.com/binitright/binitright-app:${{ env.NEW_TAG }}
+            # Use local script variables for clarity
+            IMG="registry.digitalocean.com/binitright/binitright-app:${{ env.NEW_TAG }}"
+            PASS="${{ secrets.PROD_DB_PASSWORD }}"
             
-            # Authenticate
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
+            docker pull $IMG
             
-            # Pull the specific new version to the Droplet
-            docker pull $JAVA_IMAGE
+            # FORCE-KILL any container on 8080 (Safety Catch)
+            docker rm -f $(docker ps -q --filter "publish=8080") || true
             
-            # Stop the old containers to free up port 8080
-            # We use both files to ensure all defined services are stopped
+            # THE BULLETPROOF INJECTION:
+            # We pass the variables on the same line as 'down' and 'up'
+            JAVA_IMAGE=$IMG MYSQL_ROOT_PASSWORD=$PASS \
             docker compose -f docker-compose.yml -f docker-compose.prod.yml down --remove-orphans
             
-            # Start the new version
-            JAVA_IMAGE=$JAVA_IMAGE MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD \
+            JAVA_IMAGE=$IMG MYSQL_ROOT_PASSWORD=$PASS \
             docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
             
-            # 6. Clean up old, unused images to save disk space
             docker image prune -f
 
       - name: Push Git Tag
