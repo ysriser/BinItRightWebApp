@@ -82,11 +82,12 @@ jobs:
             
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
             
+            docker pull $JAVA_IMAGE
             # Using --pull always to match your prod command
-            docker compose up -d --pull always --remove-orphans java-app
+            docker compose up -d --force-recreate --remove-orphans java-app
             
             docker image prune -f
-            sleep 45
+            
 
   # ==========================================
   # BOX 7a: JMETER LOAD TEST (Stability Gate)
@@ -230,7 +231,8 @@ jobs:
             export MYSQL_ROOT_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
             export JAVA_IMAGE=registry.digitalocean.com/binitright/binitright-app:${{ env.NEW_TAG }}
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --pull always --remove-orphans java-app
+            docker pull $JAVA_IMAGE
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --force-recreate --remove-orphans java-app
             docker image prune -f
 
       - name: Push Git Tag
