@@ -72,20 +72,24 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           command_timeout: 10m
           script: |
-            # Ensure the directory exists just in case SCP had a partial fail
             mkdir -p /root/binitright-test/
             cd /root/binitright-test/
             
-            # Match your Prod Export Logic
             export MYSQL_ROOT_PASSWORD=${{ secrets.TEST_DB_PASSWORD }}
             export JAVA_IMAGE=registry.digitalocean.com/binitright/binitright-app:${{ github.sha }}
             
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
             
+            # Pull the new image first (minimizes downtime)
             docker pull $JAVA_IMAGE
-            # Using --pull always to match your prod command
+            
+            # Bring the stack DOWN to ensure port 8080 is released
+            # Using -v if you want to wipe test data, or leave it out to keep the DB persistent
+            docker compose down --remove-orphans
+            
+            # Start everything fresh
             JAVA_IMAGE=$JAVA_IMAGE MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD \
-            docker compose up -d --force-recreate --remove-orphans java-app
+            docker compose up -d
             
             docker image prune -f
             
@@ -229,12 +233,26 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /root/binitright-prod/
+            
+            # Setup variables
             export MYSQL_ROOT_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
             export JAVA_IMAGE=registry.digitalocean.com/binitright/binitright-app:${{ env.NEW_TAG }}
+            
+            # Authenticate
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
+            
+            # Pull the specific new version to the Droplet
             docker pull $JAVA_IMAGE
+            
+            # Stop the old containers to free up port 8080
+            # We use both files to ensure all defined services are stopped
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml down --remove-orphans
+            
+            # Start the new version
             JAVA_IMAGE=$JAVA_IMAGE MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD \
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --force-recreate --remove-orphans java-app
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+            
+            # 6. Clean up old, unused images to save disk space
             docker image prune -f
 
       - name: Push Git Tag
