@@ -75,20 +75,22 @@ jobs:
             mkdir -p /root/binitright-test/
             cd /root/binitright-test/
             
-            # Local variables for protection
-            IMG="registry.digitalocean.com/binitright/binitright-app:${{ github.sha }}"
-            PASS="${{ secrets.TEST_DB_PASSWORD }}"
+            # Use SINGLE QUOTES to protect special characters in secrets
+            IMG='registry.digitalocean.com/binitright/binitright-app:${{ github.sha }}'
+            PASS='${{ secrets.TEST_DB_PASSWORD }}'
             
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
             docker pull "$IMG"
             
-            # THE FIX: Inline injection for both 'down' and 'up'
-            JAVA_IMAGE="$IMG" MYSQL_ROOT_PASSWORD="$PASS" \
-            docker compose down --remove-orphans
+            # Create the .env anchor
+            echo "JAVA_IMAGE=$IMG" > .env
+            echo "MYSQL_ROOT_PASSWORD=$PASS" >> .env
             
-            JAVA_IMAGE="$IMG" MYSQL_ROOT_PASSWORD="$PASS" \
+            # Use -v to ensure a clean test database every time (Optional but recommended for Test)
+            docker compose down -v --remove-orphans
             docker compose up -d
             
+            rm .env
             docker image prune -f
             
 
@@ -232,24 +234,27 @@ jobs:
           script: |
             cd /root/binitright-prod/
             
-            # Define local variables (No export needed yet)
-            IMG="registry.digitalocean.com/binitright/binitright-app:${{ env.NEW_TAG }}"
-            PASS="${{ secrets.PROD_DB_PASSWORD }}"
+            # 1. Use SINGLE QUOTES to stop Bash from evaluating '$' in your secrets
+            IMG='registry.digitalocean.com/binitright/binitright-app:${{ env.NEW_TAG }}'
+            PASS='${{ secrets.PROD_DB_PASSWORD }}'
             
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
             docker pull "$IMG"
             
-            # Safety Catch
-            docker rm -f $(docker ps -q --filter "publish=8080") || true
+            # 2. CREATE THE .ENV FILE (The Anchor)
+            # This forces Docker to see the variables even if the shell environment is messy
+            echo "JAVA_IMAGE=$IMG" > .env
+            echo "MYSQL_ROOT_PASSWORD=$PASS" >> .env
             
-            # The "Double-Tap" Inline Injection
-            # We provide variables to BOTH 'down' and 'up' to satisfy the parser
-            JAVA_IMAGE="$IMG" MYSQL_ROOT_PASSWORD="$PASS" \
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml down --remove-orphans
+            # 3. CLEAN START
+            # Since the previous run failed, we MUST wipe the 'poisoned' volume one last time
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml down -v --remove-orphans
             
-            JAVA_IMAGE="$IMG" MYSQL_ROOT_PASSWORD="$PASS" \
+            # 4. DEPLOY
             docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
             
+            # 5. CLEANUP SENSITIVE DATA
+            rm .env
             docker image prune -f
 
       - name: Push Git Tag
