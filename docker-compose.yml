@@ -2,6 +2,7 @@ version: '3.8'
 services:
   db:
     image: mysql:8.0
+    restart: always
     # FIX: Remove read_only: true for the DB.
     # Use volumes to persist your data instead of losing it on every restart.
     volumes:
