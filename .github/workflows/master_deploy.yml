@@ -243,12 +243,11 @@ jobs:
             # FORCE-KILL any container on 8080 (Safety Catch)
             docker rm -f $(docker ps -q --filter "publish=8080") || true
             
-            # THE BULLETPROOF INJECTION:
             # We pass the variables on the same line as 'down' and 'up'
-            JAVA_IMAGE=$IMG MYSQL_ROOT_PASSWORD=$PASS \
+            export JAVA_IMAGE="${IMG}"
+            export MYSQL_ROOT_PASSWORD="${PASS}"
             docker compose -f docker-compose.yml -f docker-compose.prod.yml down --remove-orphans
-            
-            JAVA_IMAGE=$IMG MYSQL_ROOT_PASSWORD=$PASS \
+            JAVA_IMAGE="${IMG}" MYSQL_ROOT_PASSWORD="${PASS}" \
             docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
             
             docker image prune -f
