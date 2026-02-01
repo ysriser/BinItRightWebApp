@@ -75,19 +75,18 @@ jobs:
             mkdir -p /root/binitright-test/
             cd /root/binitright-test/
             
-            # Local variables for the script
-            TEST_PASS="${{ secrets.TEST_DB_PASSWORD }}"
+            # Local variables for protection
             IMG="registry.digitalocean.com/binitright/binitright-app:${{ github.sha }}"
+            PASS="${{ secrets.TEST_DB_PASSWORD }}"
             
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
-            docker pull $IMG
+            docker pull "$IMG"
             
-            # 1. Satisfy the parser for the 'down' command
-            JAVA_IMAGE=$IMG MYSQL_ROOT_PASSWORD=$TEST_PASS \
+            # THE FIX: Inline injection for both 'down' and 'up'
+            JAVA_IMAGE="$IMG" MYSQL_ROOT_PASSWORD="$PASS" \
             docker compose down --remove-orphans
             
-            # 2. Start the test environment with inline variables
-            JAVA_IMAGE=$IMG MYSQL_ROOT_PASSWORD=$TEST_PASS \
+            JAVA_IMAGE="$IMG" MYSQL_ROOT_PASSWORD="$PASS" \
             docker compose up -d
             
             docker image prune -f
@@ -233,21 +232,22 @@ jobs:
           script: |
             cd /root/binitright-prod/
             
-            # Use local script variables for clarity
+            # Define local variables (No export needed yet)
             IMG="registry.digitalocean.com/binitright/binitright-app:${{ env.NEW_TAG }}"
             PASS="${{ secrets.PROD_DB_PASSWORD }}"
             
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
-            docker pull $IMG
+            docker pull "$IMG"
             
-            # FORCE-KILL any container on 8080 (Safety Catch)
+            # Safety Catch
             docker rm -f $(docker ps -q --filter "publish=8080") || true
             
-            # We pass the variables on the same line as 'down' and 'up'
-            export JAVA_IMAGE="${IMG}"
-            export MYSQL_ROOT_PASSWORD="${PASS}"
+            # The "Double-Tap" Inline Injection
+            # We provide variables to BOTH 'down' and 'up' to satisfy the parser
+            JAVA_IMAGE="$IMG" MYSQL_ROOT_PASSWORD="$PASS" \
             docker compose -f docker-compose.yml -f docker-compose.prod.yml down --remove-orphans
-            JAVA_IMAGE="${IMG}" MYSQL_ROOT_PASSWORD="${PASS}" \
+            
+            JAVA_IMAGE="$IMG" MYSQL_ROOT_PASSWORD="$PASS" \
             docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
             
             docker image prune -f
