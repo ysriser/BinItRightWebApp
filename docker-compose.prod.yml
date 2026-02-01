@@ -12,7 +12,7 @@ services:
       retries: 10
       start_period: 60s
     volumes:
-      - mysql_prod_data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
 
   java-app:
     image: ${JAVA_IMAGE}
