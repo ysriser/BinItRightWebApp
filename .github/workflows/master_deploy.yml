@@ -70,6 +70,7 @@ jobs:
           host: ${{ secrets.TEST_IP }}
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          command_timeout: 10m
           script: |
             # Ensure the directory exists just in case SCP had a partial fail
             mkdir -p /root/binitright-test/
