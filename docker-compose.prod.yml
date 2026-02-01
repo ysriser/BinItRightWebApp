@@ -4,7 +4,7 @@ services:
     # No ports section here! Keep it private.
     restart: always
     environment:
-      MYSQL_DATABASE: binitright_db
+      MYSQL_DATABASE: binitright
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
