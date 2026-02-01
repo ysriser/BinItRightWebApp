@@ -232,6 +232,7 @@ jobs:
             export MYSQL_ROOT_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
             export JAVA_IMAGE=registry.digitalocean.com/binitright/binitright-app:${{ env.NEW_TAG }}
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
+            docker pull $JAVA_IMAGE
             JAVA_IMAGE=$JAVA_IMAGE MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD \
             docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --force-recreate --remove-orphans java-app
             docker image prune -f
