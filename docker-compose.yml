@@ -22,6 +22,11 @@ services:
     image: ${JAVA_IMAGE}
     # Keep your strict security for the App - it works well here!
     read_only: true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50' # Limit to 50% of 1 CPU core
+          memory: 512M # Limit RAM usage
     security_opt:
       - no-new-privileges:true
     tmpfs:
