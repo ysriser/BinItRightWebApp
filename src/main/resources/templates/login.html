@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Bin It Right Admin - Login</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="login-page">
+<div class="login-card">
+    <div class="logo-container">
+        <div class="logo-circle">
+            <i class="fa-solid fa-recycle" style="color: white; font-size: 30px;"></i>
+        </div>
+    </div>
+    <h1>Bin It Right Admin</h1>
+    <p class="subtitle">Admin Dashboard Login</p>
+
+    <div th:if="${param.error}" class="error-msg">
+        Invalid username or password.
+    </div>
+
+    <form th:action="@{/login}" method="post">
+        <div class="input-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" placeholder="Enter your username" required autofocus>
+        </div>
+
+        <div class="input-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+        </div>
+
+        <button type="submit" class="login-btn">Login</button>
+    </form>
+</div>
+</body>
+</html>

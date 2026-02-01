@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+</head>
+<body>
+<h1>Welcome to the Admin Dashboard</h1>
+
+<p>Welcome back, <strong sec:authentication="name">Admin</strong>!</p>
+
+<p>You have successfully logged in as an administrator.</p>
+
+<hr>
+
+<form th:action="@{/logout}" method="post">
+    <button type="submit">Log Out</button>
+</form>
+</body>
+</html>
