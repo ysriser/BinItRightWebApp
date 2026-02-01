@@ -21,6 +21,7 @@ services:
   java-app:
     image: ${JAVA_IMAGE}
     # Keep your strict security for the App - it works well here!
+    restart: always
     read_only: true
     deploy:
       resources:
