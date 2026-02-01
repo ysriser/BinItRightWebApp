@@ -25,8 +25,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.50' # Limit to 50% of 1 CPU core
-          memory: 512M # Limit RAM usage
+          cpus: '1.5'
+          memory: 1G
     security_opt:
       - no-new-privileges:true
     tmpfs:
