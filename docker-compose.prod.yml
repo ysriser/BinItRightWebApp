@@ -14,6 +14,7 @@ services:
       - mysql_prod_data:/var/lib/mysql
 
   java-app:
+    image: ${JAVA_IMAGE}
     restart: always
     # This ensures that if the DB restarts, the app waits for it to be 'healthy'
     depends_on:
