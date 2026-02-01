@@ -1,28 +1,43 @@
-package tech3.binitright;
+package tech3.binitright.config;
 
+import org.springframework.boot.web.servlet.server.CookieSameSiteSupplier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.StaticHeadersWriter;
-import org.springframework.boot.web.servlet.server.CookieSameSiteSupplier;
 
 import static org.springframework.security.config.Customizer.withDefaults;
+
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
     @Bean
     public SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
         http
-                .csrf(withDefaults())
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/api/**")
+                )
                 .headers(headers -> headers
                         .frameOptions(frame -> frame.deny())
                         .contentTypeOptions(withDefaults())
                         .contentSecurityPolicy(csp -> csp
                                 .policyDirectives("default-src 'self'; "
+                                        + "style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com; " // Allow FontAwesome & Google Styles
+                                        + "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; "     // Allow FontAwesome & Google Fonts
                                         + "frame-ancestors 'none'; form-action 'self';")
                         )
                         .addHeaderWriter(new StaticHeadersWriter(
@@ -40,8 +55,22 @@ public class SecurityConfig {
                         .cacheControl(withDefaults())
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/robots.txt", "/sitemap.xml", "/css/**", "/js/**").permitAll()
-                        .anyRequest().permitAll()
+                        .requestMatchers("/login", "/css/**", "/js/**", "/api/admin/create","/api/**").permitAll()
+                        .requestMatchers("/dashboard/**").hasRole("admin") // Only admins allowed
+                        .anyRequest().authenticated()
+                )
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/dashboard", true)
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout")
+                        .invalidateHttpSession(true)   // Explicitly kill the session
+                        .clearAuthentication(true)     // Clear security context
+                        .deleteCookies("JSESSIONID")   // Remove the session cookie
+                        .permitAll()
                 );
 
         return http.build();

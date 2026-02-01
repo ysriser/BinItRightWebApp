@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Bin It Right – Review Check-In</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+    <!-- Shared Dashboard Styles (sidebar, topbar, review card) -->
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     SIDEBAR (shared)
+═══════════════════════════════════════════════ -->
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <h4><i class="bi bi-arrow-repeat me-1"></i>Bin It Right</h4>
+        <p>Admin Portal<br>Welcome, root</p>
+    </div>
+    <nav>
+        <a th:href="@{/dashboard}">
+            <i class="bi bi-grid-1x2"></i> Dashboard
+        </a>
+        <a th:href="@{/admin/checkin-review}" class="active">
+            <i class="bi bi-clipboard-check"></i> Check-In Review
+        </a>
+        <a href="#">
+            <i class="bi bi-file-text"></i> Sustainability Reports
+        </a>
+        <a href="#">
+            <i class="bi bi-excircle"></i> Issue Management
+        </a>
+        <a href="#">
+            <i class="bi bi-people"></i> Users
+        </a>
+        <a href="#">
+            <i class="bi bi-gear"></i> Settings
+        </a>
+    </nav>
+</aside>
+
+
+<!-- ═══════════════════════════════════════════════
+     MAIN CONTENT
+═══════════════════════════════════════════════ -->
+<div class="main">
+
+    <!-- ─── TOP BAR (shared) ─── -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <h2>Review Check-In</h2>
+            <p>Approve or reject a pending submission</p>
+        </div>
+        <div class="topbar-right">
+            <div class="topbar-notif">
+                <i class="bi bi-bell"></i>
+                <span class="notif-dot"></span>
+            </div>
+            <div class="topbar-notif">
+                <i class="bi bi-chat-dots"></i>
+            </div>
+            <div class="avatar-top">RO</div>
+        </div>
+    </header>
+
+    <!-- ─── SCROLLABLE BODY ─── -->
+    <div class="content-body">
+        <div class="review-wrap">
+
+            <!-- Breadcrumb -->
+            <div class="breadcrumb-custom">
+                <a th:href="@{/dashboard}"><i class="bi bi-house-door me-1"></i>Dashboard</a>
+                <span class="sep">›</span>
+                <a th:href="@{/admin/checkin-review}">Check-In Review</a>
+                <span class="sep">›</span>
+                <span class="current" th:text="'Check-In #' + checkIn.checkInId">Check-In #4</span>
+            </div>
+
+            <!-- Back link -->
+            <a th:href="@{/admin/checkin-review}" class="back-link">
+                <i class="bi bi-arrow-left"></i> Back to Check-In Review
+            </a>
+
+            <!-- ── Review Card ── -->
+            <div class="review-card">
+
+                <!-- Green header -->
+                <div class="review-card-header">
+                    <div class="hdr-icon"><i class="bi bi-clipboard-check"></i></div>
+                    <div>
+                        <h4>Review Check-In</h4>
+                        <p th:text="'Submitted by ' + checkIn.user.username">Submitted by alicetan</p>
+                    </div>
+                </div>
+
+                <!-- Detail rows -->
+                <div class="detail-row">
+                    <div class="detail-label">Check-In ID</div>
+                    <div class="detail-value">
+                        <span class="cell-id" th:text="'#' + checkIn.checkInId">#4</span>
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">User</div>
+                    <div class="detail-value">
+                        <div class="avatar-sm" th:text="${checkIn.user.username.substring(0,2).toUpperCase()}">AL</div>
+                        <span th:text="${checkIn.user.username}">alicetan</span>
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">Item</div>
+                    <div class="detail-value">
+                        <span class="item-tag">
+                            <i class="bi bi-recycle"></i>
+                            <span th:text="${checkIn.wasteCategories.name}">Plastic Bottles</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">Quantity</div>
+                    <div class="detail-value">
+                        <span class="qty-badge" th:text="${checkIn.quantity}">2</span>
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">Status</div>
+                    <div class="detail-value">
+                        <span class="status-badge"
+                              th:classappend="${checkIn.status.name() == 'PROCESSING'} ? '' :
+                                             (${checkIn.status.name() == 'APPROVED'} ? ' approved' : ' denied')">
+                            <span class="dot"></span>
+                            <span th:text="${checkIn.status}">PROCESSING</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Remarks + Buttons (inside a form) -->
+                <form th:action="@{/admin/review/{id}(id=${checkIn.checkInId})}" method="post">
+
+                    <div class="form-section">
+                        <div class="form-section-label">Remarks (optional)</div>
+                        <textarea class="remarks-input"
+                                  name="remarks"
+                                  placeholder="Enter remarks if any…"></textarea>
+                    </div>
+
+                    <div class="action-row">
+                        <button type="submit" name="status" value="APPROVED" class="btn-approve">
+                            <i class="bi bi-check-circle"></i> Approve
+                        </button>
+                        <button type="submit" name="status" value="DENIED" class="btn-deny">
+                            <i class="bi bi-x-circle"></i> Reject
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Footer -->
+                <div class="review-card-footer">
+                    <i class="bi bi-shield-check me-1"></i> Admin Review Panel
+                </div>
+            </div>
+
+        </div><!-- end review-wrap -->
+    </div><!-- end content-body -->
+</div><!-- end main -->
+
+</body>
+</html>
