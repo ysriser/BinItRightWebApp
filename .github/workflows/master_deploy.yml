@@ -86,9 +86,10 @@ jobs:
             docker compose down -v --remove-orphans # The -v nukes the volume
             
             API_KEY='${{ secrets.DATA_GOV_API_KEY }}'
+            ADMIN_VAL='${{ secrets.APP_ADMIN_PASSWORD }}'
             
             DATA_GOV_API_KEY="$API_KEY" \
-            ADMIN_PASSWORD="$DB_PASS" \
+            APP_ADMIN_PASSWORD="$ADMIN_VAL" \
             JAVA_IMAGE="$IMG" MYSQL_ROOT_PASSWORD="$PASS" SPRING_PROFILES_ACTIVE=test \
             docker compose up -d
             
@@ -249,9 +250,10 @@ jobs:
             docker compose -f docker-compose.yml -f docker-compose.prod.yml down # NO -v here!
             
             API_KEY='${{ secrets.DATA_GOV_API_KEY }}'
+            ADMIN_VAL='${{ secrets.APP_ADMIN_PASSWORD }}'
             
             DATA_GOV_API_KEY="$API_KEY" \
-            ADMIN_PASSWORD="$DB_PASS" \
+            APP_ADMIN_PASSWORD="$ADMIN_VAL" \
             JAVA_IMAGE="$IMG" MYSQL_ROOT_PASSWORD="$PASS" SPRING_PROFILES_ACTIVE=prod \
             docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
             

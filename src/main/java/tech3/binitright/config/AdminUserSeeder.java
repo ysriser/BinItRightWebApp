@@ -34,7 +34,7 @@ public class AdminUserSeeder {
                 admin.setRole("admin");
                 
                 // Pull the password from the environment variable (mapped from GitHub Secrets)
-                String rawPassword = System.getenv("ADMIN_PASSWORD");
+                String rawPassword = System.getenv("APP_ADMIN_PASSWORD");
                 
                 if (rawPassword == null || rawPassword.isEmpty()) {
                     System.out.println("Warning: ADMIN_PASSWORD environment variable is missing!");
