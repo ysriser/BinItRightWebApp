@@ -81,11 +81,15 @@ jobs:
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
             docker pull "$IMG"
             
-            # Inline injection for test
+            # In the deploy-test SSH script
             JAVA_IMAGE="$IMG" MYSQL_ROOT_PASSWORD="$PASS" \
-            docker compose down -v --remove-orphans
+            docker compose down -v --remove-orphans # The -v nukes the volume
             
-            JAVA_IMAGE="$IMG" MYSQL_ROOT_PASSWORD="$PASS" \
+            API_KEY='${{ secrets.DATA_GOV_API_KEY }}'
+            
+            DATA_GOV_API_KEY="$API_KEY" \
+            ADMIN_PASSWORD="$DB_PASS" \
+            JAVA_IMAGE="$IMG" MYSQL_ROOT_PASSWORD="$PASS" SPRING_PROFILES_ACTIVE=test \
             docker compose up -d
             
             docker image prune -f
@@ -241,12 +245,14 @@ jobs:
             # Safety cleanup of any orphaned containers on 8080
             docker rm -f $(docker ps -q --filter "publish=8080") || true
             
-            # THE "NUCLEAR" WIPE: Mandatory one last time to clear the 'no-password' DB
             JAVA_IMAGE="$IMG" MYSQL_ROOT_PASSWORD="$PASS" \
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml down -v --remove-orphans
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml down # NO -v here!
             
-            # THE STARTUP: Inline injection ensures Docker 'catches' the password
-            JAVA_IMAGE="$IMG" MYSQL_ROOT_PASSWORD="$PASS" \
+            API_KEY='${{ secrets.DATA_GOV_API_KEY }}'
+            
+            DATA_GOV_API_KEY="$API_KEY" \
+            ADMIN_PASSWORD="$DB_PASS" \
+            JAVA_IMAGE="$IMG" MYSQL_ROOT_PASSWORD="$PASS" SPRING_PROFILES_ACTIVE=prod \
             docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
             
             docker image prune -f

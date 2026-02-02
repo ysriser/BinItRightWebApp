@@ -37,10 +37,12 @@ services:
     ports:
       - "8080:8080"
     environment:
+      DATA_GOV_API_KEY: ${DATA_GOV_API_KEY}
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/binitright?allowPublicKeyRetrieval=true&useSSL=false
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     depends_on:
       db:
         condition: service_healthy
