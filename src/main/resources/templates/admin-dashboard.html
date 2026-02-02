@@ -23,7 +23,7 @@
         <p>Admin Portal<br>Welcome, root</p>
     </div>
     <nav>
-        <a href="#" class="active">
+        <a th:href="@{/admin/dashboard}" class="active">
             <i class="bi bi-grid-1x2"></i> Dashboard
         </a>
         <a th:href="@{/admin/checkin-review}">
@@ -147,21 +147,35 @@
                 </div>
             </div>
         </div>
+        <!-- ═══════════════════════════════════════════════
+      WASTE FORECAST + TARGET VS OBSERVED
+ ═══════════════════════════════════════════════ -->
+        <div class="row g-3 mb-section">
 
+            <!-- LINE CHART -->
+            <div class="col-lg-7">
+                <div class="section-card h-100">
+                    <div class="section-header">
+                        <h5><i class="bi bi-graph-up"></i> Waste Forecast Trends (2025–2030)</h5>
+                    </div>
+                    <div class="chart-wrap" style="height:300px;">
+                        <canvas id="forecastLineChart"></canvas>
+                    </div>
+                </div>
+            </div>
 
-        <!-- ════════════════════════════════════════
-             30-DAY COLLECTION FORECAST CHART
-        ════════════════════════════════════════ -->
-        <div class="section-card mb-section">
-            <div class="section-header">
-                <h5><i class="bi bi-graph-up-arrow"></i> 30-Day Collection Forecast</h5>
-                <span class="badge-custom green">
-                    <i class="bi bi-calendar3 me-1"></i>Jan 2026
-                </span>
+            <!-- BAR CHART -->
+            <div class="col-lg-5">
+                <div class="section-card h-100">
+                    <div class="section-header">
+                        <h5><i class="bi bi-bullseye"></i> Target vs Observed</h5>
+                    </div>
+                    <div class="chart-wrap" style="height:300px;">
+                        <canvas id="targetBarChart"></canvas>
+                    </div>
+                </div>
             </div>
-            <div class="chart-wrap">
-                <canvas id="forecastChart"></canvas>
-            </div>
+
         </div>
 
 
@@ -394,101 +408,79 @@
 </div><!-- end main -->
 
 
-<!-- ═══════════════════════════════════════════════
-     CHART.JS – Forecast
-═══════════════════════════════════════════════ -->
+
+
+<!-- Chart.js (load once) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script>
-(function () {
-    const ctx = document.getElementById('forecastChart').getContext('2d');
 
-    const labels   = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
-    const actual   = [1180, 1340, null, null];
-    const forecast = [1150, 1280, 1420, 1580];
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function () {
 
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels,
+      const data = /*[[${forecastData}]]*/ {};
+
+      const toNumber = (v) => {
+        if (v === null || v === undefined) return null;
+        if (typeof v === "number") return v;
+        const n = Number(String(v).replace(/,/g, ""));
+        return Number.isFinite(n) ? n : null;
+      };
+
+      const toMillion = (arr) =>
+        arr.map(v => {
+          const n = toNumber(v);
+          return n === null ? null : +(n / 1_000_000).toFixed(2);
+        });
+
+      if (!data || !data.forecasts || !data.forecasts.ARIMA) {
+        console.warn("Forecast data missing", data);
+        return;
+      }
+
+      const years = Object.keys(data.forecasts.ARIMA).sort();
+
+      const generated = toMillion(years.map(y => data.forecasts.SES[String(y)]));
+      const disposed  = toMillion(years.map(y => data.forecasts.ARIMA[String(y)]));
+      const recycled  = toMillion(years.map(y => data.forecasts.WMA[String(y)]));
+
+      Chart.defaults.color = "#6c757d";
+      Chart.defaults.font.family = "'Inter', sans-serif";
+
+      const lineCanvas = document.getElementById("forecastLineChart");
+      const barCanvas  = document.getElementById("targetBarChart");
+
+      console.log("Canvas check:", lineCanvas, barCanvas);
+
+      if (lineCanvas) {
+        new Chart(lineCanvas, {
+          type: "line",
+          data: {
+            labels: years,
             datasets: [
-                {
-                    label: 'Actual',
-                    data: actual,
-                    borderColor: '#2e7d32',
-                    backgroundColor: 'rgba(46,125,50,.08)',
-                    borderWidth: 2.5,
-                    pointBackgroundColor: '#2e7d32',
-                    pointRadius: [5, 5, 0, 0],
-                    pointHoverRadius: 6,
-                    fill: true,
-                    tension: .3,
-                    spanGaps: false
-                },
-                {
-                    label: 'Forecast',
-                    data: forecast,
-                    borderColor: '#1565c0',
-                    borderWidth: 2,
-                    borderDash: [6, 4],
-                    pointBackgroundColor: '#1565c0',
-                    pointRadius: [4, 4, 4, 4],
-                    pointHoverRadius: 6,
-                    fill: false,
-                    tension: .3
-                }
+              { label: "Generated", data: generated, borderColor: "#1565c0", borderWidth: 3, tension: 0.3 },
+              { label: "Disposed",  data: disposed,  borderColor: "#ef5350", borderDash: [5,5], borderWidth: 2, tension: 0.3 },
+              { label: "Recycled",  data: recycled,  borderColor: "#2e7d32", backgroundColor: "rgba(46,125,50,0.1)", fill: true, borderWidth: 3, tension: 0.3 }
             ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: { mode: 'index', intersect: false },
-            plugins: {
-                legend: {
-                    position: 'top',
-                    labels: {
-                        boxWidth: 14,
-                        borderRadius: 4,
-                        usePtStyle: true,
-                        font: { size: 12, weight: '600' },
-                        color: '#495057',
-                        padding: 20
-                    }
-                },
-                tooltip: {
-                    backgroundColor: '#fff',
-                    titleColor: '#1e2530',
-                    bodyColor: '#495057',
-                    borderColor: '#eee',
-                    borderWidth: 1,
-                    titleFont: { size: 12, weight: '700' },
-                    bodyFont: { size: 12 },
-                    cornerRadius: 8,
-                    padding: 10,
-                    displayColors: true,
-                    boxPadding: 4
-                }
-            },
-            scales: {
-                x: {
-                    grid: { display: false },
-                    ticks: { color: '#6c757d', font: { size: 11, weight: '600' } }
-                },
-                y: {
-                    beginAtZero: false,
-                    min: 0,
-                    max: 1800,
-                    ticks: {
-                        color: '#6c757d',
-                        font: { size: 11 },
-                        callback: v => v.toLocaleString()
-                    },
-                    grid: { color: 'rgba(0,0,0,.06)', lineWidth: 1 }
-                }
-            }
-        }
-    });
-})();
-</script>
+          },
+          options: { responsive: true, maintainAspectRatio: false }
+        });
+      }
 
+      if (barCanvas) {
+        const CURRENT_YEAR = "2026";
+        new Chart(barCanvas, {
+          type: "bar",
+          data: {
+            labels: [CURRENT_YEAR],
+            datasets: [
+              { label: "Target", data: toMillion([data.forecasts.SES[CURRENT_YEAR]]), backgroundColor: "#e0e0e0" },
+              { label: "Observed (Total disposed)", data: toMillion([data.calculated_total_generated_tonnes]), backgroundColor: "#673ab7" }
+            ]
+          },
+          options: { responsive: true, maintainAspectRatio: false }
+        });
+      }
+
+    });
+</script>
 </body>
 </html>

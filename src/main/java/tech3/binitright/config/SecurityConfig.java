@@ -37,7 +37,9 @@ public class SecurityConfig {
                         .contentSecurityPolicy(csp -> csp
                                 .policyDirectives("default-src 'self'; "
                                         + "style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com; " // Allow FontAwesome & Google Styles
-                                        + "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; "     // Allow FontAwesome & Google Fonts
+                                        + "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; "
+                                        +"script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; "
+                                        +"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com;"// Allow FontAwesome & Google Fonts
                                         + "frame-ancestors 'none'; form-action 'self';")
                         )
                         .addHeaderWriter(new StaticHeadersWriter(

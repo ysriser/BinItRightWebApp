@@ -1,6 +1,7 @@
 package tech3.binitright.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import tech3.binitright.model.CheckIn;
 import tech3.binitright.request.ReviewRequest;
 import tech3.binitright.service.AdminImplementation;
 import tech3.binitright.service.CheckInImplementation;
+import tech3.binitright.service.ForecastService;
 
 @Controller
 @RequestMapping("/admin")
@@ -39,16 +41,40 @@ public class AdminController {
 		public void setcheckInService(CheckInImplementation checkInserviceImp) {
 			this.checkInService = checkInserviceImp;
 		}
+        @Autowired
+        private  ForecastService forecastService;
+
+        public void setForecastService(ForecastService forecastService) {
+            this.forecastService = forecastService;}
 		
-		@GetMapping("/pending")
+		/*@GetMapping("/pending")
 	    public String getPendingCheckIns(Model model) {
 	        List<CheckIn> pendingCheckIns = checkInService.getPendingCheckIns();
 	        model.addAttribute("pendingCheckIns", pendingCheckIns);
+            Map<String, Object> forecastData = forecastService.getForecastData();
+
+            model.addAttribute("forecastData", forecastData);
 	        return "admin-dashboard";
-	    }
-		
-	
-		@GetMapping("/review/{checkInId}")
+	    }*/
+        @GetMapping("/dashboard")
+        public String dashboard(Model model) {
+
+            model.addAttribute(
+                    "pendingCheckIns",
+                    checkInService.getPendingCheckIns()
+            );
+
+            model.addAttribute(
+                    "forecastData",
+                    forecastService.getForecastData()
+            );
+
+            return "admin-dashboard";
+        }
+
+
+
+    @GetMapping("/review/{checkInId}")
 	    public String reviewCheckIn(@PathVariable Long checkInId, Model model) {
 	        CheckIn checkIn = adminService.reviewCheckIn(checkInId);
 	        model.addAttribute("checkIn", checkIn);
@@ -73,6 +99,5 @@ public class AdminController {
 		    return "redirect:/admin/pending";
 		}
 
-		
 		
 }
