@@ -47,15 +47,34 @@ public class AdminController {
         public void setForecastService(ForecastService forecastService) {
             this.forecastService = forecastService;}
 		
-		@GetMapping("/pending")
+		/*@GetMapping("/pending")
 	    public String getPendingCheckIns(Model model) {
 	        List<CheckIn> pendingCheckIns = checkInService.getPendingCheckIns();
 	        model.addAttribute("pendingCheckIns", pendingCheckIns);
+            Map<String, Object> forecastData = forecastService.getForecastData();
+
+            model.addAttribute("forecastData", forecastData);
 	        return "admin-dashboard";
-	    }
-		
-	
-		@GetMapping("/review/{checkInId}")
+	    }*/
+        @GetMapping("/dashboard")
+        public String dashboard(Model model) {
+
+            model.addAttribute(
+                    "pendingCheckIns",
+                    checkInService.getPendingCheckIns()
+            );
+
+            model.addAttribute(
+                    "forecastData",
+                    forecastService.getForecastData()
+            );
+
+            return "admin-dashboard";
+        }
+
+
+
+    @GetMapping("/review/{checkInId}")
 	    public String reviewCheckIn(@PathVariable Long checkInId, Model model) {
 	        CheckIn checkIn = adminService.reviewCheckIn(checkInId);
 	        model.addAttribute("checkIn", checkIn);
@@ -79,16 +98,6 @@ public class AdminController {
 
 		    return "redirect:/admin/pending";
 		}
-        @GetMapping("/predict")
-        public String forecast(Model model) {
 
-        Map<String, Object> forecastData = forecastService.getForecastData();
-
-        model.addAttribute("forecastData", forecastData);
-
-        return "admin-dashboard";
-    }
-
-		
 		
 }

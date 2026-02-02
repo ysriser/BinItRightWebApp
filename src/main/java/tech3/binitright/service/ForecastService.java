@@ -19,12 +19,8 @@ public class ForecastService {
 
     @SuppressWarnings("unchecked")
     public Map<String, Object> getForecastData() {
-        String url = pythonServiceUrl + "/forecast";
+        String url = pythonServiceUrl ;
         return restTemplate.getForObject(url, Map.class);
     }
 
-    public String getPrediction() {
-        String url = pythonServiceUrl + "/predict";
-        return restTemplate.getForObject(url, String.class);
-    }
 }
