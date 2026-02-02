@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import tech3.binitright.interfacemethods.UserInterface;
 import tech3.binitright.model.Admin;
-import tech3.binitright.model.User;
 import tech3.binitright.repository.UserRepository;
 import tech3.binitright.service.UserImplementation;
 
@@ -24,7 +23,7 @@ public class AdminUserSeeder {
 
     @Bean
     @Profile({"test","prod","default"}) // Only runs when SPRING_PROFILES_ACTIVE=test
-    public CommandLineRunner seedAdmin(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public CommandLineRunner seedAdmin(PasswordEncoder passwordEncoder) {
         return args -> {
             // Check if the admin already exists to avoid duplicates
             if (userService.findAdminByUsername("admin").isEmpty()) {
