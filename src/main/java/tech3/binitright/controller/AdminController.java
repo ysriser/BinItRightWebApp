@@ -1,6 +1,7 @@
 package tech3.binitright.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import tech3.binitright.model.CheckIn;
 import tech3.binitright.request.ReviewRequest;
 import tech3.binitright.service.AdminImplementation;
 import tech3.binitright.service.CheckInImplementation;
+import tech3.binitright.service.ForecastService;
 
 @Controller
 @RequestMapping("/admin")
@@ -39,6 +41,11 @@ public class AdminController {
 		public void setcheckInService(CheckInImplementation checkInserviceImp) {
 			this.checkInService = checkInserviceImp;
 		}
+        @Autowired
+        private  ForecastService forecastService;
+
+        public void setForecastService(ForecastService forecastService) {
+            this.forecastService = forecastService;}
 		
 		@GetMapping("/pending")
 	    public String getPendingCheckIns(Model model) {
@@ -72,6 +79,15 @@ public class AdminController {
 
 		    return "redirect:/admin/pending";
 		}
+        @GetMapping("/predict")
+        public String forecast(Model model) {
+
+        Map<String, Object> forecastData = forecastService.getForecastData();
+
+        model.addAttribute("forecastData", forecastData);
+
+        return "admin-dashboard";
+    }
 
 		
 		

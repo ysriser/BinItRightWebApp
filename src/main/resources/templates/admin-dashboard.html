@@ -390,97 +390,109 @@
 <!-- ═══════════════════════════════════════════════
      CHART.JS – Forecast
 ═══════════════════════════════════════════════ -->
+    <div class="row g-3 mb-section">
+                <div class="col-lg-7">
+                    <div class="section-card h-100">
+                        <div class="section-header">
+                            <h5><i class="bi bi-graph-up"></i> Waste Forecast Trends (2025–2030)</h5>
+                        </div>
+                        <div class="chart-wrap" style="height: 300px;">
+                            <canvas id="forecastLineChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="section-card h-100">
+                        <div class="section-header">
+                            <h5><i class="bi bi-bullseye"></i> Target vs Observed</h5>
+                        </div>
+                        <div class="chart-wrap" style="height: 300px;">
+                            <canvas id="targetBarChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+    </div>
+
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script>
-(function () {
-    const ctx = document.getElementById('forecastChart').getContext('2d');
+<script th:inline="javascript">
+    const data = /*[[${forecastData}]]*/ {};
 
-    const labels   = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
-    const actual   = [1180, 1340, null, null];
-    const forecast = [1150, 1280, 1420, 1580];
+    if (data && data.forecasts) {
 
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels,
-            datasets: [
-                {
-                    label: 'Actual',
-                    data: actual,
-                    borderColor: '#2e7d32',
-                    backgroundColor: 'rgba(46,125,50,.08)',
-                    borderWidth: 2.5,
-                    pointBackgroundColor: '#2e7d32',
-                    pointRadius: [5, 5, 0, 0],
-                    pointHoverRadius: 6,
-                    fill: true,
-                    tension: .3,
-                    spanGaps: false
+        const years = Object.keys(data.forecasts.ARIMA).sort();
+        const toMillion = arr => arr.map(v => (v / 1_000_000).toFixed(2));
+
+        const generated = toMillion(years.map(y => data.forecasts.SES[y]));
+        const disposed  = toMillion(years.map(y => data.forecasts.ARIMA[y]));
+        const recycled  = toMillion(years.map(y => data.forecasts.WMA[y]));
+
+        Chart.defaults.color = '#6c757d';
+        Chart.defaults.font.family = "'Inter', sans-serif";
+
+        /* ---------- LINE CHART ---------- */
+        const lineCanvas = document.getElementById('forecastLineChart');
+        if (lineCanvas) {
+            new Chart(lineCanvas, {
+                type: 'line',
+                data: {
+                    labels: years,
+                    datasets: [
+                        { label: 'Generated', data: generated, borderColor: '#1565c0', tension: 0.3 },
+                        { label: 'Disposed',  data: disposed,  borderColor: '#ef5350', borderDash: [5,5], tension: 0.3 },
+                        { label: 'Recycled',  data: recycled,  borderColor: '#2e7d32', fill: true,
+                          backgroundColor: 'rgba(46,125,50,0.1)', tension: 0.3 }
+                    ]
                 },
-                {
-                    label: 'Forecast',
-                    data: forecast,
-                    borderColor: '#1565c0',
-                    borderWidth: 2,
-                    borderDash: [6, 4],
-                    pointBackgroundColor: '#1565c0',
-                    pointRadius: [4, 4, 4, 4],
-                    pointHoverRadius: 6,
-                    fill: false,
-                    tension: .3
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: { mode: 'index', intersect: false },
-            plugins: {
-                legend: {
-                    position: 'top',
-                    labels: {
-                        boxWidth: 14,
-                        borderRadius: 4,
-                        usePtStyle: true,
-                        font: { size: 12, weight: '600' },
-                        color: '#495057',
-                        padding: 20
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'top', align: 'end' } },
+                    scales: {
+                        y: { title: { display: true, text: 'Million Tonnes (Mt)' } },
+                        x: { grid: { display: false } }
                     }
-                },
-                tooltip: {
-                    backgroundColor: '#fff',
-                    titleColor: '#1e2530',
-                    bodyColor: '#495057',
-                    borderColor: '#eee',
-                    borderWidth: 1,
-                    titleFont: { size: 12, weight: '700' },
-                    bodyFont: { size: 12 },
-                    cornerRadius: 8,
-                    padding: 10,
-                    displayColors: true,
-                    boxPadding: 4
                 }
-            },
-            scales: {
-                x: {
-                    grid: { display: false },
-                    ticks: { color: '#6c757d', font: { size: 11, weight: '600' } }
-                },
-                y: {
-                    beginAtZero: false,
-                    min: 0,
-                    max: 1800,
-                    ticks: {
-                        color: '#6c757d',
-                        font: { size: 11 },
-                        callback: v => v.toLocaleString()
-                    },
-                    grid: { color: 'rgba(0,0,0,.06)', lineWidth: 1 }
-                }
-            }
+            });
         }
-    });
-})();
+
+        /* ---------- BAR CHART ---------- */
+        const barCanvas = document.getElementById('targetBarChart');
+        if (barCanvas) {
+            const CURRENT_YEAR = "2026";
+
+            new Chart(barCanvas, {
+                type: 'bar',
+                data: {
+                    labels: [CURRENT_YEAR],
+                    datasets: [
+                        {
+                            label: 'Target',
+                            data: toMillion([data.forecasts.SES[CURRENT_YEAR]]),
+                            backgroundColor: '#e0e0e0',
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Observed (YTD)',
+                            data: toMillion([data.calculated_total_generated_tonnes]),
+                            backgroundColor: '#673ab7',
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'top', align: 'end' } },
+                    scales: {
+                        y: { title: { display: true, text: 'Million Tonnes (Mt)' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+    }
 </script>
 
 </body>
