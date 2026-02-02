@@ -21,7 +21,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-@Profile("!test")
+@Profile({"test", "prod", "default"})
 @Service
 public class BinDataImporter {
     private final DropOffLocationRepository repo;
