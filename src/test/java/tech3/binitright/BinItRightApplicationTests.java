@@ -9,6 +9,6 @@ import org.springframework.test.context.ActiveProfiles;
                 "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration"
         }
 )
-@ActiveProfiles("test")
+
 class BinItRightApplicationTests {
 }

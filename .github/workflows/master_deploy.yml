@@ -94,14 +94,53 @@ jobs:
             docker compose up -d
             
             docker image prune -f
-            
 
   # ==========================================
-  # BOX 7a: JMETER LOAD TEST (Stability Gate)
+  # BOX 7a SELENIUM E2E TESTS
+  # ==========================================
+  selenium-e2e:
+    name: Selenium E2E Test
+    needs: deploy-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Wait for App to be Ready
+        run: |
+          echo "Waiting for app at http://${{ secrets.TEST_IP }}:8080/login..."
+          timeout 180s bash -c 'until curl -sSf http://${{ secrets.TEST_IP }}:8080/login > /dev/null; do echo "Tomcat still booting..."; sleep 5; done'
+
+      # Run the actual tests (generates the JSON results)
+      - name: Run Selenium Tests
+        run: mvn test -Dtest=LoginE2ETest -Dheadless=true
+        continue-on-error: true # Ensure the report generates even if tests fail
+
+      # Convert JSONs into an HTML website
+      - name: Generate Allure Report
+        run: mvn allure:report
+
+      # Zip and upload the HTML folder so you can download it from GitHub
+      - name: Upload Allure Report Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-ui-report
+          path: target/site/allure-maven-plugin/
+          retention-days: 7
+
+  # ==========================================
+  # BOX 7b: JMETER LOAD TEST (Stability Gate)
   # ==========================================
   load-test:
     name: JMeter Load Test
-    needs: deploy-test
+    needs: selenium-e2e
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -136,7 +175,7 @@ jobs:
           path: dashboard/
 
   # ==========================================
-  # BOX 7b: DAST SECURITY SCAN
+  # BOX 7c: DAST SECURITY SCAN
   # ==========================================
   dast-scan:
     name: DAST Security Scan
