@@ -119,7 +119,7 @@ jobs:
 
       # Run the actual tests (generates the JSON results)
       - name: Run Selenium Tests
-        run: mvn test -Dtest=LoginE2ETest -Dheadless=true
+        run: mvn test -Dtest=LoginE2EIT -Dheadless=true
         continue-on-error: true # Ensure the report generates even if tests fail
 
       # Convert JSONs into an HTML website

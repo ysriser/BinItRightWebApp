@@ -21,7 +21,7 @@ import java.time.Duration;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class LoginE2ETest {
+public class LoginE2EIT {
 
     @LocalServerPort
     private int port;
