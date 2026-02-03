@@ -75,6 +75,9 @@ jobs:
             mkdir -p /root/binitright-test/
             cd /root/binitright-test/
             
+            docker image prune -f
+            docker image prune -a -f --filter "until=1h"
+            
             # Define and Export all variables first
             export JAVA_IMAGE='registry.digitalocean.com/binitright/binitright-app:${{ github.sha }}'
             export MYSQL_ROOT_PASSWORD='${{ secrets.TEST_DB_PASSWORD }}'
@@ -94,6 +97,7 @@ jobs:
             
             # Cleanup
             docker image prune -f
+            docker image prune -a -f --filter "until=1h"
 
   # ==========================================
   # BOX 7a SELENIUM E2E TESTS
@@ -281,6 +285,9 @@ jobs:
           script: |
             cd /root/binitright-prod/
             
+            docker image prune -f
+            docker image prune -a -f --filter "until=1h"
+            
             # Define and Export
             export JAVA_IMAGE='registry.digitalocean.com/binitright/binitright-app:${{ env.NEW_TAG }}'
             export MYSQL_ROOT_PASSWORD='${{ secrets.DB_PASSWORD }}'
@@ -301,6 +308,7 @@ jobs:
             
             # 5. Cleanup
             docker image prune -f
+            docker image prune -a -f --filter "until=1h"
 
       - name: Push Git Tag
         run: |
