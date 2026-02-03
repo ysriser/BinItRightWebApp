@@ -58,12 +58,12 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/css/**", "/js/**", "/api/admin/create","/api/**").permitAll()
-                        .requestMatchers("/dashboard/**").hasRole("admin") // Only admins allowed
+                        .requestMatchers("/admin/**").hasRole("admin") // Only admins allowed
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/dashboard", true)
+                        .defaultSuccessUrl("/admin/dashboard", true)
                         .permitAll()
                 )
                 .logout(logout -> logout
