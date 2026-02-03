@@ -120,8 +120,8 @@ jobs:
       # Run the actual tests (generates the JSON results)
       - name: Run Selenium Tests
         run: |
-          mvn failsafe:integration-test \
-          -Dit.test=LoginE2ETestIT \
+          mvn verify \
+          -Dsurefire.skip=true \
           -Dtarget_host=${{ secrets.TEST_IP }} \
           -Dtarget_port=8080 \
           -Dheadless=true
