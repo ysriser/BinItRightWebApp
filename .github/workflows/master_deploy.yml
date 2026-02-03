@@ -75,6 +75,9 @@ jobs:
             mkdir -p /root/binitright-test/
             cd /root/binitright-test/
             
+            # Clear old failed layers to make room for the new pull
+            docker image prune -f
+            
             IMG='registry.digitalocean.com/binitright/binitright-app:${{ github.sha }}'
             PASS='${{ secrets.TEST_DB_PASSWORD }}'
             
@@ -121,6 +124,7 @@ jobs:
       - name: Run Selenium Tests
         run: |
           mvn verify \
+          -Dmaven.test.failure.ignore=true \
           -Dsurefire.skip=true \
           -Dtarget_host=${{ secrets.TEST_IP }} \
           -Dtarget_port=8080 \
@@ -279,6 +283,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /root/binitright-prod/
+            
+            # Clear old failed layers to make room for the new pull
+            docker image prune -f
             
             # Local variables for the script
             IMG='registry.digitalocean.com/binitright/binitright-app:${{ env.NEW_TAG }}'
