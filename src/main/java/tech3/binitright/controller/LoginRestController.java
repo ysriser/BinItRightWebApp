@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import tech3.binitright.interfacemethods.AdminInterface;
 import tech3.binitright.interfacemethods.UserInterface;
 import tech3.binitright.model.Admin;
 
@@ -16,23 +17,29 @@ import java.util.Map;
 public class LoginRestController {
 
     @Autowired
-    private UserInterface uservice;
-
+    private AdminInterface adminService;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @PostMapping("/create")
-    public ResponseEntity<?> saveCustomer(@RequestBody Admin admin) {
-        if(uservice.findAdminByUsername(admin.getUsername()).isEmpty()){
-            // HASH THE PASSWORD BEFORE SAVING
-            String encodedPassword = passwordEncoder.encode(admin.getPassword_hash());
-            admin.setPassword_hash(encodedPassword);
+    public ResponseEntity<?> saveAdmin(@RequestBody Admin admin) {
 
-            uservice.saveAdmin(admin);
-            return new ResponseEntity<>(Map.of("message","Admin Account created successfully"), HttpStatus.OK);
+        if (adminService.findAdminByUsername(admin.getUsername()).isEmpty()) {
+
+            // HASH password
+            admin.setPassword_hash(
+                    passwordEncoder.encode(admin.getPassword_hash())
+            );
+
+            adminService.saveAdmin(admin);
+
+            return ResponseEntity.ok(
+                    Map.of("message", "Admin Account created successfully")
+            );
         }
-        return new ResponseEntity<>(Map.of("error", "Username already exists"), HttpStatus.CONFLICT);
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(Map.of("error", "Username already exists"));
     }
-
-
 }
