@@ -8,10 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import tech3.binitright.interfacemethods.CheckInInterface;
@@ -37,19 +34,14 @@ public class CheckInController {
 	
 	@Value("${app.upload.dir}")
 	private String uploadDir;
-	
-	@PostMapping(value = "/submit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	@ResponseBody
-	public ResponseEntity<CheckInDataResponse> submitRecycleCheckIn(
-			@RequestPart("video") MultipartFile video,
-			@RequestPart("metadata") CheckInDataReq data) throws IOException {
-		System.out.println("Inside checkIn controller:  "+data);
+
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<CheckInDataResponse> submitRecycleCheckIn(
+            @RequestBody CheckInDataReq data) throws IOException{
+        System.out.println("Inside checkIn controller:  "+data.getUserId());
 		
-		if(video.isEmpty()) {
-			return ResponseEntity.badRequest().build();
-		}
-		
-        CheckIn saved = checkInService.processCheckIn(video, data);
+        CheckIn saved = checkInService.processCheckIn(data);
         
         CheckInDataResponse res = new CheckInDataResponse();
         
@@ -58,6 +50,4 @@ public class CheckInController {
 		return ResponseEntity.ok(res);
 
 	}
-	
-	
 }

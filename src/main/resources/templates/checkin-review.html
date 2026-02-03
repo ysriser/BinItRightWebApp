@@ -23,10 +23,12 @@
         <p>Admin Portal<br>Welcome, root</p>
     </div>
     <nav>
-        <a th:href="@{/dashboard}">
+        <a th:href="@{/dashboard}"
+           th:classappend="${currentPath.startsWith('/admin/dashboard') ? 'active' : ''}">
             <i class="bi bi-grid-1x2"></i> Dashboard
         </a>
-        <a th:href="@{/admin/checkin-review}" class="active">
+        <a th:href="@{/admin/checkin}"
+           th:classappend="${currentPath.startsWith('/admin/checkin') or currentPath.startsWith('/admin/review') ? 'active' : ''}">
             <i class="bi bi-clipboard-check"></i> Check-In Review
         </a>
         <a href="#">
@@ -76,13 +78,13 @@
             <div class="breadcrumb-custom">
                 <a th:href="@{/dashboard}"><i class="bi bi-house-door me-1"></i>Dashboard</a>
                 <span class="sep">›</span>
-                <a th:href="@{/admin/checkin-review}">Check-In Review</a>
+                <a th:href="@{/admin/checkin}">Check-In Review</a>
                 <span class="sep">›</span>
-                <span class="current" th:text="'Check-In #' + checkIn.checkInId">Check-In #4</span>
+                <span class="current" th:text="'Check-In #' + ${checkIn.checkInId}">Check-In #4</span>
             </div>
 
             <!-- Back link -->
-            <a th:href="@{/admin/checkin-review}" class="back-link">
+            <a th:href="@{/admin/checkin}" class="back-link">
                 <i class="bi bi-arrow-left"></i> Back to Check-In Review
             </a>
 
@@ -94,7 +96,7 @@
                     <div class="hdr-icon"><i class="bi bi-clipboard-check"></i></div>
                     <div>
                         <h4>Review Check-In</h4>
-                        <p th:text="'Submitted by ' + checkIn.user.username">Submitted by alicetan</p>
+                        <p th:text="'Submitted by ' + ${checkIn.user.username}">Submitted by alicetan</p>
                     </div>
                 </div>
 
@@ -102,14 +104,14 @@
                 <div class="detail-row">
                     <div class="detail-label">Check-In ID</div>
                     <div class="detail-value">
-                        <span class="cell-id" th:text="'#' + checkIn.checkInId">#4</span>
+                        <span class="cell-id" th:text="'#' + ${checkIn.checkInId}">#4</span>
                     </div>
                 </div>
 
                 <div class="detail-row">
                     <div class="detail-label">User</div>
                     <div class="detail-value">
-                        <div class="avatar-sm" th:text="${checkIn.user.username.substring(0,2).toUpperCase()}">AL</div>
+                        <div class="avatar-sm" th:text="${#strings.toUpperCase(#strings.substring(checkIn.user.username, 0, 2))}">AL</div>
                         <span th:text="${checkIn.user.username}">alicetan</span>
                     </div>
                 </div>
@@ -143,25 +145,37 @@
                     </div>
                 </div>
 
-                <!-- Remarks + Buttons (inside a form) -->
-                <form th:action="@{/admin/review/{id}(id=${checkIn.checkInId})}" method="post">
+                <!-- Remarks + Buttons (only show if status is PROCESSING) -->
+                <th:block th:if="${checkIn.status.name() == 'PROCESSING'}">
+                    <form th:action="@{/admin/review/{id}(id=${checkIn.checkInId})}" method="post">
 
-                    <div class="form-section">
-                        <div class="form-section-label">Remarks (optional)</div>
-                        <textarea class="remarks-input"
-                                  name="remarks"
-                                  placeholder="Enter remarks if any…"></textarea>
-                    </div>
+                        <div class="form-section">
+                            <div class="form-section-label">Remarks (optional)</div>
+                            <textarea class="remarks-input"
+                                      name="remarks"
+                                      placeholder="Enter remarks if any…"></textarea>
+                        </div>
 
-                    <div class="action-row">
-                        <button type="submit" name="status" value="APPROVED" class="btn-approve">
-                            <i class="bi bi-check-circle"></i> Approve
-                        </button>
-                        <button type="submit" name="status" value="DENIED" class="btn-deny">
-                            <i class="bi bi-x-circle"></i> Reject
-                        </button>
+                        <div class="action-row">
+                            <button type="submit" name="status" value="APPROVED" class="btn-approve">
+                                <i class="bi bi-check-circle"></i> Approve
+                            </button>
+                            <button type="submit" name="status" value="DENIED" class="btn-deny">
+                                <i class="bi bi-x-circle"></i> Reject
+                            </button>
+                        </div>
+                    </form>
+                </th:block>
+
+                <!-- Message when already reviewed -->
+                <th:block th:if="${checkIn.status.name() != 'PROCESSING'}">
+                    <div class="alert alert-info" style="margin: 1.5rem 0; padding: 1rem; border-radius: 8px; background-color: #e7f3ff; border-left: 4px solid #0066cc;">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <span th:text="${checkIn.status.name() == 'APPROVED'} ? 'This check-in has already been approved.' : 'This check-in has already been rejected.'">
+                            This check-in has already been reviewed.
+                        </span>
                     </div>
-                </form>
+                </th:block>
 
                 <!-- Footer -->
                 <div class="review-card-footer">

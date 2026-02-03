@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Check-In Review – Bin It Right</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+    <!-- Dashboard Styles -->
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     SIDEBAR
+═══════════════════════════════════════════════ -->
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <h4><i class="bi bi-arrow-repeat me-1"></i>Bin It Right</h4>
+        <p>Admin Portal<br>Welcome, root</p>
+    </div>
+    <nav>
+        <a th:href="@{/admin/dashboard}">
+            <i class="bi bi-grid-1x2"></i> Dashboard
+        </a>
+        <a th:href="@{/admin/checkin}" class="active">
+            <i class="bi bi-clipboard-check"></i> Check-In Review
+        </a>
+        <a href="#">
+            <i class="bi bi-file-text"></i> Sustainability Reports
+        </a>
+        <a href="#">
+            <i class="bi bi-excircle"></i> Issue Management
+        </a>
+        <a href="#">
+            <i class="bi bi-people"></i> Users
+        </a>
+        <a href="#">
+            <i class="bi bi-gear"></i> Settings
+        </a>
+    </nav>
+    <div class="sidebar-footer mt-auto p-3">
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" id="logout-btn" class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center">
+                <i class="bi bi-box-arrow-left me-2"></i> Logout
+            </button>
+        </form>
+    </div>
+</aside>
+
+<!-- ═══════════════════════════════════════════════
+     MAIN CONTENT AREA
+═══════════════════════════════════════════════ -->
+<div class="main">
+
+    <!-- ─── TOP BAR ─── -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <h2>Check-In Review</h2>
+            <p>Review and manage all check-ins</p>
+        </div>
+        <div class="topbar-right">
+            <div class="topbar-notif">
+                <i class="bi bi-bell"></i>
+                <span class="notif-dot"></span>
+            </div>
+            <div class="topbar-notif">
+                <i class="bi bi-chat-dots"></i>
+            </div>
+            <div class="avatar-top">RO</div>
+        </div>
+    </header>
+
+    <!-- ─── SCROLLABLE BODY ─── -->
+    <div class="content-body">
+
+        <!-- Check-Ins Table -->
+        <div class="section-card">
+            <div class="section-header">
+                <h5><i class="bi bi-clipboard-check"></i> All Check-Ins</h5>
+                <span class="badge-custom">
+                    <i class="bi bi-circle-fill" style="font-size:.5rem; vertical-align:middle;"></i>
+                    <span th:text="${#lists.size(checkIns)} + ' Total'"></span>
+                </span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="tbl">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Drop-Off Location</th>
+                        <th>Waste Category</th>
+                        <th>Qty</th>
+                        <th>Check-In Time</th>
+                        <th>Status</th>
+                        <th>Points</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <!-- Empty state -->
+                    <tr th:if="${checkIns == null or #lists.isEmpty(checkIns)}">
+                        <td colspan="9" class="text-center py-4 text-muted">
+                            <i class="bi bi-inbox" style="font-size:1.8rem; display:block; margin-bottom:6px;"></i>
+                            No check-ins found
+                        </td>
+                    </tr>
+
+                    <!-- Data rows -->
+                    <tr th:each="checkIn : ${checkIns}">
+                        <td>
+                            <span class="cell-id" th:text="'#' + ${checkIn.checkInId}"></span>
+                        </td>
+                        <td>
+                            <div class="cell-user">
+                                <div class="avatar-sm" th:text="${checkIn.user.name.substring(0,2).toUpperCase()}"></div>
+                                <span class="user-name" th:text="${checkIn.user.name}"></span>
+                            </div>
+                        </td>
+                        <td th:text="${checkIn.dropOffLocation.name}"></td>
+                        <td>
+                                <span class="item-tag">
+                                    <i class="bi bi-recycle"></i>
+                                    <span th:text="${checkIn.wasteCategories.name}"></span>
+                                </span>
+                        </td>
+                        <td>
+                            <span class="qty-badge" th:text="${checkIn.quantity}"></span>
+                        </td>
+                        <td th:text="${#temporals.format(checkIn.checkInTime, 'dd-MM-yyyy HH:mm')}"></td>
+                        <td>
+                                <span class="status-badge">
+                                    <span class="dot"></span>
+                                    <span th:text="${checkIn.status}"></span>
+                                </span>
+                        </td>
+                        <td th:text="${checkIn.rewardPoints != null ? checkIn.rewardPoints : '-'}"></td>
+                        <td class="text-end">
+                            <a th:href="@{/admin/review/{id}(id=${checkIn.checkInId})}" class="btn-review">
+                                <i class="bi bi-eye"></i> Review
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div><!-- end content-body -->
+</div><!-- end main -->
+
+</body>
+</html>

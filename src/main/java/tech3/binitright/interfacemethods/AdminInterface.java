@@ -8,7 +8,6 @@ import tech3.binitright.model.CheckIn;
 import tech3.binitright.request.ReviewRequest;;
 
 public interface AdminInterface {
-	public List<CheckIn> getPendingCheckIns();
 	public CheckIn reviewCheckIn(Long checkInId);
 	public void updateCheckInStatus(Long id, CheckIn.Status status, String remarks);
 }

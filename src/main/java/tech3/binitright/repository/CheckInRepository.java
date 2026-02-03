@@ -28,5 +28,14 @@ public interface CheckInRepository extends JpaRepository<CheckIn, Long> {
 		       "JOIN FETCH c.dropOffLocation " +   
 		       "WHERE c.checkInId = :id")
 	Optional<CheckIn> findByIdWithDetails(@Param("id") Long id);
-		
+
+    @Query("""
+    SELECT c
+    FROM CheckIn c
+    JOIN FETCH c.user
+    JOIN FETCH c.wasteCategories
+    JOIN FETCH c.dropOffLocation""")
+    List<CheckIn> findAllWithDetails();
+
+
 }
