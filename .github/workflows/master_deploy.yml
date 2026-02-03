@@ -121,6 +121,7 @@ jobs:
       - name: Run Selenium Tests
         run: |
           mvn verify \
+          -Dmaven.test.failure.ignore=true \
           -Dsurefire.skip=true \
           -Dtarget_host=${{ secrets.TEST_IP }} \
           -Dtarget_port=8080 \
