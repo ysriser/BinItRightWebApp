@@ -34,6 +34,8 @@ services:
       - no-new-privileges:true
     tmpfs:
       - /tmp
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "8080:8080"
     environment:
@@ -43,6 +45,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
       APP_ADMIN_PASSWORD: ${APP_ADMIN_PASSWORD}
+      PYTHON_SERVICE_BASE_URL: http://host.docker.internal:8000
     depends_on:
       db:
         condition: service_healthy
