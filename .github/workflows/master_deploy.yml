@@ -75,6 +75,9 @@ jobs:
             mkdir -p /root/binitright-test/
             cd /root/binitright-test/
             
+            # Clear old failed layers to make room for the new pull
+            docker image prune -f
+            
             IMG='registry.digitalocean.com/binitright/binitright-app:${{ github.sha }}'
             PASS='${{ secrets.TEST_DB_PASSWORD }}'
             
@@ -280,6 +283,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /root/binitright-prod/
+            
+            # Clear old failed layers to make room for the new pull
+            docker image prune -f
             
             # Local variables for the script
             IMG='registry.digitalocean.com/binitright/binitright-app:${{ env.NEW_TAG }}'
