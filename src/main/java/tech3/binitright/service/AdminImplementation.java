@@ -2,6 +2,7 @@ package tech3.binitright.service;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,16 +13,37 @@ import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import tech3.binitright.interfacemethods.AdminInterface;
+import tech3.binitright.model.Admin;
 import tech3.binitright.model.CheckIn;
+import tech3.binitright.repository.AdminRepository;
 import tech3.binitright.repository.CheckInRepository;
 import tech3.binitright.request.ReviewRequest;
 
 @Service
 @Transactional
 public class AdminImplementation implements AdminInterface{
-	
-	@Autowired
+
+    @Autowired
+    private AdminRepository adminRepository;
+
+    @Autowired
 	private CheckInRepository checkInRepository;
+
+    @Autowired
+    AdminRepository adminrepo;
+
+
+    @Override
+    public void saveAdmin(Admin admin) {
+        adminrepo.save(admin);
+    }
+
+    @Override
+    public List<Admin> findAdminByUsername(String username) {
+        List<Admin> admins = new ArrayList<>();
+        admins.addAll(adminrepo.findByUsername(username));
+        return admins;
+    }
 
 	@Override
 	@Transactional
