@@ -10,8 +10,8 @@ import java.util.Map;
 public class ForecastService {
     private final RestTemplate restTemplate;
 
-    @Value("${python.service.url}")
-    private String pythonServiceUrl;
+    @Value("${python.service.base-url}")
+    private String pythonBaseUrl;
 
     public ForecastService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -19,8 +19,8 @@ public class ForecastService {
 
     @SuppressWarnings("unchecked")
     public Map<String, Object> getForecastData() {
-        String url = pythonServiceUrl ;
+        // Appends the specific path to the base URL (localhost OR host.docker.internal)
+        String url = pythonBaseUrl + "/forecast";
         return restTemplate.getForObject(url, Map.class);
     }
-
 }

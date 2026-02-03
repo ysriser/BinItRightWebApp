@@ -5,6 +5,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import tech3.binitright.interfacemethods.AdminInterface;
 import tech3.binitright.interfacemethods.UserInterface;
 import tech3.binitright.model.Admin;
 
@@ -14,11 +15,11 @@ import java.util.List;
 public class AdminSecurityService implements UserDetailsService {
 
     @Autowired
-    private UserInterface uservice;
+    private AdminInterface adminInterface;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        List<Admin> admins = uservice.findAdminByUsername(username);
+        List<Admin> admins = adminInterface.findAdminByUsername(username);
 
         if (admins == null || admins.isEmpty()) {
             throw new UsernameNotFoundException("Admin not found with username: " + username);

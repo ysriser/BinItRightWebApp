@@ -5,7 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tech3.binitright.interfacemethods.UserInterface;
 import tech3.binitright.model.Admin;
+import tech3.binitright.model.User;
 import tech3.binitright.repository.AdminRepository;
+import tech3.binitright.repository.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,18 +17,15 @@ import java.util.List;
 public class UserImplementation implements UserInterface {
 
     @Autowired
-    AdminRepository adminrepo;
-
+    private UserRepository userRepo;
 
     @Override
-    public void saveAdmin(Admin admin) {
-        adminrepo.save(admin);
+    public void saveUser(User user) {
+        userRepo.save(user);
     }
 
     @Override
-    public List<Admin> findAdminByUsername(String username) {
-        List<Admin> admins = new ArrayList<>();
-        admins.addAll(adminrepo.findByUsername(username));
-        return admins;
+    public List<User> findByUsername(String username) {
+        return userRepo.findByUsername(username);
     }
 }

@@ -372,9 +372,9 @@
 
       const years = Object.keys(data.forecasts.ARIMA).sort();
 
-      const generated = toMillion(years.map(y => data.forecasts.SES[String(y)]));
-      const disposed  = toMillion(years.map(y => data.forecasts.ARIMA[String(y)]));
-      const recycled  = toMillion(years.map(y => data.forecasts.WMA[String(y)]));
+      const generated = toMillion(years.map(y => data.forecasts.SES[y]));
+      const disposed  = toMillion(years.map(y => data.forecasts.ARIMA[y]));
+      const recycled  = toMillion(years.map(y => data.forecasts.WMA[y]));
 
       Chart.defaults.color = "#6c757d";
       Chart.defaults.font.family = "'Inter', sans-serif";

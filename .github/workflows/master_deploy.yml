@@ -75,25 +75,29 @@ jobs:
             mkdir -p /root/binitright-test/
             cd /root/binitright-test/
             
-            IMG='registry.digitalocean.com/binitright/binitright-app:${{ github.sha }}'
-            PASS='${{ secrets.TEST_DB_PASSWORD }}'
+            docker image prune -f
+            docker image prune -a -f --filter "until=1h"
             
+            # Define and Export all variables first
+            export JAVA_IMAGE='registry.digitalocean.com/binitright/binitright-app:${{ github.sha }}'
+            export MYSQL_ROOT_PASSWORD='${{ secrets.TEST_DB_PASSWORD }}'
+            export DATA_GOV_API_KEY='${{ secrets.DATA_GOV_API_KEY }}'
+            export APP_ADMIN_PASSWORD='${{ secrets.APP_ADMIN_PASSWORD }}'
+            export SPRING_PROFILES_ACTIVE=test
+            
+            # Pull the image using the variable
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
-            docker pull "$IMG"
+            docker pull "$JAVA_IMAGE"
             
-            # In the deploy-test SSH script
-            JAVA_IMAGE="$IMG" MYSQL_ROOT_PASSWORD="$PASS" \
-            docker compose down -v --remove-orphans # The -v nukes the volume
+            # Clean environment (nuke volumes to force re-seeding)
+            docker compose down -v --remove-orphans
             
-            API_KEY='${{ secrets.DATA_GOV_API_KEY }}'
-            ADMIN_VAL='${{ secrets.APP_ADMIN_PASSWORD }}'
-            
-            DATA_GOV_API_KEY="$API_KEY" \
-            APP_ADMIN_PASSWORD="$ADMIN_VAL" \
-            JAVA_IMAGE="$IMG" MYSQL_ROOT_PASSWORD="$PASS" SPRING_PROFILES_ACTIVE=test \
+            # Start the stack
             docker compose up -d
             
+            # Cleanup
             docker image prune -f
+            docker image prune -a -f --filter "until=1h"
 
   # ==========================================
   # BOX 7a SELENIUM E2E TESTS
@@ -119,11 +123,17 @@ jobs:
 
       # Run the actual tests (generates the JSON results)
       - name: Run Selenium Tests
-        run: mvn test -Dtest=LoginE2EIT -Dheadless=true
-        continue-on-error: true # Ensure the report generates even if tests fail
+        run: |
+          mvn verify \
+          -Dmaven.test.failure.ignore=true \
+          -Dsurefire.skip=true \
+          -Dtarget_host=${{ secrets.TEST_IP }} \
+          -Dtarget_port=8080 \
+          -Dheadless=true
 
       # Convert JSONs into an HTML website
       - name: Generate Allure Report
+        if: always()
         run: mvn allure:report
 
       # Zip and upload the HTML folder so you can download it from GitHub
@@ -275,28 +285,30 @@ jobs:
           script: |
             cd /root/binitright-prod/
             
-            # Local variables for the script
-            IMG='registry.digitalocean.com/binitright/binitright-app:${{ env.NEW_TAG }}'
-            PASS='${{ secrets.DB_PASSWORD }}'  # FIXED NAME
+            docker image prune -f
+            docker image prune -a -f --filter "until=1h"
             
+            # Define and Export
+            export JAVA_IMAGE='registry.digitalocean.com/binitright/binitright-app:${{ env.NEW_TAG }}'
+            export MYSQL_ROOT_PASSWORD='${{ secrets.DB_PASSWORD }}'
+            export DATA_GOV_API_KEY='${{ secrets.DATA_GOV_API_KEY }}'
+            export APP_ADMIN_PASSWORD='${{ secrets.APP_ADMIN_PASSWORD }}'
+            export SPRING_PROFILES_ACTIVE=prod
+            
+            # Login and Pull
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
-            docker pull "$IMG"
+            docker pull "$JAVA_IMAGE"
             
-            # Safety cleanup of any orphaned containers on 8080
+            # Clean orphans on 8080
             docker rm -f $(docker ps -q --filter "publish=8080") || true
             
-            JAVA_IMAGE="$IMG" MYSQL_ROOT_PASSWORD="$PASS" \
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml down # NO -v here!
-            
-            API_KEY='${{ secrets.DATA_GOV_API_KEY }}'
-            ADMIN_VAL='${{ secrets.APP_ADMIN_PASSWORD }}'
-            
-            DATA_GOV_API_KEY="$API_KEY" \
-            APP_ADMIN_PASSWORD="$ADMIN_VAL" \
-            JAVA_IMAGE="$IMG" MYSQL_ROOT_PASSWORD="$PASS" SPRING_PROFILES_ACTIVE=prod \
+            # Deploy (Keep volumes for Prod)
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml down
             docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
             
+            # 5. Cleanup
             docker image prune -f
+            docker image prune -a -f --filter "until=1h"
 
       - name: Push Git Tag
         run: |
