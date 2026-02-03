@@ -14,6 +14,4 @@ public interface CheckInInterface {
 
     public List<CheckIn> getPendingCheckIns();
 
-    public CheckInDataResponse validateCheckIn(Long long1, int quantity);
-	 	 
 }

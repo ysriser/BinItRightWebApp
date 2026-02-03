@@ -42,11 +42,12 @@ public class CheckInController {
         System.out.println("Inside checkIn controller:  "+data.getUserId());
 		
         CheckIn saved = checkInService.processCheckIn(data);
-        
-        CheckInDataResponse res = new CheckInDataResponse();
-        
-        res = checkInService.validateCheckIn(saved.getCheckInId(), saved.getQuantity());
-		
+
+        CheckInDataResponse res = new CheckInDataResponse(
+                saved.getCheckInId(),
+                "SUCCESS",
+                "Check-in submitted successfully and pending validation"
+        );
 		return ResponseEntity.ok(res);
 
 	}

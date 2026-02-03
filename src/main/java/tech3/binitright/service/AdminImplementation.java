@@ -11,6 +11,9 @@ import tech3.binitright.repository.AdminRepository;
 import tech3.binitright.repository.CheckInRepository;
 import tech3.binitright.request.ReviewRequest;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @Transactional
 public class AdminImplementation implements AdminInterface{
@@ -46,15 +49,17 @@ public class AdminImplementation implements AdminInterface{
 	@Override
 	@Transactional
 	public void updateCheckInStatus(Long id, CheckIn.Status status, String remarks) {
+        Integer rewards;
 	    CheckIn checkIn = checkInRepository.findById(id)
 	            .orElseThrow(() -> new EntityNotFoundException("CheckIn not found"));
 
 	    if (status == CheckIn.Status.APPROVED) {
             checkIn.setStatus(status);
-            // calculate reward points here
+            rewards = checkIn.getQuantity()*10;
+            checkIn.setRewardPoints(rewards);
         } else {
             checkIn.setStatus(status);
-            //checkIn.setRewardPoints(0);
+            checkIn.setRewardPoints(0);
         }
 
         //checkIn.setAdminRemarks(remarks); 

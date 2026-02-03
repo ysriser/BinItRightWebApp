@@ -81,7 +81,10 @@ public class CheckInImplementation implements CheckInInterface{
                 .orElseThrow(() -> new RuntimeException(
                         "Waste category not found: " + data.getWasteCategory()
                 ));
-		            
+
+        if(data.getQuantity()<10){
+            checkIn.setRewardPoints(data.getQuantity()*10);
+        }
 		checkIn.setUser(user);
 		checkIn.setDropOffLocation(location);
 		checkIn.setWasteCategories(category);
@@ -89,6 +92,7 @@ public class CheckInImplementation implements CheckInInterface{
 		checkIn.setQuantity(data.getQuantity());
 		checkIn.setCheckInTime(data.getCheckInTime());				
 		checkIn.setStatus(CheckIn.Status.PROCESSING);
+        checkIn.setFileName(data.getVideoKey());
 		
 		return checkInRepository.save(checkIn); 	
 		
@@ -98,52 +102,5 @@ public class CheckInImplementation implements CheckInInterface{
 	public List<CheckIn> getPendingCheckIns() {
 		return checkInRepository.findByStatusWithDetails(CheckIn.Status.PROCESSING);
 	}
-
-	@Override
-	public CheckInDataResponse validateCheckIn(Long checkInId, int quantity) {
-		CheckIn checkIn = checkInRepository.findById(checkInId).get(); 
-
-        if (checkIn == null) {
-            throw new EntityNotFoundException("CheckIn not found with id: " + checkInId);
-        }
-        
-        boolean valid = isDurationValid(checkIn);
-        
-        if(quantity>10) {
-        	checkIn.setStatus(CheckIn.Status.PROCESSING);
-            checkInRepository.save(checkIn);
-
-            return new CheckInDataResponse(
-                    checkInId,
-                    "PENDING",
-                    "Check-in quantity too high and validation pending"
-            );
-        }
-
-        if (valid) {
-            checkIn.setStatus(CheckIn.Status.APPROVED);
-            checkInRepository.save(checkIn);
-
-            return new CheckInDataResponse(
-                    checkInId,
-                    "APPROVED",
-                    "Check-in validated and approved successfully"
-            );
-        } else {
-            checkIn.setStatus(CheckIn.Status.DENIED);
-            checkInRepository.save(checkIn);
-
-            return new CheckInDataResponse(
-                    checkInId,
-                    "REJECTED",
-                    "Check-in validation failed"
-            );
-        }
-    }
-
-	private boolean isDurationValid(CheckIn checkIn) {
-        return checkIn.getDuration() >= MIN_DURATION_SECONDS;
-    }
-	
 
 }
