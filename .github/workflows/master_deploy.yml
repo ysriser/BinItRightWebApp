@@ -119,11 +119,16 @@ jobs:
 
       # Run the actual tests (generates the JSON results)
       - name: Run Selenium Tests
-        run: mvn test -Dtest=LoginE2EIT -Dheadless=true
-        continue-on-error: true # Ensure the report generates even if tests fail
+        run: |
+          mvn failsafe:integration-test \
+          -Dit.test=LoginE2ETestIT \
+          -Dtarget_host=${{ secrets.TEST_IP }} \
+          -Dtarget_port=8080 \
+          -Dheadless=true
 
       # Convert JSONs into an HTML website
       - name: Generate Allure Report
+        if: always()
         run: mvn allure:report
 
       # Zip and upload the HTML folder so you can download it from GitHub

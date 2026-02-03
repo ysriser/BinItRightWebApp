@@ -4,9 +4,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.How;
-import org.springframework.stereotype.Component;
+import org.openqa.selenium.support.PageFactory;
 
-@Component
 public class LoginPage {
     private final WebDriver driver;
 
@@ -16,16 +15,13 @@ public class LoginPage {
     @FindBy(how = How.NAME, using = "password")
     public WebElement passwordField;
 
-    @FindBy(how = How.CLASS_NAME, className = "login-btn")
+    @FindBy(how = How.CLASS_NAME, using = "login-btn")
     private WebElement loginBtn;
 
     public LoginPage(WebDriver driver) {
         this.driver = driver;
-    }
-
-    @jakarta.annotation.PostConstruct
-    public void init() {
-        org.openqa.selenium.support.PageFactory.initElements(driver, this);
+        // Initializes elements immediately when you call 'new LoginPage(driver)'
+        PageFactory.initElements(driver, this);
     }
 
     public void login(String username, String password) {
