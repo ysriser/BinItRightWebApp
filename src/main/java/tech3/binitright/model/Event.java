@@ -12,7 +12,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "events")
-public class Events {
+public class Event {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +23,9 @@ public class Events {
     
     private String description;
     
-    private String location;
+    private String locationName;
+
+    private String postalCode;
     
     @Column(name = "start_time")
     private LocalDateTime startTime;
@@ -42,14 +44,15 @@ public class Events {
         DENIED
     }
     
-    public Events() {}
-    public Events(Long eventId, String title, String description, String location, LocalDateTime startTime,
-			LocalDateTime endTime, String imageUrl, Status status) {
+    public Event() {}
+    public Event(Long eventId, String title, String description, String locationName, String PostalCode, LocalDateTime startTime,
+                 LocalDateTime endTime, String imageUrl, Status status) {
 		
 		this.eventId = eventId;
 		this.title = title;
 		this.description = description;
-		this.location = location;
+		this.locationName = locationName;
+        this.postalCode = PostalCode;
 		this.startTime = startTime;
 		this.endTime = endTime;
 		this.imageUrl = imageUrl;
@@ -80,12 +83,20 @@ public class Events {
         this.description = description;
     }
 
-    public String getLocation() {
-        return location;
+    public String getLocationName() {
+        return locationName;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
+    public void setLocationName(String location) {
+        this.locationName = locationName;
+    }
+
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
     }
 
     public LocalDateTime getStartTime() {
