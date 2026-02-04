@@ -3,26 +3,16 @@ package tech3.binitright.model;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "drop_off_location")
 public class DropOffLocation {
 
-	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "drop_off_id")
-    private Long dropOffId;
+    @Id
+    @Column(name = "drop_off_id", length = 32, nullable = false, updatable = false)
+    private String id;
 
     private String name;
     
@@ -58,10 +48,10 @@ public class DropOffLocation {
     
     public DropOffLocation() {}
 
-	public DropOffLocation(Long dropOffId, String name, String address, String postalCode, String description,
-			String binType, BigDecimal latitude, BigDecimal longitude, Status status, List<CheckIn> checkIn) {
+	public DropOffLocation(String id, String name, String address, String postalCode, String description,
+			String binType, BigDecimal latitude, BigDecimal longitude, Status status, List<CheckIn> checkIn, String incCrc) {
 		super();
-		this.dropOffId = dropOffId;
+        this.id = id;
 		this.name = name;
 		this.address = address;
 		this.postalCode = postalCode;
@@ -73,13 +63,13 @@ public class DropOffLocation {
 		this.checkIn = checkIn;
 	}
 
-	public Long getDropOffId() {
-		return dropOffId;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public void setDropOffId(Long dropOffId) {
-		this.dropOffId = dropOffId;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
 	public String getName() {
 		return name;
@@ -153,7 +143,4 @@ public class DropOffLocation {
 		this.checkIn = checkIn;
 	}
 
-	
-
-    
 }

@@ -1,36 +1,4 @@
-SELECT 1;
 
-
-INSERT IGNORE INTO app_users
-(
-    user_id,
-    created_at,
-    email_address,
-    locale,
-    name,
-    password_hash,
-    role,
-    username,
-    carbon_emission_saved,
-    current_rank,
-    updated_at,
-    user_address
-)
-VALUES
-(
-    2,
-    NOW(),
-    'muthu@test.com',
-    'en_SG',
-    'Muthu Raj',
-    '$2a$10$dummyhashvalue',
-    'USER',
-    'muthu',
-    12.5,
-    1,
-    NOW(),
-    'Singapore'
-);
 
 INSERT IGNORE INTO app_users
 (
@@ -157,7 +125,7 @@ VALUES
     3,
     30,
     'APPROVED',
-    10,
+    '06383D31CA5CC778',
     1,
     1
 ),
@@ -168,9 +136,9 @@ VALUES
     'ewaste_1.jpg',
     1,
     50,
-    'PROCESSING',
-    11,
-    4,
+    'APPROVED',
+    '06193A57B84223C5',
+    1,
     2
 ),
 (
@@ -180,8 +148,8 @@ VALUES
     'glass_1.jpg',
     5,
     25,
-    'PROCESSING',
-    12,
+    'APPROVED',
+    '2485B751C8B77474',
     1,
     3
 );
