@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import tech3.binitright.model.News;
 import tech3.binitright.interfacemethods.NewsInterface;
+import tech3.binitright.service.EventImplementation;
+import tech3.binitright.service.NewsImplementation;
 
 import java.util.List;
 
@@ -17,6 +19,11 @@ public class NewsRestController {
 
     @Autowired
     private NewsInterface newsService;
+
+    @Autowired
+    public void setNewsService(NewsImplementation newsImplementation) {
+        this.newsService = newsImplementation;
+    }
 
     @GetMapping
     public ResponseEntity<List<News> > getAllNews() {

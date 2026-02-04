@@ -47,3 +47,33 @@ SELECT 5,
        'Completed',
        '2026-02-04 09:00:00'
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM news WHERE news_id = 5);
+
+-- Event 1: Future Workshop
+INSERT INTO events (event_id, title, description, location_name, postal_code, start_time, end_time, image_url)
+SELECT 1, 'Sustainable Living Workshop', 'Learn practical tips for reducing waste and living more sustainably in your daily life.', 'Yew Tee Community Club', '689286', '2026-02-10 18:00:00', '2026-02-10 20:00:00', 'https://images.unsplash.com/photo-1544928147-79a2dbc1f389'
+FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM events WHERE event_id = 1);
+
+-- Event 2: Beach Cleanup
+INSERT INTO events (event_id, title, description, location_name, postal_code, start_time, end_time, image_url)
+SELECT 2, 'Community Beach Cleanup', 'Join us for a morning of cleaning up our beautiful coastline. Meet at the main pavilion.', 'East Coast Park Area D', '449880', '2026-02-14 09:00:00', '2026-02-14 12:00:00', 'https://images.unsplash.com/photo-1708955148629-b1c0884fb371'
+FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM events WHERE event_id = 2);
+
+-- Event 3: Recycling Drive
+INSERT INTO events (event_id, title, description, location_name, postal_code, start_time, end_time, image_url)
+SELECT 3, 'Neighborhood Recycling Drive', 'Bring your old electronics, batteries, and paper for safe disposal and recycling.', 'Clementi Mall', '129588', '2026-02-15 10:00:00', '2026-02-15 16:00:00', 'https://images.unsplash.com/photo-1599059813005-11265ba4b4ce'
+FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM events WHERE event_id = 3);
+
+-- Event 4: Upcycling Class
+INSERT INTO events (event_id, title, description, location_name, postal_code, start_time, end_time, image_url)
+SELECT 4, 'Creative Upcycling Class', 'Turn your "trash" into treasure! This session focuses on turning old textiles into reusable bags.', 'National Library', '188064', '2026-02-18 14:00:00', '2026-02-18 17:00:00', 'https://images.unsplash.com/photo-1582408921715-18e7806365c1'
+FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM events WHERE event_id = 4);
+
+-- Event 5: Zero-Waste Talk
+INSERT INTO events (event_id, title, description, location_name, postal_code, start_time, end_time, image_url)
+SELECT 5, 'Zero-Waste Lifestyle Talk', 'A special talk by environmental experts on how to achieve a zero-waste home in Singapore.', 'National Library', '188064', '2026-02-22 11:00:00', '2026-02-22 13:00:00', 'https://images.unsplash.com/photo-1540575467063-178a50c2df87'
+FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM events WHERE event_id = 5);
+
+-- Event 6: Past Event (Used for filtering test)
+INSERT INTO events (event_id, title, description, location_name, postal_code, start_time, end_time, image_url, status)
+SELECT 6,'New Year E-Waste Collection', 'This event happened last month. It should be filtered out by the backend logic.','Tampines Hub','528523','2026-01-05 09:00:00','2026-01-05 17:00:00', 'https://images.unsplash.com/photo-1550009158-9ebf69173e03','APPROVED'
+FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM events WHERE event_id = 6);
