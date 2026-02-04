@@ -15,7 +15,7 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "checkIn")
+@Table(name = "check_in")
 public class CheckIn {
 
 	@Id

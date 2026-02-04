@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Profile({"test", "prod", "default"})
 @Service
@@ -58,7 +59,7 @@ public class BinDataImporter {
 
         importFromApi(
                 LAMP_API,
-                "Lamp"
+                "Lighting"
         );
     }
 
@@ -95,26 +96,54 @@ public class BinDataImporter {
 
             int count = 0;
             for (JsonNode feature : features) {
+
                 JsonNode geom = feature.get("geometry");
                 JsonNode props = feature.get("properties");
 
                 double lng = geom.get("coordinates").get(0).asDouble();
                 double lat = geom.get("coordinates").get(1).asDouble();
 
+                String incCrc;
+
+                if (props.has("INC_CRC")) {
+                    incCrc = props.get("INC_CRC").asText();
+                } else {
+                    // HTML-based datasets (BlueBin / Lamp)
+                    String html = props.path("Description").asText("");
+                    Map<String, String> meta = parseHtmlTable(html);
+                    incCrc = meta.get("INC_CRC");
+                }
+
+                if (incCrc == null || incCrc.isEmpty()) {
+                    continue;
+                }
+
                 DropOffLocation bin;
 
                 if (binType.equals("BlueBin")) {
                     bin = parseHtmlBasedBin(props, lat, lng, binType);
-                }
-                else if (binType.equals("EWaste")) {
+                } else if (binType.equals("EWaste")) {
                     bin = parseEWasteBin(props, lat, lng, binType);
-                }
-                else {
+                } else {
                     bin = parseHtmlBasedBin(props, lat, lng, binType);
                 }
 
-                repo.save(bin);
-                count++;
+                bin.setId(incCrc);
+
+                Optional<DropOffLocation> existing = repo.findById(incCrc);
+
+                if (existing.isPresent()) {
+                    DropOffLocation db = existing.get();
+                    db.setLatitude(bin.getLatitude());
+                    db.setLongitude(bin.getLongitude());
+                    db.setDescription(bin.getDescription());
+                    db.setStatus(Status.ACTIVE);
+                    repo.save(db);
+                } else {
+                    repo.save(bin);
+                    count++;
+                }
+
             }
             
             System.out.println("Saved " + count + " " + binType + " bins");  
