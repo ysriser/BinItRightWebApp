@@ -45,7 +45,7 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // ✅ public endpoints for mobile
-                        .requestMatchers("/api/auth/login", "/api/admin/create").permitAll()
+                        .requestMatchers("/api/auth/login", "/api/admin/create", "/api/bins/**").permitAll()
 
                         // ✅ everything else in /api needs token
                         .anyRequest().authenticated()
@@ -88,7 +88,7 @@ public class SecurityConfig {
                         .cacheControl(withDefaults())
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/css/**", "/js/**", "/api/admin/create","/api/**").permitAll()
+                        .requestMatchers("/login", "/css/**", "/js/**", "/api/admin/create", "/api/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("admin") // Only admins allowed
                         .anyRequest().authenticated()
                 )

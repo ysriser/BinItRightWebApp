@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 
 import tech3.binitright.model.CheckIn;
+import tech3.binitright.response.RecycleHistoryResponse;
 
 public interface CheckInRepository extends JpaRepository<CheckIn, Long> {
 	//List<CheckIn> findByStatus(Status status);
@@ -28,5 +29,18 @@ public interface CheckInRepository extends JpaRepository<CheckIn, Long> {
 		       "JOIN FETCH c.dropOffLocation " +   
 		       "WHERE c.checkInId = :id")
 	Optional<CheckIn> findByIdWithDetails(@Param("id") Long id);
-		
+
+    @Query("""
+    SELECT new tech3.binitright.response.RecycleHistoryResponse(
+        wc.name,
+        wc.iconUrl,
+        ci.checkInTime,
+        ci.quantity
+    )
+    FROM CheckIn ci
+    JOIN ci.wasteCategories wc
+    WHERE ci.user.id = :userId
+    ORDER BY ci.checkInTime DESC
+""")
+    List<RecycleHistoryResponse> findRecycleHistoryByUserId(@Param ("userId")Long userId);
 }
