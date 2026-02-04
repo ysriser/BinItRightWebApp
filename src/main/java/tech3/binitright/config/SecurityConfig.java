@@ -88,7 +88,7 @@ public class SecurityConfig {
                         .cacheControl(withDefaults())
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/css/**", "/js/**", "/api/admin/create").permitAll()
+                        .requestMatchers("/login", "/css/**", "/js/**", "/api/admin/create", "/api/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("admin") // Only admins allowed
                         .anyRequest().authenticated()
                 )
