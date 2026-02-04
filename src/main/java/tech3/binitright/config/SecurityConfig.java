@@ -46,6 +46,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // ✅ public endpoints for mobile
                         .requestMatchers("/api/auth/login", "/api/admin/create", "/api/bins/**", "/api/checkin", "/api/videos/presign-upload").permitAll()
+                        .requestMatchers("/api/auth/login", "/api/admin/create", "/api/bins/**").permitAll()
 
                         // ✅ everything else in /api needs token
                         .anyRequest().authenticated()
@@ -91,7 +92,7 @@ public class SecurityConfig {
                         .cacheControl(withDefaults())
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/css/**", "/js/**", "/api/admin/create","/api/**").permitAll()
+                        .requestMatchers("/login", "/css/**", "/js/**", "/api/admin/create", "/api/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("admin") // Only admins allowed
                         .anyRequest().authenticated()
                 )

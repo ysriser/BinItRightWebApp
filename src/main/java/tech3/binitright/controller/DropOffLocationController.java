@@ -21,22 +21,22 @@ public class DropOffLocationController {
         this.service = service;
     }
 
-    @GetMapping
-    public List<DropOffLocation> getAllBins() {
-        return service.getAllBins();
-    }
+//    @GetMapping
+//    public List<DropOffLocation> getAllBins() {
+//        return service.getAllBins();
+//    }
 
-    @GetMapping("/nearby")
-    public List<NearByBinDto> nearbyBins(
-            @RequestParam double lat,
-            @RequestParam double lng,
-            @RequestParam(defaultValue = "30") double radius) {
-    	System.out.println("Inside dropOff controller:  "+lat);
+//    @GetMapping("/nearby")
+//    public List<NearByBinDto> nearbyBins(
+//            @RequestParam double lat,
+//            @RequestParam double lng,
+//            @RequestParam(defaultValue = "30") double radius) {
+//    	System.out.println("Inside dropOff controller:  "+lat);
+//
+//        return service.getNearbyBins(lat, lng, radius);
+//    }
 
-        return service.getNearbyBins(lat, lng, radius);
-    }
-
-    @GetMapping("/all")
+    @GetMapping("/search")
     public List<NearByBinDto> FindBins(
             @RequestParam double lat,
             @RequestParam double lng,
