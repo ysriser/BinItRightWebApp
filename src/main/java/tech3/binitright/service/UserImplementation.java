@@ -4,12 +4,9 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tech3.binitright.interfacemethods.UserInterface;
-import tech3.binitright.model.Admin;
 import tech3.binitright.model.User;
-import tech3.binitright.repository.AdminRepository;
 import tech3.binitright.repository.UserRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -20,8 +17,9 @@ public class UserImplementation implements UserInterface {
     private UserRepository userRepo;
 
     @Override
-    public void saveUser(User user) {
+    public User saveUser(User user) {
         userRepo.save(user);
+        return user;
     }
 
     @Override

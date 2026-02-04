@@ -1,37 +1,3 @@
-SELECT 1;
-
-
-INSERT IGNORE INTO app_users
-(
-    user_id,
-    created_at,
-    email_address,
-    locale,
-    name,
-    password_hash,
-    role,
-    username,
-    carbon_emission_saved,
-    current_rank,
-    updated_at,
-    user_address
-)
-VALUES
-(
-    2,
-    NOW(),
-    'muthu@test.com',
-    'en_SG',
-    'Muthu Raj',
-    '$2a$10$dummyhashvalue',
-    'USER',
-    'muthu',
-    12.5,
-    1,
-    NOW(),
-    'Singapore'
-);
-
 INSERT IGNORE INTO waste_categories
 (
     cat_id,
@@ -200,3 +166,16 @@ FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM events WHERE event_id = 5);
 INSERT INTO events (event_id, title, description, location_name, postal_code, start_time, end_time, image_url, status)
 SELECT 6,'New Year E-Waste Collection', 'This event happened last month. It should be filtered out by the backend logic.','Tampines Hub','528523','2026-01-05 09:00:00','2026-01-05 17:00:00', 'https://images.unsplash.com/photo-1550009158-9ebf69173e03','APPROVED'
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM events WHERE event_id = 6);
+
+-- Insert Placeholder Accessories with specific URLs
+INSERT INTO accessories (name, image_url, required_points)
+SELECT 'Elegant Dress', 'https://images.emojiterra.com/google/noto-emoji/unicode-16.0/color/512px/1f457.png', 300
+    WHERE NOT EXISTS (SELECT 1 FROM accessories WHERE name = 'Elegant Dress');
+
+INSERT INTO accessories (name, image_url, required_points)
+SELECT 'Formal Suit', 'https://assets.streamlinehq.com/image/private/w_512,h_512,ar_1/f_auto/v1/icons/freebies-freemojis/smiley-people/smiley-people/man-in-suit-levitating-2-l41kq5dhzpb5dnzxrvrki.png?_a=DATAiZAAZAA0', 500
+    WHERE NOT EXISTS (SELECT 1 FROM accessories WHERE name = 'Formal Suit');
+
+INSERT INTO accessories (name, image_url, required_points)
+SELECT 'Sports Attire', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJZSj-WZ0FNsd7VbJB5snx56Gu-J7wBb8c_Q&s', 200
+    WHERE NOT EXISTS (SELECT 1 FROM accessories WHERE name = 'Sports Attire');
