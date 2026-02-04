@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Bin It Right – Review Issue</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+</head>
+
+<body>
+
+<!-- ═════════════════ SIDEBAR ═════════════════ -->
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <h4><i class="bi bi-arrow-repeat me-1"></i>Bin It Right</h4>
+        <p>Admin Portal<br>Welcome, root</p>
+    </div>
+    <nav>
+        <a th:href="@{/admin/dashboard}"
+           th:classappend="${currentPath != null and currentPath.startsWith('/admin/dashboard')} ? 'active' : ''">
+            <i class="bi bi-grid-1x2"></i> Dashboard
+        </a>
+        <a th:href="@{/admin/checkin}"
+           th:classappend="${currentPath != null and
+                (currentPath.startsWith('/admin/checkin')
+                 or currentPath.startsWith('/admin/review'))} ? 'active' : ''">
+            <i class="bi bi-clipboard-check"></i> Check-In Review
+        </a>
+        <a href="#">
+            <i class="bi bi-file-text"></i> Sustainability Reports
+        </a>
+        <a th:href="@{/admin/issues}" class="active">
+            <i class="bi bi-exclamation-circle"></i> Issue Management
+        </a>
+        <a href="#">
+            <i class="bi bi-people"></i> Users
+        </a>
+        <a href="#">
+            <i class="bi bi-gear"></i> Settings
+        </a>
+    </nav>
+
+    <div class="sidebar-footer mt-auto p-3">
+        <form th:action="@{/logout}" method="post">
+            <button class="btn btn-outline-danger w-100">
+                <i class="bi bi-box-arrow-left me-2"></i> Logout
+            </button>
+        </form>
+    </div>
+</aside>
+
+<!-- ═════════════════ MAIN ═════════════════ -->
+<div class="main">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <h2>Issue Details</h2>
+            <p>Review and resolve reported issue</p>
+        </div>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="content-body">
+        <div class="review-wrap">
+
+            <!-- Breadcrumb -->
+            <div class="breadcrumb-custom">
+                <a th:href="@{/admin/dashboard}">
+                    <i class="bi bi-house-door me-1"></i>Dashboard
+                </a>
+                <span class="sep">›</span>
+                <a th:href="@{/admin/issues}">Issue Management</a>
+                <span class="sep">›</span>
+                <span class="current"
+                      th:text="'Issue #' + ${issue.issueId}">
+                    Issue #7
+                </span>
+            </div>
+
+            <!-- Back -->
+            <a th:href="@{/admin/issues}" class="back-link">
+                <i class="bi bi-arrow-left"></i> Back to Issues
+            </a>
+
+            <!-- REVIEW CARD -->
+            <div class="review-card">
+
+                <!-- Header -->
+                <div class="review-card-header">
+                    <div class="hdr-icon">
+                        <i class="bi bi-exclamation-circle"></i>
+                    </div>
+                    <div>
+                        <h4>Issue Review</h4>
+                        <p th:text="'Reported by ' + ${issue.raisedBy.name}">
+                            Reported by User
+                        </p>
+                    </div>
+                </div>
+
+                <!-- DETAILS -->
+                <div class="detail-row">
+                    <div class="detail-label">Issue ID</div>
+                    <div class="detail-value">
+                        <span class="cell-id"
+                              th:text="'#' + ${issue.issueId}">#7</span>
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">User</div>
+                    <div class="detail-value">
+                        <div class="avatar-sm"
+                             th:text="${#strings.toUpperCase(#strings.substring(issue.raisedBy.name,0,2))}">
+                            AL
+                        </div>
+                        <span th:text="${issue.raisedBy.name}">Alice Tan</span>
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">Category</div>
+                    <div class="detail-value">
+                        <span class="item-tag">
+                            <i class="bi bi-tag"></i>
+                            <span th:text="${issue.issueCategory}">BinIssues</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">Description</div>
+                    <div class="detail-value" th:text="${issue.description}">
+                        Issue description
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">Status</div>
+                    <div class="detail-value">
+                        <span class="status-badge"
+                              th:classappend="${issue.status.name() == 'NEW'} ? '' :
+                                             (${issue.status.name() == 'IN_PROGRESS'} ? ' approved' : ' denied')">
+                            <span class="dot"></span>
+                            <span th:text="${issue.status}">NEW</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">Reported At</div>
+                    <div class="detail-value"
+                         th:text="${#temporals.format(issue.createdAt,'dd MMM yyyy HH:mm')}">
+                        04 Feb 2026 10:47
+                    </div>
+                </div>
+
+                <!-- ACTIONS -->
+                <div class="action-row">
+
+                    <!-- NEW → In Progress -->
+                    <form th:if="${issue.status.name() == 'NEW'}"
+                          th:action="@{/admin/issues/{id}/in-progress(id=${issue.issueId})}"
+                          method="post">
+                        <button class="btn btn-outline-primary">
+                            <i class="bi bi-arrow-repeat"></i> Mark In Progress
+                        </button>
+                    </form>
+
+                    <!-- IN_PROGRESS → Resolve -->
+                    <form th:if="${issue.status.name() == 'IN_PROGRESS'}"
+                          th:action="@{/admin/issues/{id}/resolve(id=${issue.issueId})}"
+                          method="post">
+                        <button class="btn btn-success">
+                            <i class="bi bi-check-circle"></i> Resolve Issue
+                        </button>
+                    </form>
+
+                    <!-- RESOLVED -->
+                    <span th:if="${issue.status.name() == 'RESOLVED'}"
+                          class="text-success fw-semibold">
+                        <i class="bi bi-check-circle-fill"></i>
+                        Issue Resolved
+                    </span>
+                </div>
+
+                <!-- FOOTER -->
+                <div class="review-card-footer">
+                    <i class="bi bi-shield-check me-1"></i> Admin Issue Panel
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

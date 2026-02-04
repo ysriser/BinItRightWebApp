@@ -1,103 +1,131 @@
 package tech3.binitright.controller;
 
+import java.security.Principal;
 import java.util.List;
-import java.util.Map;
-
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import tech3.binitright.interfacemethods.AdminInterface;
 import tech3.binitright.interfacemethods.CheckInInterface;
+import tech3.binitright.interfacemethods.IssueInterface;
 import tech3.binitright.model.CheckIn;
-import tech3.binitright.request.ReviewRequest;
-import tech3.binitright.service.AdminImplementation;
-import tech3.binitright.service.CheckInImplementation;
-import tech3.binitright.service.ForecastService;
+import tech3.binitright.model.Issue;
+import tech3.binitright.service.*;
 
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
-	
-		@Autowired
-		private AdminInterface adminService;
-		
-		public void setAdminService(AdminImplementation adminserviceImp) {
-			this.adminService = adminserviceImp;
-		}
-		
-		@Autowired
-		private CheckInInterface checkInService;
-		
-		public void setcheckInService(CheckInImplementation checkInserviceImp) {
-			this.checkInService = checkInserviceImp;
-		}
-        @Autowired
-        private  ForecastService forecastService;
 
-        public void setForecastService(ForecastService forecastService) {
-            this.forecastService = forecastService;}
-		
-		/*@GetMapping("/pending")
-	    public String getPendingCheckIns(Model model) {
-	        List<CheckIn> pendingCheckIns = checkInService.getPendingCheckIns();
-	        model.addAttribute("pendingCheckIns", pendingCheckIns);
-            Map<String, Object> forecastData = forecastService.getForecastData();
+    @Autowired
+    private AdminInterface adminService;
 
-            model.addAttribute("forecastData", forecastData);
-	        return "admin-dashboard";
-	    }*/
-        @GetMapping("/dashboard")
-        public String dashboard(Model model) {
+    public void setAdminService(AdminImplementation adminserviceImp) {
+        this.adminService = adminserviceImp;
+    }
 
-            model.addAttribute(
-                    "pendingCheckIns",
-                    checkInService.getPendingCheckIns()
-            );
+    @Autowired
+    private CheckInInterface checkInService;
 
-            model.addAttribute(
-                    "forecastData",
-                    forecastService.getForecastData()
-            );
+    public void setcheckInService(CheckInImplementation checkInserviceImp) {
+        this.checkInService = checkInserviceImp;
+    }
 
-            return "admin-dashboard";
-        }
+    @Autowired
+    private ForecastService forecastService;
 
+    public void setForecastService(ForecastService forecastService) {
+        this.forecastService = forecastService;
+    }
+
+    @Autowired
+    private IssueInterface issueService;
+
+    public void setIssueService(IssueImplementation issueserviceImp) {
+        this.issueService = issueserviceImp;
+    }
+
+    @Autowired
+    private DigitalOceanStorageService digitalOceanStorageService;
+
+    @GetMapping("/dashboard")
+    public String dashboard(Model model) {
+
+        List<Issue> issues = issueService.getAllIssues();
+
+        model.addAttribute("currentPath", "/admin/dashboard");
+        model.addAttribute("issues",
+                issueService.getLatestIssuesForDashboard());
+        model.addAttribute("newCount",
+                issueService.getTotalIssueCount());
+
+        model.addAttribute(
+                "pendingCheckIns",
+                checkInService.getPendingCheckIns()
+        );
+
+        //            model.addAttribute(
+        //                    "forecastData",
+        //                    forecastService.getForecastData()
+        //            );
+
+        return "admin-dashboard";
+    }
 
 
     @GetMapping("/review/{checkInId}")
-	    public String reviewCheckIn(@PathVariable Long checkInId, Model model) {
-	        CheckIn checkIn = adminService.reviewCheckIn(checkInId);
-	        model.addAttribute("checkIn", checkIn);
-	              
-	        return "checkin-review";
-	    }
-		
-		@PostMapping("/review/{id}")
-		public String reviewDecision(
-		        @PathVariable("id") Long checkInId,
-		        @RequestParam("status") CheckIn.Status status,
-		        @RequestParam(required = false) String remarks,
-		        RedirectAttributes redirect) {
+    public String reviewCheckIn(@PathVariable Long checkInId, Model model, Principal principal) {
+        CheckIn checkIn = adminService.reviewCheckIn(checkInId);
+        String signedUrl = null;;
 
-		    adminService.updateCheckInStatus(checkInId, status, remarks);
+        if (checkIn.getStatus() == CheckIn.Status.PROCESSING
+                && checkIn.getFileName() != null) {
+            signedUrl = digitalOceanStorageService
+                    .generateSignedVideoUrl(checkIn.getFileName());
+            model.addAttribute("signedVideoUrl", signedUrl);
+        } else {
+            System.out.println("Video not added - Status: " + checkIn.getStatus()
+                    + ", FileName: " + checkIn.getFileName());
+        }
 
-		    redirect.addFlashAttribute(
-		        "success",
-		        "Check-in " + status.name().toLowerCase() + " successfully"
-		    );
+        model.addAttribute("currentPath", "/admin/checkin");
+        model.addAttribute("checkIn", checkIn);
+        model.addAttribute("adminUsername", principal.getName());
 
-		    return "redirect:/admin/pending";
-		}
+        return "checkin-review";
+    }
 
-		
+    @PostMapping("/review/{id}")
+    public String reviewDecision(
+            @PathVariable("id") Long checkInId,
+            @RequestParam("status") CheckIn.Status status,
+            @RequestParam(required = false) String remarks,
+            RedirectAttributes redirect) {
+
+        adminService.updateCheckInStatus(checkInId, status, remarks);
+
+        redirect.addFlashAttribute(
+                "success",
+                "Check-in " + status.name().toLowerCase() + " successfully"
+        );
+
+        return "redirect:/admin/dashboard";
+    }
+
+    @GetMapping("/checkin")
+    @Transactional(readOnly = true)
+    public String checkinReviewList(Model model) {
+        // Get all check-ins (you may want to filter by status)
+        List<CheckIn> allCheckIns = checkInService.getAllCheckIns();
+        model.addAttribute("currentPath", "/admin/checkin");
+        model.addAttribute("checkIns", allCheckIns);
+        return "checkin-list";
+    }
+
 }

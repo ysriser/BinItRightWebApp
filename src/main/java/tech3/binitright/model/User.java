@@ -17,7 +17,7 @@ public class User extends BinItRightUser{
     private String userAddress;
 
     @Column(name = "current_rank")
-    private int currentRank;
+    private Integer currentRank;
 
     @Column(name = "carbon_emission_saved")
     private float carbonEmissionSaved;

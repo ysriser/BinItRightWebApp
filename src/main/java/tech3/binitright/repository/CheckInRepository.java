@@ -31,6 +31,16 @@ public interface CheckInRepository extends JpaRepository<CheckIn, Long> {
 	Optional<CheckIn> findByIdWithDetails(@Param("id") Long id);
 
     @Query("""
+    SELECT c
+    FROM CheckIn c
+    JOIN FETCH c.user
+    JOIN FETCH c.wasteCategories
+    JOIN FETCH c.dropOffLocation""")
+    List<CheckIn> findAllWithDetails();
+
+
+
+    @Query("""
     SELECT new tech3.binitright.response.RecycleHistoryResponse(
         wc.name,
         wc.iconUrl,
