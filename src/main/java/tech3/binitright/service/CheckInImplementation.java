@@ -50,22 +50,14 @@ public class CheckInImplementation implements CheckInInterface{
 	@Autowired
 	private WasteCategoryRepository wasteCatRepository;
 
-	    @Value("${app.upload.dir}")
-	    private String uploadDir;
+    @Override
+    @Transactional
+    public List<CheckIn> getAllCheckIns() {
+        return checkInRepository.findAllWithDetails();
+    }
 
 	@Override
-	public CheckIn processCheckIn(MultipartFile video, CheckInDataReq data) throws IOException{
-		// Use configured upload directory
-	    Path uploadPath = Paths.get(uploadDir).toAbsolutePath();
-
-	    if (!Files.exists(uploadPath)) {
-	        Files.createDirectories(uploadPath);
-	    }
-	    
-		// Save File
-		Path target = uploadPath.resolve(video.getOriginalFilename());
-		Files.copy(video.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
-		
+	public CheckIn processCheckIn(CheckInDataReq data) throws IOException{
 		
 		//Save request to DB
 		CheckIn checkIn = new CheckIn();
@@ -74,17 +66,24 @@ public class CheckInImplementation implements CheckInInterface{
 		    
 		DropOffLocation location = locationRepository.findById(data.getBinId())
 		            .orElseThrow(() -> new RuntimeException("Location not found"));
-		        
-		WasteCategories waste = wasteCatRepository.findByName(data.getWasteCategory())
-		                .orElseThrow(() -> new RuntimeException("Item not found"));
-		            
+
+        WasteCategories category = wasteCatRepository
+                .findByNameIgnoreCase(data.getWasteCategory())
+                .orElseThrow(() -> new RuntimeException(
+                        "Waste category not found: " + data.getWasteCategory()
+                ));
+
+        if(data.getQuantity()<10){
+            checkIn.setRewardPoints(data.getQuantity()*10);
+        }
 		checkIn.setUser(user);
 		checkIn.setDropOffLocation(location);
-		checkIn.setWasteCategories(waste);
+		checkIn.setWasteCategories(category);
 		checkIn.setDuration(data.getDuration());
 		checkIn.setQuantity(data.getQuantity());
 		checkIn.setCheckInTime(data.getCheckInTime());				
 		checkIn.setStatus(CheckIn.Status.PROCESSING);
+        checkIn.setFileName(data.getVideoKey());
 		
 		return checkInRepository.save(checkIn); 	
 		
@@ -94,52 +93,5 @@ public class CheckInImplementation implements CheckInInterface{
 	public List<CheckIn> getPendingCheckIns() {
 		return checkInRepository.findByStatusWithDetails(CheckIn.Status.PROCESSING);
 	}
-
-	@Override
-	public CheckInDataResponse validateCheckIn(Long checkInId, int quantity) {
-		CheckIn checkIn = checkInRepository.findById(checkInId).get(); 
-
-        if (checkIn == null) {
-            throw new EntityNotFoundException("CheckIn not found with id: " + checkInId);
-        }
-        
-        boolean valid = isDurationValid(checkIn);
-        
-        if(quantity>10) {
-        	checkIn.setStatus(CheckIn.Status.PROCESSING);
-            checkInRepository.save(checkIn);
-
-            return new CheckInDataResponse(
-                    checkInId,
-                    "PENDING",
-                    "Check-in quantity too high and validation pending"
-            );
-        }
-
-        if (valid) {
-            checkIn.setStatus(CheckIn.Status.APPROVED);
-            checkInRepository.save(checkIn);
-
-            return new CheckInDataResponse(
-                    checkInId,
-                    "APPROVED",
-                    "Check-in validated and approved successfully"
-            );
-        } else {
-            checkIn.setStatus(CheckIn.Status.DENIED);
-            checkInRepository.save(checkIn);
-
-            return new CheckInDataResponse(
-                    checkInId,
-                    "REJECTED",
-                    "Check-in validation failed"
-            );
-        }
-    }
-
-	private boolean isDurationValid(CheckIn checkIn) {
-        return checkIn.getDuration() >= MIN_DURATION_SECONDS;
-    }
-	
 
 }

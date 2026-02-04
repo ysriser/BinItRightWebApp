@@ -8,6 +8,6 @@ import tech3.binitright.model.DropOffLocation;
 import tech3.binitright.model.WasteCategories;
 
 public interface WasteCategoryRepository extends JpaRepository<WasteCategories, Long>{
-	public Optional<WasteCategories> findByName(String name);
+	public Optional<WasteCategories> findByNameIgnoreCase(String name);
 
 }

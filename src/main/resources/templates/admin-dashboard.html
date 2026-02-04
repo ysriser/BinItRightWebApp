@@ -23,17 +23,21 @@
         <p>Admin Portal<br>Welcome, root</p>
     </div>
     <nav>
-        <a th:href="@{/admin/dashboard}" class="active">
+        <a th:href="@{/admin/dashboard}"
+           th:classappend="${currentPath != null and currentPath.startsWith('/admin/dashboard')} ? 'active' : ''">
             <i class="bi bi-grid-1x2"></i> Dashboard
         </a>
-        <a th:href="@{/admin/checkin-review}">
+        <a th:href="@{/admin/checkin}"
+           th:classappend="${currentPath != null and
+                (currentPath.startsWith('/admin/checkin')
+                 or currentPath.startsWith('/admin/review'))} ? 'active' : ''">
             <i class="bi bi-clipboard-check"></i> Check-In Review
         </a>
         <a href="#">
             <i class="bi bi-file-text"></i> Sustainability Reports
         </a>
-        <a href="#">
-            <i class="bi bi-excircle"></i> Issue Management
+        <a th:href="@{/admin/issues}">
+            <i class="bi bi-exclamation-circle"></i> Issue Management
         </a>
         <a href="#">
             <i class="bi bi-people"></i> Users
@@ -188,9 +192,10 @@
             <div class="col-lg-7">
                 <div class="section-card h-100">
                     <div class="section-header">
-                        <h5><i class="bi bi-clipboard-check"></i> Check-In Review</h5>
+                        <h5><i class="bi bi-clipboard-check"></i> Pending Check-In Reviews</h5>
                         <span class="badge-custom">
-                            <i class="bi bi-circle-fill" style="font-size:.5rem; vertical-align:middle;"></i> 3 Pending
+                            <i class="bi bi-circle-fill" style="font-size:.5rem; vertical-align:middle;"></i>
+                            <span th:text="${pendingCheckIns != null ? #lists.size(pendingCheckIns) : 0} + ' Pending'"></span>
                         </span>
                     </div>
 
@@ -248,77 +253,6 @@
                                         </a>
                                     </td>
                                 </tr>
-
-                                <!-- Static demo rows (remove when using live Thymeleaf data) -->
-                                <tr>
-                                    <td><span class="cell-id">#4</span></td>
-                                    <td>
-                                        <div class="cell-user">
-                                            <div class="avatar-sm">AL</div>
-                                            <span class="user-name">alicetan</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="item-tag">
-                                            <i class="bi bi-recycle"></i> Plastic Bottles
-                                        </span>
-                                    </td>
-                                    <td><span class="qty-badge">2</span></td>
-                                    <td>
-                                        <span class="status-badge">
-                                            <span class="dot"></span> Processing
-                                        </span>
-                                    </td>
-                                    <td class="text-end">
-                                        <a th:href="@{/admin/review/4}" class="btn-review"><i class="bi bi-eye"></i> Review</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><span class="cell-id">#5</span></td>
-                                    <td>
-                                        <div class="cell-user">
-                                            <div class="avatar-sm">AL</div>
-                                            <span class="user-name">alicetan</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="item-tag">
-                                            <i class="bi bi-recycle"></i> Plastic Bottles
-                                        </span>
-                                    </td>
-                                    <td><span class="qty-badge">2</span></td>
-                                    <td>
-                                        <span class="status-badge">
-                                            <span class="dot"></span> Processing
-                                        </span>
-                                    </td>
-                                    <td class="text-end">
-                                        <a th:href="@{/admin/review/5}" class="btn-review"><i class="bi bi-eye"></i> Review</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><span class="cell-id">#6</span></td>
-                                    <td>
-                                        <div class="cell-user">
-                                            <div class="avatar-sm">AL</div>
-                                            <span class="user-name">alicetan</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="item-tag">
-                                            <i class="bi bi-recycle"></i> Plastic Bottles
-                                        </span>
-                                    </td>
-                                    <td><span class="qty-badge">2</span></td>
-                                    <td>
-                                        <span class="status-badge">
-                                            <span class="dot"></span> Processing
-                                        </span>
-                                    </td>
-                                    <td class="text-end">
-                                        <a th:href="@{/admin/review/6}" class="btn-review"><i class="bi bi-eye"></i> Review</a>
-                                    </td>                                </tr>
-
                             </tbody>
                         </table>
                     </div>
@@ -332,72 +266,58 @@
                     <div class="section-header">
                         <h5><i class="bi bi-excircle"></i> User Issues Review</h5>
                         <span class="badge-custom">
-                            <i class="bi bi-circle-fill" style="font-size:.5rem; vertical-align:middle;"></i> 4 Issues
+                            <i class="bi bi-circle-fill"
+                               style="font-size:.5rem; vertical-align:middle;"></i>
+                            <span th:text="${newCount} + ' Issues'">0 Issues</span>
                         </span>
                     </div>
 
-                    <!-- Issue 1 -->
-                    <div class="issue-card">
+                    <!-- Dynamic Issue Cards -->
+                    <div th:each="issue : ${issues}" class="issue-card">
+
+                        <!-- LEFT -->
                         <div class="issue-left">
                             <div class="issue-header">
-                                <span class="issue-name">John Doe</span>
+                                <span class="issue-name"
+                                  th:text="${issue.raisedBy.name}">
+                                    User Name
+                                </span>
                             </div>
-                            <div class="issue-bin">Bin BIN001</div>
-                            <div class="issue-desc">Bin overflowing at Central Park</div>
-                            <span class="issue-tag">Overflow</span>
+
+                            <div class="issue-desc"
+                                 th:text="${issue.description}">
+                                Issue description
+                            </div>
+
+                            <span class="issue-tag"
+                                  th:text="${issue.issueCategory}">
+                                Category
+                            </span>
                         </div>
+
+                        <!-- RIGHT -->
                         <div class="issue-right">
-                            <span class="status-new">New</span>
-                            <a href="#" class="link-review">Review <i class="bi bi-arrow-right"></i></a>
+
+                            <!-- Status Badge -->
+                            <span th:switch="${issue.status}">
+                                <span th:case="'NEW'" class="status-new">New</span>
+                                <span th:case="'IN_PROGRESS'" class="status-inprogress">In Progress</span>
+                                <span th:case="'RESOLVED'" class="status-resolved">Resolved</span>
+                            </span>
+
+                            <!-- Review Link -->
+                            <a th:href="@{/admin/issues}"
+                               class="link-review">
+                                Review <i class="bi bi-arrow-right"></i>
+                            </a>
                         </div>
+
                     </div>
 
-                    <!-- Issue 2 -->
-                    <div class="issue-card">
-                        <div class="issue-left">
-                            <div class="issue-header">
-                                <span class="issue-name">Jane Smith</span>
-                            </div>
-                            <div class="issue-bin">Bin BIN003</div>
-                            <div class="issue-desc">Broken glass container</div>
-                            <span class="issue-tag">Damage</span>
-                        </div>
-                        <div class="issue-right">
-                            <span class="status-inprogress">In Progress</span>
-                            <a href="#" class="link-review">Review <i class="bi bi-arrow-right"></i></a>
-                        </div>
-                    </div>
-
-                    <!-- Issue 3 -->
-                    <div class="issue-card">
-                        <div class="issue-left">
-                            <div class="issue-header">
-                                <span class="issue-name">Mike Johnson</span>
-                            </div>
-                            <div class="issue-bin">Bin BIN002</div>
-                            <div class="issue-desc">Contaminated recycling bin</div>
-                            <span class="issue-tag">Contamination</span>
-                        </div>
-                        <div class="issue-right">
-                            <span class="status-new">New</span>
-                            <a href="#" class="link-review">Review <i class="bi bi-arrow-right"></i></a>
-                        </div>
-                    </div>
-
-                    <!-- Issue 4 -->
-                    <div class="issue-card">
-                        <div class="issue-left">
-                            <div class="issue-header">
-                                <span class="issue-name">Sarah Williams</span>
-                            </div>
-                            <div class="issue-bin">Bin BIN005</div>
-                            <div class="issue-desc">Missing bin lid reported</div>
-                            <span class="issue-tag">Maintenance</span>
-                        </div>
-                        <div class="issue-right">
-                            <span class="status-new">New</span>
-                            <a href="#" class="link-review">Review <i class="bi bi-arrow-right"></i></a>
-                        </div>
+                    <!-- Empty State -->
+                    <div th:if="${#lists.isEmpty(issues)}"
+                         class="text-muted text-center mt-3">
+                        No reported issues
                     </div>
 
                 </div>
@@ -406,7 +326,6 @@
 
     </div><!-- end content-body -->
 </div><!-- end main -->
-
 
 
 

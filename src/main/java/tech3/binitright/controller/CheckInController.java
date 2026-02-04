@@ -1,19 +1,11 @@
 package tech3.binitright.controller;
 
 import java.io.IOException;
-import java.io.InputStream;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
-
+import org.springframework.web.bind.annotation.*;
 import tech3.binitright.interfacemethods.CheckInInterface;
 import tech3.binitright.model.CheckIn;
 import tech3.binitright.repository.CheckInRepository;
@@ -21,7 +13,7 @@ import tech3.binitright.request.CheckInDataReq;
 import tech3.binitright.response.CheckInDataResponse;
 import tech3.binitright.service.CheckInImplementation;
 
-@Controller
+@RestController
 @RequestMapping("/api/checkin")
 public class CheckInController {
 
@@ -34,30 +26,21 @@ public class CheckInController {
 	
 	@Autowired
 	CheckInRepository checkInRepository;
-	
-	@Value("${app.upload.dir}")
-	private String uploadDir;
-	
-	@PostMapping(value = "/submit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	@ResponseBody
-	public ResponseEntity<CheckInDataResponse> submitRecycleCheckIn(
-			@RequestPart("video") MultipartFile video,
-			@RequestPart("metadata") CheckInDataReq data) throws IOException {
-		System.out.println("Inside checkIn controller:  "+data);
+
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<CheckInDataResponse> submitRecycleCheckIn(
+            @RequestBody CheckInDataReq data) throws IOException{
+        System.out.println("Inside checkIn controller:  "+data.getUserId());
 		
-		if(video.isEmpty()) {
-			return ResponseEntity.badRequest().build();
-		}
-		
-        CheckIn saved = checkInService.processCheckIn(video, data);
-        
-        CheckInDataResponse res = new CheckInDataResponse();
-        
-        res = checkInService.validateCheckIn(saved.getCheckInId(), saved.getQuantity());
-		
+        CheckIn saved = checkInService.processCheckIn(data);
+
+        CheckInDataResponse res = new CheckInDataResponse(
+                saved.getCheckInId(),
+                "SUCCESS",
+                "Check-in submitted successfully and pending validation"
+        );
 		return ResponseEntity.ok(res);
 
 	}
-	
-	
 }
