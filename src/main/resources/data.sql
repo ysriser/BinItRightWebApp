@@ -32,6 +32,38 @@ VALUES
     'Singapore'
 );
 
+INSERT IGNORE INTO app_users
+(
+    user_id,
+    created_at,
+    email_address,
+    locale,
+    name,
+    password_hash,
+    role,
+    username,
+    carbon_emission_saved,
+    current_rank,
+    updated_at,
+    user_address
+)
+VALUES
+(
+    1, NOW(), 'maha@test.com', 'en_SG', 'Maha',
+    '$2a$10$mahahashvalue', 'USER', 'maha',
+    0.0, 0, NOW(), 'Singapore'
+),
+(
+    4, NOW(), 'john@test.com', 'en_SG', 'John Taylor',
+    '$2a$10$johnhashvalue', 'USER', 'john',
+    8.3, 2, NOW(), 'Singapore'
+),
+(
+    5, NOW(), 'priya@test.com', 'en_SG', 'Priya',
+    '$2a$10$priyahashvalue', 'USER', 'priya',
+    15.9, 3, NOW(), 'Singapore'
+);
+
 INSERT IGNORE INTO waste_categories
 (
     cat_id,
@@ -52,6 +84,7 @@ VALUES
     'Plastic',
     'GENERAL'
 ),
+
 (
     2,
     1.20,
@@ -61,6 +94,7 @@ VALUES
     'E-Waste',
     'E_WASTE'
 ),
+
 (
     3,
     0.50,
@@ -68,6 +102,36 @@ VALUES
     'glass',
     b'0',
     'Glass',
+    'GENERAL'
+),
+
+(
+    4,
+    0.80,
+    2.10,
+    'textiles',
+    b'0',
+    'Textiles',
+    'GENERAL'
+),
+
+(
+    5,
+    1.50,
+    3.80,
+    'metal',
+    b'0',
+    'Metal',
+    'GENERAL'
+),
+
+(
+    6,
+    0.20,
+    0.60,
+    'paper',
+    b'0',
+    'Paper',
     'GENERAL'
 );
 
@@ -92,7 +156,7 @@ VALUES
     'plastic_1.jpg',
     3,
     30,
-    'COMPLETED',
+    'APPROVED',
     10,
     1,
     1
@@ -104,9 +168,9 @@ VALUES
     'ewaste_1.jpg',
     1,
     50,
-    'COMPLETED',
+    'PROCESSING',
     11,
-    1,
+    4,
     2
 ),
 (
@@ -116,11 +180,12 @@ VALUES
     'glass_1.jpg',
     5,
     25,
-    'COMPLETED',
+    'PROCESSING',
     12,
     1,
     3
 );
+
 -- Article 1: AI in Waste Management
 INSERT INTO news (news_id, description, image_url, name, status, published_date)
 SELECT 1,
@@ -200,3 +265,16 @@ FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM events WHERE event_id = 5);
 INSERT INTO events (event_id, title, description, location_name, postal_code, start_time, end_time, image_url, status)
 SELECT 6,'New Year E-Waste Collection', 'This event happened last month. It should be filtered out by the backend logic.','Tampines Hub','528523','2026-01-05 09:00:00','2026-01-05 17:00:00', 'https://images.unsplash.com/photo-1550009158-9ebf69173e03','APPROVED'
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM events WHERE event_id = 6);
+
+
+INSERT IGNORE INTO issue (created_at, description, issue_category, status, raised_by_user_id)
+VALUES (NOW(6), 'App keeps crashing on the login screen.', 'AppProblems', 'NEW', 1);
+
+INSERT IGNORE INTO issue (created_at, description, issue_category, status, raised_by_user_id, resolved_by_admin_id)
+VALUES (NOW(6), 'Waste bin at Sector 7 is overflowing.', 'BinIssues', 'IN_PROGRESS', 2, 1);
+
+INSERT IGNORE INTO issue (created_at, description, issue_category, status, resolved_at, raised_by_user_id, resolved_by_admin_id)
+VALUES ('2026-02-01 10:00:00.000000', 'Incorrect GPS coordinates for Bin #42.', 'LocationErrors', 'RESOLVED', '2026-02-03 14:30:00.000000', 4, 1);
+
+INSERT IGNORE INTO issue (created_at, description, issue_category, status, raised_by_user_id)
+VALUES (NOW(6), 'Requesting more recycling options in the UI.', 'Others', 'NEW', 3);

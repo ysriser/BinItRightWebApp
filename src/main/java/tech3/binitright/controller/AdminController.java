@@ -82,18 +82,13 @@ public class AdminController {
     @GetMapping("/review/{checkInId}")
     public String reviewCheckIn(@PathVariable Long checkInId, Model model, Principal principal) {
         CheckIn checkIn = adminService.reviewCheckIn(checkInId);
-        String signedUrl = null;
-
-        System.out.println("=== DEBUG INFO ===");
-        System.out.println("Status: " + checkIn.getStatus());
-        System.out.println("FileName: " + checkIn.getFileName());
+        String signedUrl = null;;
 
         if (checkIn.getStatus() == CheckIn.Status.PROCESSING
                 && checkIn.getFileName() != null) {
             signedUrl = digitalOceanStorageService
                     .generateSignedVideoUrl(checkIn.getFileName());
             model.addAttribute("signedVideoUrl", signedUrl);
-            System.out.println("SIGNED VIDEO URL = " + signedUrl);
         } else {
             System.out.println("Video not added - Status: " + checkIn.getStatus()
                     + ", FileName: " + checkIn.getFileName());
