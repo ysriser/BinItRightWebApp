@@ -9,6 +9,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "news")
 public class News {
@@ -19,23 +21,28 @@ public class News {
 
 	    private String name;
 
-	    
+        @Column(columnDefinition = "TEXT")
 	    private String description;
 
 	    @Column(name = "image_url")
-	    private int imageUrl;
+	    private String imageUrl;
         
 	    public enum Status {
 	        Completed,
 	        Upcoming
 	    }
 
-		public News(Long newsId, String name, String description, int imageUrl) {
+        @Column(name = "published_date")
+        private LocalDateTime publishedDate;
+
+
+		public News(Long newsId, String name, String description, String imageUrl, LocalDateTime publishedDate) {
 			
 			this.newsId = newsId;
 			this.name = name;
 			this.description = description;
 			this.imageUrl = imageUrl;
+            this.publishedDate = publishedDate;
 		}
 	    
 		@Enumerated(EnumType.STRING)
@@ -44,7 +51,7 @@ public class News {
 		 
 		public News() {}
 
-		public News(Long newsId, String name, String description, int imageUrl, Status status) {
+		public News(Long newsId, String name, String description, String imageUrl, Status status) {
 			super();
 			this.newsId = newsId;
 			this.name = name;
@@ -77,11 +84,11 @@ public class News {
 			this.description = description;
 		}
 
-		public int getImageUrl() {
+		public String getImageUrl() {
 			return imageUrl;
 		}
 
-		public void setImageUrl(int imageUrl) {
+		public void setImageUrl(String imageUrl) {
 			this.imageUrl = imageUrl;
 		}
 
@@ -92,7 +99,15 @@ public class News {
 		public void setStatus(Status status) {
 			this.status = status;
 		}
-		
+
+        public LocalDateTime getPublishedDate() {
+            return publishedDate;
+        }
+
+        public void setPublishedDate(LocalDateTime publishedDate) {
+            this.publishedDate = publishedDate;
+        }
+
 		
 		 
 	
