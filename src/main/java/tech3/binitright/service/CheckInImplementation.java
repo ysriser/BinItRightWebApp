@@ -50,9 +50,6 @@ public class CheckInImplementation implements CheckInInterface{
 	@Autowired
 	private WasteCategoryRepository wasteCatRepository;
 
-    @Value("${app.upload.dir}")
-    private String uploadDir;
-
     @Override
     @Transactional
     public List<CheckIn> getAllCheckIns() {
@@ -61,12 +58,6 @@ public class CheckInImplementation implements CheckInInterface{
 
 	@Override
 	public CheckIn processCheckIn(CheckInDataReq data) throws IOException{
-		// Use configured upload directory
-	    Path uploadPath = Paths.get(uploadDir).toAbsolutePath();
-
-	    if (!Files.exists(uploadPath)) {
-	        Files.createDirectories(uploadPath);
-	    }
 		
 		//Save request to DB
 		CheckIn checkIn = new CheckIn();

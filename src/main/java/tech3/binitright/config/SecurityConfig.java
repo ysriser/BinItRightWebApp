@@ -45,7 +45,7 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // ✅ public endpoints for mobile
-                        .requestMatchers("/api/auth/login", "/api/admin/create", "/api/bins/**", "api/checkin", "api/videos/presign-upload").permitAll()
+                        .requestMatchers("/api/auth/login", "/api/admin/create", "/api/bins/**", "/api/checkin", "/api/videos/presign-upload").permitAll()
 
                         // ✅ everything else in /api needs token
                         .anyRequest().authenticated()
@@ -70,6 +70,9 @@ public class SecurityConfig {
                                         + "style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com; " // Allow FontAwesome & Google Styles
                                         + "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; "
                                         +"script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; "
+                                        + "img-src 'self' data: https:; "
+                                        + "media-src 'self' https://*.digitaloceanspaces.com; "
+                                        + "connect-src 'self' https://*.digitaloceanspaces.com; "
                                         +"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com;"// Allow FontAwesome & Google Fonts
                                         + "frame-ancestors 'none'; form-action 'self';")
                         )

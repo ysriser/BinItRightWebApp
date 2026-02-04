@@ -24,23 +24,21 @@ public class VideoUploadImplementation implements VideoUploadInterface {
     public VideoUploadImplementation(AmazonS3 s3) {
         this.s3 = s3;
     }
-
     @Override
     public PresignedUploadResponse createPresignedUpload(Long userId) {
 
         // Backend-controlled object key
-        String objectKey =
-                "videos/" + userId + "/" + UUID.randomUUID() + ".mp4";
+        String objectKey = "videos/" + userId + "/" + UUID.randomUUID() + ".mp4";
 
         // Expiry (10 minutes)
-        Date expiry =
-                Date.from(Instant.now().plus(10, ChronoUnit.MINUTES));
+        Date expiry = Date.from(Instant.now().plus(10, ChronoUnit.MINUTES));
 
-        // Pre-signed PUT request
+        // Pre-signed PUT request WITH Content-Type
         GeneratePresignedUrlRequest request =
                 new GeneratePresignedUrlRequest(bucket, objectKey)
                         .withMethod(HttpMethod.PUT)
-                        .withExpiration(expiry);
+                        .withExpiration(expiry)
+                        .withContentType("video/mp4");  // ⬅️ ADD THIS LINE
 
         URL uploadUrl = s3.generatePresignedUrl(request);
 

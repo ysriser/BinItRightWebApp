@@ -6,173 +6,206 @@
     <title>Bin It Right – Review Check-In</title>
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css">
+
     <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
-    <!-- Shared Dashboard Styles (sidebar, topbar, review card) -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Shared dashboard styles -->
     <link rel="stylesheet" th:href="@{/css/dashboard.css}">
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════
-     SIDEBAR (shared)
-═══════════════════════════════════════════════ -->
+<!-- ===================== SIDEBAR ===================== -->
 <aside class="sidebar">
     <div class="sidebar-brand">
         <h4><i class="bi bi-arrow-repeat me-1"></i>Bin It Right</h4>
-        <p>Admin Portal<br>Welcome, root</p>
+        <p>
+            Admin Portal<br>
+            Welcome, <span th:text="${adminUsername}">admin</span>
+        </p>
     </div>
+
     <nav>
-        <a th:href="@{/dashboard}"
-           th:classappend="${currentPath.startsWith('/admin/dashboard') ? 'active' : ''}">
+        <a th:href="@{/admin/dashboard}">
             <i class="bi bi-grid-1x2"></i> Dashboard
         </a>
-        <a th:href="@{/admin/checkin}"
-           th:classappend="${currentPath.startsWith('/admin/checkin') or currentPath.startsWith('/admin/review') ? 'active' : ''}">
+        <a th:href="@{/admin/checkin}" class="active">
             <i class="bi bi-clipboard-check"></i> Check-In Review
         </a>
-        <a href="#">
-            <i class="bi bi-file-text"></i> Sustainability Reports
+        <a href="#"><i class="bi bi-file-text"></i> Sustainability Reports</a>
+        <a th:href="@{/admin/issues}">
+            <i class="bi bi-exclamation-circle"></i> Issue Management
         </a>
-        <a href="#">
-            <i class="bi bi-excircle"></i> Issue Management
-        </a>
-        <a href="#">
-            <i class="bi bi-people"></i> Users
-        </a>
-        <a href="#">
-            <i class="bi bi-gear"></i> Settings
-        </a>
+        <a href="#"><i class="bi bi-people"></i> Users</a>
+        <a href="#"><i class="bi bi-gear"></i> Settings</a>
     </nav>
+
+    <div class="sidebar-footer mt-auto p-3">
+        <form th:action="@{/logout}" method="post">
+            <button class="btn btn-outline-danger w-100">
+                <i class="bi bi-box-arrow-left me-2"></i> Logout
+            </button>
+        </form>
+    </div>
 </aside>
 
-
-<!-- ═══════════════════════════════════════════════
-     MAIN CONTENT
-═══════════════════════════════════════════════ -->
+<!-- ===================== MAIN ===================== -->
 <div class="main">
 
-    <!-- ─── TOP BAR (shared) ─── -->
+    <!-- Topbar -->
     <header class="topbar">
-        <div class="topbar-left">
+        <div>
             <h2>Review Check-In</h2>
             <p>Approve or reject a pending submission</p>
         </div>
         <div class="topbar-right">
-            <div class="topbar-notif">
-                <i class="bi bi-bell"></i>
-                <span class="notif-dot"></span>
+            <i class="bi bi-bell"></i>
+            <i class="bi bi-chat-dots"></i>
+            <div class="avatar-top"
+                 th:text="${#strings.substring(adminUsername,0,2).toUpperCase()}">
+                AD
             </div>
-            <div class="topbar-notif">
-                <i class="bi bi-chat-dots"></i>
-            </div>
-            <div class="avatar-top">RO</div>
         </div>
     </header>
 
-    <!-- ─── SCROLLABLE BODY ─── -->
+    <!-- Content -->
     <div class="content-body">
         <div class="review-wrap">
 
             <!-- Breadcrumb -->
             <div class="breadcrumb-custom">
-                <a th:href="@{/dashboard}"><i class="bi bi-house-door me-1"></i>Dashboard</a>
+                <a th:href="@{/admin/dashboard}">
+                    <i class="bi bi-house-door me-1"></i>Dashboard
+                </a>
                 <span class="sep">›</span>
                 <a th:href="@{/admin/checkin}">Check-In Review</a>
                 <span class="sep">›</span>
-                <span class="current" th:text="'Check-In #' + ${checkIn.checkInId}">Check-In #4</span>
+                <span class="current"
+                      th:text="'Check-In #' + ${checkIn.checkInId}">Check-In</span>
             </div>
 
-            <!-- Back link -->
+            <!-- Back -->
             <a th:href="@{/admin/checkin}" class="back-link">
                 <i class="bi bi-arrow-left"></i> Back to Check-In Review
             </a>
 
-            <!-- ── Review Card ── -->
+            <!-- ===================== REVIEW CARD ===================== -->
             <div class="review-card">
 
-                <!-- Green header -->
+                <!-- Header -->
                 <div class="review-card-header">
                     <div class="hdr-icon"><i class="bi bi-clipboard-check"></i></div>
                     <div>
                         <h4>Review Check-In</h4>
-                        <p th:text="'Submitted by ' + ${checkIn.user.username}">Submitted by alicetan</p>
+                        <p th:text="'Submitted by ' + ${checkIn.user.username}">
+                            Submitted by user
+                        </p>
                     </div>
                 </div>
 
-                <!-- Detail rows -->
+                <!-- Check-In ID -->
                 <div class="detail-row">
                     <div class="detail-label">Check-In ID</div>
                     <div class="detail-value">
-                        <span class="cell-id" th:text="'#' + ${checkIn.checkInId}">#4</span>
+                        <span class="cell-id"
+                              th:text="'#' + ${checkIn.checkInId}">#1</span>
                     </div>
                 </div>
 
+                <!-- User -->
                 <div class="detail-row">
                     <div class="detail-label">User</div>
                     <div class="detail-value">
-                        <div class="avatar-sm" th:text="${#strings.toUpperCase(#strings.substring(checkIn.user.username, 0, 2))}">AL</div>
-                        <span th:text="${checkIn.user.username}">alicetan</span>
+                        <div class="avatar-sm"
+                             th:text="${#strings.substring(checkIn.user.username,0,2).toUpperCase()}">US</div>
+                        <span th:text="${checkIn.user.username}">username</span>
                     </div>
                 </div>
 
+                <!-- Item -->
                 <div class="detail-row">
                     <div class="detail-label">Item</div>
                     <div class="detail-value">
                         <span class="item-tag">
                             <i class="bi bi-recycle"></i>
-                            <span th:text="${checkIn.wasteCategories.name}">Plastic Bottles</span>
+                            <span th:text="${checkIn.wasteCategories.name}">Plastic</span>
                         </span>
                     </div>
                 </div>
 
+                <!-- Quantity -->
                 <div class="detail-row">
                     <div class="detail-label">Quantity</div>
                     <div class="detail-value">
-                        <span class="qty-badge" th:text="${checkIn.quantity}">2</span>
+                        <span class="qty-badge"
+                              th:text="${checkIn.quantity}">1</span>
                     </div>
                 </div>
 
-                <div class="detail-row">
-                    <div class="detail-label">Status</div>
-                    <div class="detail-value">
-                        <span class="status-badge"
-                              th:classappend="${checkIn.status.name() == 'PROCESSING'} ? '' :
-                                             (${checkIn.status.name() == 'APPROVED'} ? ' approved' : ' denied')">
-                            <span class="dot"></span>
-                            <span th:text="${checkIn.status}">PROCESSING</span>
-                        </span>
-                    </div>
-                </div>
+                <!-- ===================== VIDEO (PROCESSING ONLY) ===================== -->
+                <th:block th:if="${checkIn.status.name() == 'PROCESSING' and signedVideoUrl != null}">
+                    <div class="detail-row">
+                        <div class="detail-label">Uploaded Video</div>
+                        <div class="detail-value">
 
-                <!-- Remarks + Buttons (only show if status is PROCESSING) -->
-                <th:block th:if="${checkIn.status.name() == 'PROCESSING'}">
-                    <form th:action="@{/admin/review/{id}(id=${checkIn.checkInId})}" method="post">
+                            <video id="reviewVideo"
+                                   th:data-checkin-id="${checkIn.checkInId}"
+                                   controls
+                                   crossorigin="anonymous"
+                                   preload="metadata"
+                                   style="width: 100%;
+                          height: auto;
+                          max-height: 500px;
+                          object-fit: contain;
+                          border-radius: 8px;
+                          background: #000;
+                          display: block;">
 
-                        <div class="form-section">
-                            <div class="form-section-label">Remarks (optional)</div>
-                            <textarea class="remarks-input"
-                                      name="remarks"
-                                      placeholder="Enter remarks if any…"></textarea>
+                                <source th:src="${signedVideoUrl}" type="video/mp4"/>
+                                Your browser does not support the video tag.
+                            </video>
+
+                            <small class="text-muted d-block mt-2">
+                                Video evidence for admin review
+                            </small>
                         </div>
+                    </div>
+                </th:block>
+
+                <!-- ===================== ACTION FORM ===================== -->
+                <th:block th:if="${checkIn.status.name() == 'PROCESSING'}">
+                    <form th:action="@{/admin/review/{id}(id=${checkIn.checkInId})}"
+                          method="post"
+                          id="reviewForm">
 
                         <div class="action-row">
-                            <button type="submit" name="status" value="APPROVED" class="btn-approve">
+                            <button type="submit"
+                                    name="status"
+                                    value="APPROVED"
+                                    class="btn-approve review-btn">
                                 <i class="bi bi-check-circle"></i> Approve
                             </button>
-                            <button type="submit" name="status" value="DENIED" class="btn-deny">
+
+                            <button type="submit"
+                                    name="status"
+                                    value="DENIED"
+                                    class="btn-deny review-btn">
                                 <i class="bi bi-x-circle"></i> Reject
                             </button>
                         </div>
                     </form>
                 </th:block>
 
-                <!-- Message when already reviewed -->
+                <!-- Already reviewed -->
                 <th:block th:if="${checkIn.status.name() != 'PROCESSING'}">
-                    <div class="alert alert-info" style="margin: 1.5rem 0; padding: 1rem; border-radius: 8px; background-color: #e7f3ff; border-left: 4px solid #0066cc;">
+                    <div class="alert alert-info mt-4">
                         <i class="bi bi-info-circle me-2"></i>
-                        <span th:text="${checkIn.status.name() == 'APPROVED'} ? 'This check-in has already been approved.' : 'This check-in has already been rejected.'">
-                            This check-in has already been reviewed.
+                        <span th:text="${checkIn.status.name() == 'APPROVED'} ?
+                              'This check-in has already been approved.' :
+                              'This check-in has already been rejected.'">
                         </span>
                     </div>
                 </th:block>
@@ -182,10 +215,69 @@
                     <i class="bi bi-shield-check me-1"></i> Admin Review Panel
                 </div>
             </div>
+        </div>
+    </div>
+</div>
 
-        </div><!-- end review-wrap -->
-    </div><!-- end content-body -->
-</div><!-- end main -->
+<!-- ===================== SCRIPTS ===================== -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const video = document.getElementById("reviewVideo");
+
+        if (video) {
+            const source = video.querySelector('source');
+            console.log("✅ Video element found");
+            console.log("📹 Source URL:", source ? source.src : "❌ NO SOURCE");
+            console.log("🆔 Check-in ID:", video.dataset.checkinId);
+
+            // Error handling
+            video.addEventListener('error', function(e) {
+                console.error("❌ Video error:", e);
+                if (video.error) {
+                    console.error("Error code:", video.error.code);
+                    console.error("Error message:", video.error.message);
+                }
+            });
+
+            // Load handling
+            video.addEventListener('loadedmetadata', function() {
+                console.log("✅ Video metadata loaded successfully");
+            });
+
+            // Audit log on play
+            let logged = false;
+            video.addEventListener("play", function () {
+                if (logged) return;
+                logged = true;
+
+                const checkInId = video.dataset.checkinId;
+                console.log("▶️ Video played, logging audit for check-in:", checkInId);
+
+                fetch(`/admin/review/${checkInId}/video-viewed`, {
+                    method: "POST",
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                })
+                .then(response => console.log("✅ Audit logged"))
+                .catch(error => console.error("❌ Audit log failed:", error));
+            });
+        } else {
+            console.error("❌ Video element not found in DOM");
+        }
+    });
+
+    /* Disable approve/reject buttons after submit */
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("reviewForm");
+        if (!form) return;
+
+        form.addEventListener("submit", function () {
+            form.querySelectorAll(".review-btn").forEach(btn => {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Processing...';
+            });
+        });
+    });
+</script>
 
 </body>
 </html>

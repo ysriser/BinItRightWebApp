@@ -23,17 +23,21 @@
         <p>Admin Portal<br>Welcome, root</p>
     </div>
     <nav>
-        <a th:href="@{/admin/dashboard}">
+        <a th:href="@{/admin/dashboard}"
+           th:classappend="${currentPath != null and currentPath.startsWith('/admin/dashboard')} ? 'active' : ''">
             <i class="bi bi-grid-1x2"></i> Dashboard
         </a>
-        <a th:href="@{/admin/checkin}" class="active">
+        <a th:href="@{/admin/checkin}"
+           th:classappend="${currentPath != null and
+                (currentPath.startsWith('/admin/checkin')
+                 or currentPath.startsWith('/admin/review'))} ? 'active' : ''">
             <i class="bi bi-clipboard-check"></i> Check-In Review
         </a>
         <a href="#">
             <i class="bi bi-file-text"></i> Sustainability Reports
         </a>
-        <a href="#">
-            <i class="bi bi-excircle"></i> Issue Management
+        <a th:href="@{/admin/issues}">
+            <i class="bi bi-exclamation-circle"></i> Issue Management
         </a>
         <a href="#">
             <i class="bi bi-people"></i> Users
@@ -44,7 +48,7 @@
     </nav>
     <div class="sidebar-footer mt-auto p-3">
         <form th:action="@{/logout}" method="post">
-            <button type="submit" id="logout-btn" class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center">
+            <button type="submit" id = "logout-btn" class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center">
                 <i class="bi bi-box-arrow-left me-2"></i> Logout
             </button>
         </form>

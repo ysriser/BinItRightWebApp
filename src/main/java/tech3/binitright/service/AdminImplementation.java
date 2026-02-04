@@ -9,10 +9,9 @@ import tech3.binitright.model.Admin;
 import tech3.binitright.model.CheckIn;
 import tech3.binitright.repository.AdminRepository;
 import tech3.binitright.repository.CheckInRepository;
-import tech3.binitright.request.ReviewRequest;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -40,7 +39,18 @@ public class AdminImplementation implements AdminInterface{
         return admins;
     }
 
-	@Override
+    @Override
+    public Admin getSingleAdminByUsername(String username) {
+        return adminrepo.findByUsername(username)
+                .stream()
+                .findFirst()
+                .orElseThrow(() ->
+                        new RuntimeException("Admin not found: " + username)
+                );
+    }
+
+
+    @Override
 	@Transactional
 	public List<CheckIn> getPendingCheckIns() {
 		return checkInRepository.findByStatusWithDetails(CheckIn.Status.PROCESSING);

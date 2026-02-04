@@ -556,6 +556,12 @@ body {
     margin-left: 12px;
 }
 
+.issue-actions form {
+    display: inline-block;
+    margin-right: 8px;
+}
+
+
 /* Status pills */
 .status-new {
     background: #fff3e0;
@@ -859,4 +865,24 @@ body {
     font-size: .72rem;
     color: var(--text-muted);
     background: #fafafa;
+}
+
+/* Video player styling */
+#reviewVideo {
+    width: 100%;
+    height: auto;
+    max-height: 450px;
+    max-width: 800px;
+    margin: 0 auto;
+    display: block;
+    border-radius: 8px;
+    background: #000;
+    object-fit: contain;
+}
+
+.detail-value > div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
 }
