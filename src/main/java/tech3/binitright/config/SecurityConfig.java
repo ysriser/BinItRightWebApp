@@ -44,17 +44,20 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // ✅ public endpoints for mobile
                         .requestMatchers("/api/auth/login", "/api/admin/create", "/api/bins/**").permitAll()
-
-                        // ✅ everything else in /api needs token
                         .anyRequest().authenticated()
                 )
-                // ✅ JWT filter checks Authorization header
+                // ✅ ADD THIS: Prevents the 302 Redirect to /login
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.sendError(401, "Unauthorized");
+                        })
+                )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
     @Bean
     @Order(2)
     public SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {

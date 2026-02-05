@@ -168,14 +168,18 @@ SELECT 6,'New Year E-Waste Collection', 'This event happened last month. It shou
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM events WHERE event_id = 6);
 
 -- Insert Placeholder Accessories with specific URLs
-INSERT INTO accessories (name, image_url, required_points)
-SELECT 'Elegant Dress', 'https://images.emojiterra.com/google/noto-emoji/unicode-16.0/color/512px/1f457.png', 300
+INSERT INTO accessories (name, required_points)
+SELECT 'Elegant Dress', 300
     WHERE NOT EXISTS (SELECT 1 FROM accessories WHERE name = 'Elegant Dress');
 
-INSERT INTO accessories (name, image_url, required_points)
-SELECT 'Formal Suit', 'https://assets.streamlinehq.com/image/private/w_512,h_512,ar_1/f_auto/v1/icons/freebies-freemojis/smiley-people/smiley-people/man-in-suit-levitating-2-l41kq5dhzpb5dnzxrvrki.png?_a=DATAiZAAZAA0', 500
+INSERT INTO accessories (name, required_points)
+SELECT 'Formal Suit', 500
     WHERE NOT EXISTS (SELECT 1 FROM accessories WHERE name = 'Formal Suit');
 
-INSERT INTO accessories (name, image_url, required_points)
-SELECT 'Sports Attire', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJZSj-WZ0FNsd7VbJB5snx56Gu-J7wBb8c_Q&s', 200
-    WHERE NOT EXISTS (SELECT 1 FROM accessories WHERE name = 'Sports Attire');
+INSERT INTO accessories (name, required_points)
+SELECT 'Hoodie', 200
+    WHERE NOT EXISTS (SELECT 1 FROM accessories WHERE name = 'Hoodie');
+
+INSERT INTO accessories (name, required_points)
+SELECT 'Recycling Fan', 1000
+    WHERE NOT EXISTS (SELECT 1 FROM accessories WHERE name = 'Recycling Fan');

@@ -26,4 +26,9 @@ public class UserImplementation implements UserInterface {
     public List<User> findByUsername(String username) {
         return userRepo.findByUsername(username);
     }
+
+    @Override
+    public User findById(Long userId) {
+        return userRepo.findById(userId).orElse(null);
+    }
 }
