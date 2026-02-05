@@ -54,11 +54,12 @@ public class WasteCategories {
 	    private List<CheckIn> checkIns;
 
 	    public enum StreamType {
-	        RECYCLABLE,
-	        GENERAL,
-	        ORGANIC,
+	        PLASTIC,
+	        METAL,
+	        PAPER,
 	        E_WASTE,
-	        HAZARDOUS
+	        TEXTILE,
+            GLASS
 	    }
 	    
 	    public WasteCategories() {}

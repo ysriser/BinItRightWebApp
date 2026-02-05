@@ -17,6 +17,7 @@ import tech3.binitright.interfacemethods.CheckInInterface;
 import tech3.binitright.interfacemethods.IssueInterface;
 import tech3.binitright.model.CheckIn;
 import tech3.binitright.model.Issue;
+import tech3.binitright.repository.ReportRepository;
 import tech3.binitright.service.*;
 
 @Controller
@@ -53,6 +54,7 @@ public class AdminController {
 
     @Autowired
     private DigitalOceanStorageService digitalOceanStorageService;
+    @Autowired private ReportRepository reportRepository;
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
@@ -70,10 +72,10 @@ public class AdminController {
                 checkInService.getPendingCheckIns()
         );
 
-        //            model.addAttribute(
-        //                    "forecastData",
-        //                    forecastService.getForecastData()
-        //            );
+                   model.addAttribute(
+                           "forecastData",
+                          forecastService.getForecastData()
+                   );
 
         return "admin-dashboard";
     }
@@ -127,5 +129,12 @@ public class AdminController {
         model.addAttribute("checkIns", allCheckIns);
         return "checkin-list";
     }
+    @GetMapping("/sustainability-reports")
+    public String showReportArchives(Model model) {
+        model.addAttribute("allReports", reportRepository.findAll());
+        model.addAttribute("currentPath", "/admin/sustainability-reports");
+        return "sustainability-reports";
+    }
+
 
 }
