@@ -17,6 +17,7 @@ import tech3.binitright.interfacemethods.CheckInInterface;
 import tech3.binitright.interfacemethods.IssueInterface;
 import tech3.binitright.model.CheckIn;
 import tech3.binitright.model.Issue;
+import tech3.binitright.model.Report;
 import tech3.binitright.repository.ReportRepository;
 import tech3.binitright.service.*;
 
@@ -72,10 +73,10 @@ public class AdminController {
                 checkInService.getPendingCheckIns()
         );
 
-                   model.addAttribute(
-                           "forecastData",
-                          forecastService.getForecastData()
-                   );
+                //   model.addAttribute(
+                  //         "forecastData",
+                 //         forecastService.getForecastData()
+                  // );
 
         return "admin-dashboard";
     }
@@ -130,9 +131,20 @@ public class AdminController {
         return "checkin-list";
     }
     @GetMapping("/sustainability-reports")
-    public String showReportArchives(Model model) {
-        model.addAttribute("allReports", reportRepository.findAll());
+    public String showSustainabilityReports(
+            @RequestParam(value = "month", required = false) Integer month,
+            @RequestParam(value = "year", required = false) Integer year,
+            Model model) {
+
+        List<Report> reports;
+        if (month != null && year != null) {
+            reports = reportRepository.findByMonthAndYear(month, year);
+        } else {
+            reports = reportRepository.findAll();
+        }
+        model.addAttribute("allReports", reports);
         model.addAttribute("currentPath", "/admin/sustainability-reports");
+
         return "sustainability-reports";
     }
 

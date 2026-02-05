@@ -24,7 +24,8 @@
         <a th:href="@{/admin/checkin-review}">
             <i class="bi bi-clipboard-check"></i> Check-In Review
         </a>
-        <a th:href="@{/admin/sustainability-reports}"class="active">
+        <a th:href="@{/admin/sustainability-reports}"
+           th:classappend="${currentPath == '/admin/sustainability-reports' ? 'active' : ''}">
             <i class="bi bi-file-text"></i> Sustainability Reports
         </a>
         <a href="#"><i class="bi bi-excircle"></i> Issue Management</a>
@@ -57,7 +58,16 @@
                 <h5><i class="bi bi-calendar3"></i> Report Filters</h5>
             </div>
 
-            <form th:action="@{/admin/report/sustainability-reports}" method="get" class="row g-3 p-3" id="reportForm">
+            <form th:action="@{/admin/sustainability-reports}"
+                  method="get"
+                  class="row g-3 p-3"
+                  id="reportForm">
+
+                <!-- CSRF for POST -->
+                <input type="hidden"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}" />
+
                 <div class="col-md-3">
                     <label class="metric-label">Month</label>
                     <select name="month" class="form-select">
@@ -75,38 +85,51 @@
                         <option value="12">December</option>
                     </select>
                 </div>
+
                 <div class="col-md-2">
                     <label class="metric-label">Year</label>
                     <select name="year" class="form-select">
-                        <option selected>2026</option>
-                        <option>2025</option>
-                        <option>2024</option>
+                        <option value="2026" selected>2026</option>
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
                     </select>
                 </div>
+
                 <div class="col-md-2">
                     <label class="metric-label">Report Type</label>
                     <input type="text" class="form-control" value="Summary" readonly>
                 </div>
 
                 <div class="col-md-5 d-flex align-items-end gap-2">
+                    <!-- Apply Filter -->
                     <button type="submit" class="btn-review flex-grow-1">
                         <i class="bi bi-filter"></i> Apply Filter
                     </button>
 
-                    <button type="submit" th:formaction="@{/admin/report/generate}" formmethod="post" class="btn btn-success flex-grow-1" style="height: 38px; border-radius: 8px;">
-                        <i class="bi bi-plus-circle"></i> Generate
+                    <!-- Generate -->
+                    <button type="submit"
+                            th:formaction="@{/admin/report/generate}"
+                            formmethod="post"
+                            class="btn-review flex-grow-1">
+                        <i class="bi bi-file-earmark-plus"></i> Generate
                     </button>
 
-                    <button type="reset" class="btn btn-outline-secondary">
+                    <button type="reset" class="btn-review flex-grow-1">
                         Clear
                     </button>
                 </div>
             </form>
+
         </div>
+        <!-- ===== REPORT ARCHIVES TABLE ===== -->
         <div class="section-card">
-            <div class="section-header">
+            <div class="section-header d-flex justify-content-between align-items-center">
                 <h5><i class="bi bi-archive"></i> Report Archives</h5>
-                <button class="btn-review">
+
+                <!-- Export Selected -->
+                <button type="button"
+                        class="btn-review"
+                        onclick="exportSelectedReports()">
                     <i class="bi bi-download"></i> Export Selected
                 </button>
             </div>
@@ -115,37 +138,96 @@
                 <table class="tbl">
                     <thead>
                     <tr>
-                        <th><input type="checkbox"></th>
+                        <!-- Select all -->
+                        <th>
+                            <input type="checkbox" id="selectAll">
+                        </th>
                         <th>Report ID</th>
                         <th>Report Name</th>
                         <th>Date Created</th>
                         <th class="text-end">Action</th>
                     </tr>
                     </thead>
+
                     <tbody>
                     <tr th:each="rpt : ${allReports}">
-                        <td><input type="checkbox"></td>
+                        <!-- Row checkbox -->
                         <td>
-                            <span class="cell-id" th:text="'RPT-' + ${rpt.reportId}">RPT-2026-001</span>
+                            <input type="checkbox"
+                                   class="report-checkbox"
+                                   th:value="${rpt.reportId}">
                         </td>
-                        <td><strong>Annual Sustainability Impact Summary</strong></td>
-                        <td th:text="${#temporals.format(rpt.generatedAt, 'MMM dd, yyyy')}">Feb 04, 2026</td>
+
+                        <td>
+                    <span class="cell-id"
+                          th:text="'RPT-' + ${rpt.reportId}">
+                        RPT-1
+                    </span>
+                        </td>
+
+                        <td>
+                            <strong>Annual Sustainability Impact Summary</strong>
+                        </td>
+
+                        <td th:text="${#temporals.format(rpt.generatedAt, 'MMM dd, yyyy')}">
+                            Feb 05, 2026
+                        </td>
+
                         <td class="text-end">
-                            <a th:href="@{/admin/report/view/{id}(id=${rpt.reportId})}" class="btn-review text-decoration-none py-1 px-3 d-inline-block">
+                            <a th:href="@{/admin/report/view/{id}(id=${rpt.reportId})}"
+                               class="btn-review text-decoration-none py-1 px-3 d-inline-block">
                                 View
                             </a>
-                            <button class="btn btn-outline-success border-0 ms-2" disabled>
+
+                            <a th:href="@{/admin/report/download/csv/{id}(id=${rpt.reportId})}"
+                               class="btn btn-outline-success border-0 ms-2"
+                               title="Download CSV">
                                 <i class="bi bi-download"></i>
-                            </button>
+                            </a>
                         </td>
                     </tr>
+
                     <tr th:if="${#lists.isEmpty(allReports)}">
-                        <td colspan="6" class="text-center py-4 text-muted small">No reports found. Click "Apply" to generate one.</td>
+                        <td colspan="5"
+                            class="text-center py-4 text-muted small">
+                            No reports found.
+                        </td>
                     </tr>
                     </tbody>
                 </table>
             </div>
         </div>
+
+        <!-- ===== JAVASCRIPT ===== -->
+        <script>
+            function exportSelectedReports() {
+
+                // Get all checked checkboxes
+                const checked = document.querySelectorAll('.report-checkbox:checked');
+
+                if (checked.length === 0) {
+                    alert("Please select at least one report to export.");
+                    return;
+                }
+
+                // Collect IDs
+                const ids = Array.from(checked)
+                    .map(cb => cb.value)
+                    .join(',');
+
+                // Trigger ZIP download
+                window.location.href =
+                    `/admin/report/download/zip?ids=${ids}`;
+            }
+
+            // Select / deselect all
+            document.getElementById("selectAll")?.addEventListener("change", function () {
+                document.querySelectorAll(".report-checkbox")
+                    .forEach(cb => cb.checked = this.checked);
+            });
+        </script>
+
+    </div>
 
     </div>
 </div>
