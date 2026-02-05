@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>View Report</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+
+    <link rel="stylesheet" href="/css/dashboard.css" th:href="@{/css/dashboard.css}">
+</head>
+<body>
+
+<div class="container py-4" style="max-width: 820px;">
+
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+            <h4 class="fw-bold mb-1">
+                <span th:text="${reportMonth}">Month</span>
+                <span th:text="${reportYear}">2026</span> Recycling Activity Report
+            </h4>
+            <div class="text-muted small">
+                Report ID: <strong th:text="${reportId}">RPT-000</strong> •
+                Generated on <strong th:text="${#temporals.format(#temporals.createNow(), 'MMM dd, yyyy')}">Jan 20, 2026</strong>
+            </div>
+        </div>
+        <a href="javascript:history.back()" class="text-muted fs-4 text-decoration-none">&times;</a>
+    </div>
+
+    <div class="section-card shadow-sm border rounded bg-white">
+        <div class="section-header p-3 border-bottom">
+            <h5 class="mb-0"><i class="bi bi-file-text me-2"></i>Report Summary</h5>
+        </div>
+
+        <div class="p-3">
+            <ul class="list-group list-group-flush small">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Total waste collected:</strong>
+                    <span>[[${#numbers.formatDecimal(stats.totalWaste, 1, 2)}]] kg</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Recycling rate:</strong>
+                    <span>[[${stats.mostRecycledPercent}]]%</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Active participants:</strong>
+                    <span>[[${stats.activeParticipants}]]</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>CO₂ emissions avoided:</strong>
+                    <span class="text-success fw-bold">[[${#numbers.formatDecimal(stats.co2Saved, 1, 2)}]] tons</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <strong>Most recycled material:</strong>
+                    <span class="badge bg-info text-dark">[[${stats.mostRecycled}]]</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end mt-4">
+        <a href="javascript:history.back()" class="btn-review text-decoration-none">
+            <i class="bi bi-arrow-left me-1"></i> Back to Reports
+        </a>
+    </div>
+
+</div>
+</body>
+</html>

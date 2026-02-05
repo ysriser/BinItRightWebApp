@@ -18,8 +18,8 @@ public class Report {
 	
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "feedback_id")
-    private Long feedbackId;
+    @Column(name = "report_id")
+    private Long reportId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id", nullable = false)
@@ -30,19 +30,19 @@ public class Report {
     
     public Report() {}
 
-	public Report(Long feedbackId, Admin admin, LocalDateTime generatedAt) {
+	public Report(Long reportId, Admin admin, LocalDateTime generatedAt) {
 		super();
-		this.feedbackId = feedbackId;
+		this.reportId = reportId;
 		this.admin = admin;
 		this.generatedAt = generatedAt;
 	}
 
-	public Long getFeedbackId() {
-		return feedbackId;
+	public Long getReportId() {
+		return reportId;
 	}
 
-	public void setFeedbackId(Long feedbackId) {
-		this.feedbackId = feedbackId;
+	public void setReportId(Long reportIdId) {
+		this.reportId = reportId;
 	}
 
 	public Admin getAdmin() {
@@ -60,6 +60,7 @@ public class Report {
 	public void setGeneratedAt(LocalDateTime generatedAt) {
 		this.generatedAt = generatedAt;
 	}
-    
-    
+
+
+
 }
