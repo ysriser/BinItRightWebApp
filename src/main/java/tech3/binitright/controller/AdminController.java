@@ -74,9 +74,9 @@ public class AdminController {
         );
 
 //                   model.addAttribute(
-//                         "forecastData",
-//                         forecastService.getForecastData()
-//                  );
+//                        "forecastData",
+//                       forecastService.getForecastData()
+//                 );
 
         return "admin-dashboard";
     }
@@ -130,11 +130,11 @@ public class AdminController {
         model.addAttribute("checkIns", allCheckIns);
         return "checkin-list";
     }
-//    @GetMapping("/sustainability-reports")
-//    public String showSustainabilityReports(
+//      @GetMapping("/sustainability-reports")
+//      public String showSustainabilityReports(
 //            @RequestParam(value = "month", required = false) Integer month,
-//            @RequestParam(value = "year", required = false) Integer year,
-//            Model model) {
+//             @RequestParam(value = "year", required = false) Integer year,
+//             Model model) {
 //
 //        List<Report> reports;
 //        if (month != null && year != null) {
