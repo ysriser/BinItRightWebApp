@@ -7,7 +7,6 @@ import tech3.binitright.model.DropOffLocation;
 import tech3.binitright.model.DropOffLocation.Status;
 import tech3.binitright.repository.DropOffLocationRepository;
 
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -15,6 +14,7 @@ import org.jsoup.select.Elements;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.math.BigDecimal;
 import java.net.URI;
@@ -38,7 +38,6 @@ public class BinDataImporter {
     private static final String LAMP_API =
             "https://api-open.data.gov.sg/v1/public/api/datasets/d_6226f69998ed0cb62151af37706508cd/poll-download";
 
-
     public BinDataImporter(DropOffLocationRepository repo, RestTemplate restTemplate) {
         this.repo = repo;
         this.restTemplate = restTemplate;
@@ -46,49 +45,42 @@ public class BinDataImporter {
     }
 
     public void importData() {
+        // Import Lighting bins
+        importFromApi(LAMP_API, "Lighting");
+        pause(12000); // 12-second breath for the API
 
-        importFromApi(
-                LAMP_API,
-                "Lighting"
-        );
+        // Import EWaste bins
+        importFromApi(EWASTE_API, "EWaste");
+        pause(12000);
 
-        importFromApi(
-                EWASTE_API,
-                "EWaste"
-        );
-
-        importFromApi(
-                BLUE_BIN_API,
-                "BlueBin"
-        );
-
+        // Import BlueBin bins
+        importFromApi(BLUE_BIN_API, "BlueBin");
     }
 
     private void importFromApi(String pollUrl, String binType) {
         try {
             JsonNode pollResp = restTemplate.getForObject(pollUrl, JsonNode.class);
-
             String s3Url = pollResp.path("data").path("url").asText();
 
             if (s3Url == null || s3Url.isEmpty() || s3Url.equals("null")) {
-                throw new RuntimeException("Error: 'data.url' not found in poll-download JSON");
+                throw new RuntimeException("Error: 'data.url' not found for " + binType);
             }
-
- //           System.out.println("S3 URL fetched for " + binType + ": " + s3Url);
 
             URI signed = new URI(s3Url);
             String geoJson = restTemplate.getForObject(signed, String.class);
 
-
             parseAndSaveBins(geoJson, binType);
+            System.out.println(">>> Successfully Imported: " + binType);
 
-            System.out.println("Imported: " + binType);
-
+        } catch (HttpClientErrorException.TooManyRequests e) {
+            System.err.println("!!! Rate Limit Hit (429) for " + binType + ". Waiting 30s to retry...");
+            pause(30000);
+            importFromApi(pollUrl, binType); // Recursive retry once
         } catch (Exception e) {
-            System.out.println("ERROR importing: " + binType);
-            e.printStackTrace();
+            System.err.println("!!! Failed to import " + binType + ": " + e.getMessage());
         }
     }
+
     @Transactional
     private void parseAndSaveBins(String geoJson, String binType) {
         try {
@@ -97,7 +89,6 @@ public class BinDataImporter {
 
             int count = 0;
             for (JsonNode feature : features) {
-
                 JsonNode geom = feature.get("geometry");
                 JsonNode props = feature.get("properties");
 
@@ -105,34 +96,23 @@ public class BinDataImporter {
                 double lat = geom.get("coordinates").get(1).asDouble();
 
                 String incCrc;
-
                 if (props.has("INC_CRC")) {
                     incCrc = props.get("INC_CRC").asText();
                 } else {
-                    // HTML-based datasets (BlueBin / Lamp)
                     String html = props.path("Description").asText("");
                     Map<String, String> meta = parseHtmlTable(html);
                     incCrc = meta.get("INC_CRC");
                 }
 
-                if (incCrc == null || incCrc.isEmpty()) {
-                    continue;
-                }
+                if (incCrc == null || incCrc.isEmpty()) continue;
 
-                DropOffLocation bin;
-
-                if (binType.equals("BlueBin")) {
-                    bin = parseHtmlBasedBin(props, lat, lng, binType);
-                } else if (binType.equals("EWaste")) {
-                    bin = parseEWasteBin(props, lat, lng, binType);
-                } else {
-                    bin = parseHtmlBasedBin(props, lat, lng, binType);
-                }
+                DropOffLocation bin = binType.equals("EWaste")
+                        ? parseEWasteBin(props, lat, lng, binType)
+                        : parseHtmlBasedBin(props, lat, lng, binType);
 
                 bin.setId(incCrc);
 
                 Optional<DropOffLocation> existing = repo.findById(incCrc);
-
                 if (existing.isPresent()) {
                     DropOffLocation db = existing.get();
                     db.setLatitude(bin.getLatitude());
@@ -144,116 +124,70 @@ public class BinDataImporter {
                     repo.save(bin);
                     count++;
                 }
-
             }
-            
-            System.out.println("Saved " + count + " " + binType + " bins");  
-
+            System.out.println(">>> Saved " + count + " " + binType + " bins");
         } catch (Exception e) {
-            System.err.println("ERROR parsing " + binType + ": " + e.getMessage());
-            e.printStackTrace();
-            throw new RuntimeException("Failed to parse bins: " + e.getMessage(), e);  
+            System.err.println("!!! Error parsing " + binType + ": " + e.getMessage());
         }
     }
 
     private DropOffLocation parseEWasteBin(JsonNode props, double lat, double lng, String binType) {
-
         String block = props.path("ADDRESSBLOCKHOUSENUMBER").asText("");
         String street = props.path("ADDRESSSTREETNAME").asText("");
         String postal = props.path("ADDRESSPOSTALCODE").asText("");
         String desc = props.path("DESCRIPTION").asText("");
 
-        String fullAddress = (block + " " + street).trim();
-
         DropOffLocation bin = new DropOffLocation();
         bin.setName("E-Waste Bin");
-        bin.setAddress(fullAddress);
+        bin.setAddress((block + " " + street).trim());
         bin.setPostalCode(postal);
         bin.setDescription(desc);
         bin.setBinType(binType);
         bin.setLatitude(new BigDecimal(lat));
         bin.setLongitude(new BigDecimal(lng));
         bin.setStatus(Status.ACTIVE);
-
         return bin;
     }
 
-    // Extract clean data from BlueBin HTML
     private DropOffLocation parseHtmlBasedBin(JsonNode props, double lat, double lng, String binType) {
-
-        String html = props.get("Description").asText("");
+        String html = props.path("Description").asText("");
         Map<String, String> meta = parseHtmlTable(html);
 
         String block = meta.getOrDefault("ADDRESSBLOCKHOUSENUMBER", "");
         String street = meta.getOrDefault("ADDRESSSTREETNAME", "");
-        String postal = meta.getOrDefault("ADDRESSPOSTALCODE", "");
-        String desc = meta.getOrDefault("DESCRIPTION", "");
         String building = meta.getOrDefault("ADDRESSBUILDINGNAME", "");
 
-        String fullAddress;
-        if (!block.isEmpty() && !street.isEmpty()) {
-            fullAddress = block + " " + street;
-        } else if (!building.isEmpty()) {
-            fullAddress = building;
-        } else {
-            fullAddress = street;
-        }
+        String fullAddress = (!block.isEmpty() && !street.isEmpty()) ? block + " " + street :
+                (!building.isEmpty() ? building : street);
 
         DropOffLocation bin = new DropOffLocation();
         bin.setName(props.has("Name") ? props.get("Name").asText() : binType);
         bin.setAddress(fullAddress);
-        bin.setPostalCode(postal);
-        bin.setDescription(desc);
+        bin.setPostalCode(meta.getOrDefault("ADDRESSPOSTALCODE", ""));
+        bin.setDescription(meta.getOrDefault("DESCRIPTION", ""));
         bin.setBinType(binType);
         bin.setLatitude(new BigDecimal(lat));
         bin.setLongitude(new BigDecimal(lng));
         bin.setStatus(Status.ACTIVE);
-
         return bin;
     }
 
-    // Parse <th> / <td> table pairs using Jsoup
     private Map<String, String> parseHtmlTable(String html) {
         Map<String, String> map = new HashMap<>();
-
         try {
             Document doc = Jsoup.parse(html);
             Elements rows = doc.select("tr");
-
             for (Element row : rows) {
                 Elements th = row.select("th");
                 Elements td = row.select("td");
-                if (!th.isEmpty() && !td.isEmpty()) {
-                    map.put(th.text(), td.text());
-                }
+                if (!th.isEmpty() && !td.isEmpty()) map.put(th.text(), td.text());
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        } catch (Exception e) { e.printStackTrace(); }
         return map;
     }
 
-    private String extractName(JsonNode props) {
-        if (props.has("NAME")) return props.get("NAME").asText();
-        if (props.has("Name")) return props.get("Name").asText();
-        return "Unknown";
+    private void pause(int ms) {
+        try { Thread.sleep(ms); }
+        catch (InterruptedException e) { Thread.currentThread().interrupt(); }
     }
-
-    private String extractAddress(JsonNode props) {
-        if (props.has("ADDRESSSTREETNAME")) return props.get("ADDRESSSTREETNAME").asText();
-        return "";
-    }
-
-    private String extractPostal(JsonNode props) {
-        if (props.has("ADDRESSPOSTALCODE")) return props.get("ADDRESSPOSTALCODE").asText();
-        return "";
-    }
-
-    private String extractDescription(JsonNode props) {
-        if (props.has("DESCRIPTION")) return props.get("DESCRIPTION").asText();
-        if (props.has("Description")) return props.get("Description").asText();
-        return "";
-    }
-
 }

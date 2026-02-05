@@ -62,7 +62,7 @@ public class UserSeeder {
     }
 
     @Bean
-    @Order(4)
+    @Order(5)
     @Profile({"test", "prod", "default"}) // Avoid running this in "prod" to keep the DB clean
     public CommandLineRunner seedUsers(PasswordEncoder passwordEncoder) {
         return args -> {
@@ -122,7 +122,7 @@ public class UserSeeder {
 
 
     @Bean
-    @Order(5)
+    @Order(6)
     @Profile({"test", "prod", "default"})
     public CommandLineRunner seedWasteCategories() {
         return args -> {
@@ -195,7 +195,7 @@ public class UserSeeder {
     }
 
     @Bean
-    @Order(6)
+    @Order(7)
     @Profile({"test", "prod", "default"})
     public CommandLineRunner seedCheckIns() {
         return args -> {

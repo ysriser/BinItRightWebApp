@@ -22,7 +22,7 @@ public class AdminUserSeeder {
         this.adminService = adminService;
     }
     @Bean
-    @Order(4)
+    @Order(3)
     @Profile({"test","prod","default"}) // Only runs when SPRING_PROFILES_ACTIVE=test
     public CommandLineRunner seedAdmin(PasswordEncoder passwordEncoder) {
         return args -> {
