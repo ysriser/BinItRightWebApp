@@ -105,7 +105,7 @@ public class UserSeeder {
         };
     }
 
-    @Bean
+   @Bean
     @Profile({"test", "default"})
     public CommandLineRunner seedCheckIns() {
         return args -> {
