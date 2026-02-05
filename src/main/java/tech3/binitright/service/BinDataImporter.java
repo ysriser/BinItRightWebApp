@@ -48,8 +48,8 @@ public class BinDataImporter {
     public void importData() {
 
         importFromApi(
-                BLUE_BIN_API,
-                "BlueBin"
+                LAMP_API,
+                "Lighting"
         );
 
         importFromApi(
@@ -58,9 +58,10 @@ public class BinDataImporter {
         );
 
         importFromApi(
-                LAMP_API,
-                "Lighting"
+                BLUE_BIN_API,
+                "BlueBin"
         );
+
     }
 
     private void importFromApi(String pollUrl, String binType) {

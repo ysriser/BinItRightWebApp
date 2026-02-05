@@ -108,5 +108,6 @@ public abstract class BinItRightUser {
 	public void setCreated_at(LocalDateTime created_at) {
 		this.created_at = created_at;
 	}
+
 }
 	
