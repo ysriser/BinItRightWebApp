@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Bin It Right – Sustainability Reports</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+
+    <link rel="stylesheet" href="/css/dashboard.css" th:href="@{/css/dashboard.css}">
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <h4><i class="bi bi-arrow-repeat me-1"></i>Bin It Right</h4>
+        <p>Admin Portal<br>Welcome, root</p>
+    </div>
+    <nav>
+        <a th:href="@{/admin/dashboard}">
+            <i class="bi bi-grid-1x2"></i> Dashboard
+        </a>
+        <a th:href="@{/admin/checkin}"
+           th:classappend="${currentPath != null and
+        (currentPath.startsWith('/admin/checkin')
+         or currentPath.startsWith('/admin/review')) ? 'active' : ''}">
+            <i class="bi bi-clipboard-check"></i> Check-In Review
+        </a>
+
+        <a th:href="@{/admin/sustainability-reports}"
+           th:classappend="${currentPath == '/admin/sustainability-reports' ? 'active' : ''}">
+            <i class="bi bi-file-text"></i> Sustainability Reports
+        </a>
+        <a th:href="@{/admin/issues}"
+           th:classappend="${currentPath != null and currentPath.startsWith('/admin/issues') ? 'active' : ''}">
+            <i class="bi bi-exclamation-circle"></i> Issue Management
+        </a>
+
+        <a href="#"><i class="bi bi-people"></i> Users</a>
+        <a href="#"><i class="bi bi-gear"></i> Settings</a>
+    </nav>
+
+    <div class="sidebar-footer mt-auto p-3">
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="btn btn-outline-danger w-100">
+                <i class="bi bi-box-arrow-left me-2"></i> Logout
+            </button>
+        </form>
+    </div>
+</aside>
+
+<div class="main">
+
+    <header class="topbar">
+        <div class="topbar-left">
+            <h2>Sustainability Reports</h2>
+            <p>Generate and view time-based sustainability metrics</p>
+        </div>
+    </header>
+
+    <div class="content-body">
+
+        <div class="section-card mb-section">
+            <div class="section-header">
+                <h5><i class="bi bi-calendar3"></i> Report Filters</h5>
+            </div>
+
+            <form th:action="@{/admin/sustainability-reports}"
+                  method="get"
+                  class="row g-3 p-3"
+                  id="reportForm">
+
+                <!-- CSRF for POST -->
+                <input type="hidden"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}" />
+
+                <div class="col-md-3">
+                    <label class="metric-label">Month</label>
+                    <select name="month" class="form-select">
+                        <option value="1">January</option>
+                        <option value="2" selected>February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="metric-label">Year</label>
+                    <select name="year" class="form-select">
+                        <option value="2026" selected>2026</option>
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="metric-label">Report Type</label>
+                    <input type="text" class="form-control" value="Summary" readonly>
+                </div>
+
+                <div class="col-md-5 d-flex align-items-end gap-2">
+                    <!-- Apply Filter -->
+                    <button type="submit" class="btn-review flex-grow-1">
+                        <i class="bi bi-filter"></i> Apply Filter
+                    </button>
+
+                    <!-- Generate -->
+                    <button type="submit"
+                            th:formaction="@{/admin/report/generate}"
+                            formmethod="post"
+                            class="btn-review flex-grow-1">
+                        <i class="bi bi-file-earmark-plus"></i> Generate
+                    </button>
+
+                    <button type="reset" class="btn-review flex-grow-1">
+                        Clear
+                    </button>
+                </div>
+            </form>
+
+        </div>
+        <!-- ===== REPORT ARCHIVES TABLE ===== -->
+        <div class="section-card">
+            <div class="section-header d-flex justify-content-between align-items-center">
+                <h5><i class="bi bi-archive"></i> Report Archives</h5>
+
+                <!-- Export Selected -->
+                <button type="button"
+                        class="btn-review"
+                        onclick="exportSelectedReports()">
+                    <i class="bi bi-download"></i> Export Selected
+                </button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="tbl">
+                    <thead>
+                    <tr>
+                        <!-- Select all -->
+                        <th>
+                            <input type="checkbox" id="selectAll">
+                        </th>
+                        <th>Report ID</th>
+                        <th>Report Name</th>
+                        <th>Date Created</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="rpt : ${allReports}">
+                        <!-- Row checkbox -->
+                        <td>
+                            <input type="checkbox"
+                                   class="report-checkbox"
+                                   th:value="${rpt.reportId}">
+                        </td>
+
+                        <td>
+                    <span class="cell-id"
+                          th:text="'RPT-' + ${rpt.reportId}">
+                        RPT-1
+                    </span>
+                        </td>
+
+                        <td>
+                            <strong>Annual Sustainability Impact Summary</strong>
+                        </td>
+
+                        <td th:text="${#temporals.format(rpt.generatedAt, 'MMM dd, yyyy')}">
+                            Feb 05, 2026
+                        </td>
+
+                        <td class="text-end">
+                            <a th:href="@{/admin/report/view/{id}(id=${rpt.reportId})}"
+                               class="btn-review text-decoration-none py-1 px-3 d-inline-block">
+                                View
+                            </a>
+
+                            <a th:href="@{/admin/report/download/csv/{id}(id=${rpt.reportId})}"
+                               class="btn btn-outline-success border-0 ms-2"
+                               title="Download CSV">
+                                <i class="bi bi-download"></i>
+                            </a>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(allReports)}">
+                        <td colspan="5"
+                            class="text-center py-4 text-muted small">
+                            No reports found.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ===== JAVASCRIPT ===== -->
+        <script>
+            function exportSelectedReports() {
+
+                // Get all checked checkboxes
+                const checked = document.querySelectorAll('.report-checkbox:checked');
+
+                if (checked.length === 0) {
+                    alert("Please select at least one report to export.");
+                    return;
+                }
+
+                // Collect IDs
+                const ids = Array.from(checked)
+                    .map(cb => cb.value)
+                    .join(',');
+
+                // Trigger ZIP download
+                window.location.href =
+                    `/admin/report/download/zip?ids=${ids}`;
+            }
+
+            // Select / deselect all
+            document.getElementById("selectAll")?.addEventListener("change", function () {
+                document.querySelectorAll(".report-checkbox")
+                    .forEach(cb => cb.checked = this.checked);
+            });
+        </script>
+
+    </div>
+
+    </div>
+</div>
+
+</body>
+</html>
