@@ -73,10 +73,10 @@ public class AdminController {
                 checkInService.getPendingCheckIns()
         );
 
-                   model.addAttribute(
-                         "forecastData",
-                         forecastService.getForecastData()
-                  );
+                  model.addAttribute(
+                       "forecastData",
+                       forecastService.getForecastData()
+                 );
 
         return "admin-dashboard";
     }
@@ -130,8 +130,8 @@ public class AdminController {
         model.addAttribute("checkIns", allCheckIns);
         return "checkin-list";
     }
-    @GetMapping("/sustainability-reports")
-    public String showSustainabilityReports(
+      @GetMapping("/sustainability-reports")
+      public String showSustainabilityReports(
             @RequestParam(value = "month", required = false) Integer month,
             @RequestParam(value = "year", required = false) Integer year,
             Model model) {
@@ -140,12 +140,12 @@ public class AdminController {
         if (month != null && year != null) {
             reports = reportRepository.findByMonthAndYear(month, year);
         } else {
-            reports = reportRepository.findAll();
-        }
+           reports = reportRepository.findAll();
+       }
         model.addAttribute("allReports", reports);
         model.addAttribute("currentPath", "/admin/sustainability-reports");
 
-        return "sustainability-reports";
+       return "sustainability-reports";
     }
 
 

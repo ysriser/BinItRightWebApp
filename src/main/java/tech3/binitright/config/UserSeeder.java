@@ -62,101 +62,72 @@ public class UserSeeder {
     }
 
     @Bean
-    @Order(4)
+    @Order(5)
     @Profile({"test", "prod", "default"}) // Avoid running this in "prod" to keep the DB clean
     public CommandLineRunner seedUsers(PasswordEncoder passwordEncoder) {
         return args -> {
-            String testUsername = "User1";
 
-            // Check if user already exists
-            if (userService.findByUsername(testUsername).isEmpty()) {
+            record SeedUser(String username, String email, String name, int accessoriesToAssign) {}
 
-                // Create and configure the User
+            List<SeedUser> usersToSeed = List.of(
+                    new SeedUser("User1", "tester1@binitright.com", "Default Tester 1", 2),
+                    new SeedUser("User2", "tester2@binitright.com", "Default Tester 2", 4),
+                    new SeedUser("User3", "tester3@binitright.com", "Default Tester 3", 3),
+                    new SeedUser("User4", "tester4@binitright.com", "Default Tester 4", 1)
+            );
+
+            List<Accessories> availableAccs = accessoriesService.findAll();
+
+            for (SeedUser su : usersToSeed) {
+
+                if (!userService.findByUsername(su.username()).isEmpty()){
+                    System.out.println(">>> UserSeeder: " + su.username() + " already exists, skipping.");
+                    continue;
+                }
+
+                // Create user
                 User user = new User();
-                user.setUsername(testUsername);
-                user.setEmailAddress("tester@binitright.com");
-                user.setName("Default Tester");
+                user.setUsername(su.username());
+                user.setEmailAddress(su.email());
+                user.setName(su.name());
                 user.setRole("USER");
                 user.setPassword_hash(passwordEncoder.encode("password"));
 
-                // Set requested stats
-                user.setPointBalance(800); // Assuming this is in BinItRightUser
+                user.setPointBalance(1000);
                 user.setCurrentRank(1);
                 user.setCarbonEmissionSaved(0.0f);
                 user.setUserAddress("123 Sustainability Lane");
 
-                // Save user to generate the ID
                 User savedUser = userService.saveUser(user);
-                System.out.println(">>> UserSeeder: Created user '" + testUsername + "' with 1000 points.");
 
-                // Fetch the accessories we added in data.sql
-                List<Accessories> availableAccs = accessoriesService.findAll();
+                System.out.println(">>> UserSeeder: Created " + su.username());
 
-                // Link the 3 accessories to the user
-                // We iterate through what we found in the DB (Dress, Suit, Sports Attire)
-                for (int i = 0; i < 2 && i < availableAccs.size(); i++) {
+                // Assign accessories
+                for (int i = 0; i < su.accessoriesToAssign() && i < availableAccs.size(); i++) {
                     Accessories acc = availableAccs.get(i);
+
                     UserAccessories ua = new UserAccessories();
                     ua.setUser(savedUser);
                     ua.setAccessories(acc);
                     ua.setEquipped(false);
+
                     userAccessoriesService.save(ua);
-                    System.out.println(">>> UserSeeder: Assigned " + acc.getName() + " to " + testUsername);
+
+                    System.out.println(">>> Assigned " + acc.getName() + " to " + su.username());
                 }
-            } else {
-                System.out.println(">>> UserSeeder: Test user already exists, skipping seeding.");
-            }
-
-            String testUsername2 = "User2";
-
-            // Check if user already exists
-            if (userService.findByUsername(testUsername2).isEmpty()) {
-
-                // Create and configure the User
-                User user = new User();
-                user.setUsername(testUsername2);
-                user.setEmailAddress("tester2@binitright.com");
-                user.setName("Default Tester 2");
-                user.setRole("USER");
-                user.setPassword_hash(passwordEncoder.encode("password"));
-
-                // Set requested stats
-                user.setPointBalance(1000); // Assuming this is in BinItRightUser
-                user.setCurrentRank(1);
-                user.setCarbonEmissionSaved(0.0f);
-                user.setUserAddress("123 Sustainability Lane");
-
-                // Save user to generate the ID
-                User savedUser = userService.saveUser(user);
-                System.out.println(">>> UserSeeder: Created user '" + testUsername2 + "' with 1000 points.");
-
-                // Fetch the accessories we added in data.sql
-                List<Accessories> availableAccs = accessoriesService.findAll();
-
-                // Link the 3 accessories to the user
-                // We iterate through what we found in the DB (Dress, Suit, Sports Attire)
-                for (int i = 0; i < 4 && i < availableAccs.size(); i++) {
-                    Accessories acc = availableAccs.get(i);
-                    UserAccessories ua = new UserAccessories();
-                    ua.setUser(savedUser);
-                    ua.setAccessories(acc);
-                    ua.setEquipped(false);
-                    userAccessoriesService.save(ua);
-                    System.out.println(">>> UserSeeder: Assigned " + acc.getName() + " to " + testUsername);
-                }
-            } else {
-                System.out.println(">>> UserSeeder: Test user 2 already exists, skipping seeding.");
             }
         };
     }
 
+
+
     @Bean
-    @Order(5)
+    @Order(6)
     @Profile({"test", "prod", "default"})
     public CommandLineRunner seedWasteCategories() {
         return args -> {
 
-            // Seed waste categories (if missing)
+            // Skip if already seeded
             if (wasteRepo.count() > 0) {
                 System.out.println(">>> Waste categories already exist, skipping");
                 return;
@@ -186,15 +157,45 @@ public class UserSeeder {
             glass.setEmissionFactor(new BigDecimal("0.90"));
             glass.setAvgWeight(new BigDecimal("0.50"));
 
-            wasteRepo.saveAll(List.of(plastic, ewaste, glass));
+            WasteCategories textile = new WasteCategories();
+            textile.setName("Textile");
+            textile.setStreamType(WasteCategories.StreamType.GENERAL);
+            textile.setIsHazardous(false);
+            textile.setIconUrl("textile");
+            textile.setEmissionFactor(new BigDecimal("2.10"));
+            textile.setAvgWeight(new BigDecimal("0.70"));
 
-            System.out.println(">>> Waste categories seeded");
+            WasteCategories metal = new WasteCategories();
+            metal.setName("Metal");
+            metal.setStreamType(WasteCategories.StreamType.GENERAL);
+            metal.setIsHazardous(false);
+            metal.setIconUrl("metal");
+            metal.setEmissionFactor(new BigDecimal("3.00"));
+            metal.setAvgWeight(new BigDecimal("0.80"));
 
+            WasteCategories paper = new WasteCategories();
+            paper.setName("Paper");
+            paper.setStreamType(WasteCategories.StreamType.GENERAL);
+            paper.setIsHazardous(false);
+            paper.setIconUrl("paper");
+            paper.setEmissionFactor(new BigDecimal("1.10"));
+            paper.setAvgWeight(new BigDecimal("0.25"));
+
+            wasteRepo.saveAll(List.of(
+                    plastic,
+                    ewaste,
+                    glass,
+                    textile,
+                    metal,
+                    paper
+            ));
+
+            System.out.println(">>> Waste categories seeded (6 types)");
         };
     }
 
     @Bean
-    @Order(6)
+    @Order(7)
     @Profile({"test", "prod", "default"})
     public CommandLineRunner seedCheckIns() {
         return args -> {

@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import tech3.binitright.interfacemethods.IssueInterface;
 import tech3.binitright.request.IssueCreateRequest;
 import tech3.binitright.model.Issue;
+import tech3.binitright.response.IssueResponse;
 
 @RestController
 @RequestMapping("/api/issues")
@@ -17,11 +18,13 @@ public class IssueRestController {
     }
 
     @PostMapping
-    public ResponseEntity<Long> createIssue(
+    public ResponseEntity<IssueResponse> createIssue(
             @RequestBody IssueCreateRequest request) {
 
         Issue saved = issueService.createIssue(request);
-        return ResponseEntity.ok(saved.getIssueId());
+
+        IssueResponse response = new IssueResponse(saved.getIssueId());
+        return ResponseEntity.ok(response);
     }
 }
 

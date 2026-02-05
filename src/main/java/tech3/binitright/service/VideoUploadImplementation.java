@@ -38,7 +38,7 @@ public class VideoUploadImplementation implements VideoUploadInterface {
                 new GeneratePresignedUrlRequest(bucket, objectKey)
                         .withMethod(HttpMethod.PUT)
                         .withExpiration(expiry)
-                        .withContentType("video/mp4");  // ⬅️ ADD THIS LINE
+                        .withContentType("video/mp4");
 
         URL uploadUrl = s3.generatePresignedUrl(request);
 
