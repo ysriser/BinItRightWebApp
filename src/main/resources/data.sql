@@ -1,36 +1,5 @@
+SELECT 1;
 
-
-INSERT IGNORE INTO app_users
-(
-    user_id,
-    created_at,
-    email_address,
-    locale,
-    name,
-    password_hash,
-    role,
-    username,
-    carbon_emission_saved,
-    current_rank,
-    updated_at,
-    user_address
-)
-VALUES
-(
-    1, NOW(), 'maha@test.com', 'en_SG', 'Maha',
-    '$2a$10$mahahashvalue', 'USER', 'maha',
-    0.0, 0, NOW(), 'Singapore'
-),
-(
-    4, NOW(), 'john@test.com', 'en_SG', 'John Taylor',
-    '$2a$10$johnhashvalue', 'USER', 'john',
-    8.3, 2, NOW(), 'Singapore'
-),
-(
-    5, NOW(), 'priya@test.com', 'en_SG', 'Priya',
-    '$2a$10$priyahashvalue', 'USER', 'priya',
-    15.9, 3, NOW(), 'Singapore'
-);
 
 
 -- Article 1: AI in Waste Management
@@ -130,14 +99,28 @@ INSERT INTO accessories (name, required_points)
 SELECT 'Recycling Fan', 1000
     WHERE NOT EXISTS (SELECT 1 FROM accessories WHERE name = 'Recycling Fan');
 
+-- Issue 1: Login crash (NEW)
 INSERT IGNORE INTO issue (created_at, description, issue_category, status, raised_by_user_id)
-VALUES (NOW(6), 'App keeps crashing on the login screen.', 'AppProblems', 'NEW', 1);
+VALUES (NOW(6), 'App crashes immediately after tapping the login button.', 'AppProblems', 'NEW', 1);
 
+
+-- Issue 2: Overflowing recycling bin (IN_PROGRESS)
 INSERT IGNORE INTO issue (created_at, description, issue_category, status, raised_by_user_id, resolved_by_admin_id)
-VALUES (NOW(6), 'Waste bin at Sector 7 is overflowing.', 'BinIssues', 'IN_PROGRESS', 2, 1);
+VALUES (NOW(6), 'Recycling bin near Block 512 is overflowing and needs collection.', 'BinIssues', 'IN_PROGRESS', 2, 1);
 
+
+-- Issue 3: Incorrect map location (RESOLVED)
 INSERT IGNORE INTO issue (created_at, description, issue_category, status, resolved_at, raised_by_user_id, resolved_by_admin_id)
-VALUES ('2026-02-01 10:00:00.000000', 'Incorrect GPS coordinates for Bin #42.', 'LocationErrors', 'RESOLVED', '2026-02-03 14:30:00.000000', 4, 1);
+VALUES ('2026-02-01 09:10:00.000000',
+        'GPS location for Jurong recycling point is incorrect on the map.',
+        'LocationErrors',
+        'RESOLVED',
+        '2026-02-03 15:25:00.000000',
+        3,
+        1);
 
+
+-- Issue 4: Slow dashboard loading (NEW)
 INSERT IGNORE INTO issue (created_at, description, issue_category, status, raised_by_user_id)
-VALUES (NOW(6), 'Requesting more recycling options in the UI.', 'Others', 'NEW', 3);
+VALUES (NOW(6), 'User dashboard takes more than 10 seconds to load history.', 'AppProblems', 'NEW', 4);
+
