@@ -17,7 +17,7 @@ public class BinSeeder {
     }
 
     @Bean
-    @Order(3)
+    @Order(4)
     @Profile({"default", "prod", "test"})
     public CommandLineRunner seedBinsOnStartup() {
         return args -> {
