@@ -51,8 +51,6 @@ public class User extends BinItRightUser{
         this.userAddress = userAddress;
         this.currentRank=currentRank;
         this.carbonEmissionSaved=carbonEmissionSaved;
-
-        
     }
 
     @PrePersist

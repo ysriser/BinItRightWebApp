@@ -75,14 +75,17 @@ public class CheckInImplementation implements CheckInInterface{
 
         if(data.getQuantity()<10){
             checkIn.setRewardPoints(data.getQuantity()*10);
+            checkIn.setStatus(CheckIn.Status.APPROVED);
+        }
+        else if(data.getQuantity()>10){
+            checkIn.setStatus(CheckIn.Status.PROCESSING);
         }
 		checkIn.setUser(user);
 		checkIn.setDropOffLocation(location);
 		checkIn.setWasteCategories(category);
 		checkIn.setDuration(data.getDuration());
 		checkIn.setQuantity(data.getQuantity());
-		checkIn.setCheckInTime(data.getCheckInTime());				
-		checkIn.setStatus(CheckIn.Status.PROCESSING);
+		checkIn.setCheckInTime(data.getCheckInTime());
         checkIn.setFileName(data.getVideoKey());
 		
 		return checkInRepository.save(checkIn); 	

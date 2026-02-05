@@ -38,11 +38,11 @@ public class UserAccessories {
         this.accessories = accessories;
     }
 
-    public Long getUserAccesoriesId() {
+    public Long getUserAccessoriesId() {
         return userAccessoriesId;
     }
 
-    public void setUserAccesoriesId(Long userAccesoriesId) {
+    public void setUserAccessoriesId(Long userAccesoriesId) {
         this.userAccessoriesId = userAccesoriesId;
     }
 

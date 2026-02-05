@@ -181,22 +181,36 @@
                           method="post"
                           id="reviewForm">
 
+                        <!-- CSRF -->
+                        <input type="hidden"
+                               th:name="${_csrf.parameterName}"
+                               th:value="${_csrf.token}" />
+
+                        <!-- STATUS -->
+                        <input type="hidden" name="status" id="statusInput"/>
+
                         <div class="action-row">
-                            <button type="submit"
-                                    name="status"
-                                    value="APPROVED"
-                                    class="btn-approve review-btn">
-                                <i class="bi bi-check-circle"></i> Approve
+                            <button type="button"
+                                    class="btn-approve review-btn"
+                                    onclick="submitReview('APPROVED')">
+                                Approve
                             </button>
 
-                            <button type="submit"
-                                    name="status"
-                                    value="DENIED"
-                                    class="btn-deny review-btn">
-                                <i class="bi bi-x-circle"></i> Reject
+                            <button type="button"
+                                    class="btn-deny review-btn"
+                                    onclick="submitReview('DENIED')">
+                                Reject
                             </button>
                         </div>
                     </form>
+
+                    <script>
+                        function submitReview(status) {
+                            document.getElementById("statusInput").value = status;
+                            document.getElementById("reviewForm").submit();
+                        }
+                    </script>
+
                 </th:block>
 
                 <!-- Already reviewed -->

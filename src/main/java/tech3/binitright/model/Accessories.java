@@ -15,7 +15,7 @@ public class Accessories {
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "accessories_id")
-    private Long accesoriesId;
+    private Long accessoriesId;
 
     private String name;
 
@@ -32,7 +32,7 @@ public class Accessories {
     public Accessories(Long accesoriesId, String name, String imageUrl, int requiredPoints,
                        List<UserAccessories> userAccessories) {
         super();
-        this.accesoriesId = accesoriesId;
+        this.accessoriesId = accesoriesId;
         this.name = name;
         this.imageUrl = imageUrl;
         this.requiredPoints = requiredPoints;
@@ -40,11 +40,11 @@ public class Accessories {
     }
 
     public Long getAccesoriesId() {
-        return accesoriesId;
+        return accessoriesId;
     }
 
     public void setAccesoriesId(Long accesoriesId) {
-        this.accesoriesId = accesoriesId;
+        this.accessoriesId = accesoriesId;
     }
 
     public String getName() {
