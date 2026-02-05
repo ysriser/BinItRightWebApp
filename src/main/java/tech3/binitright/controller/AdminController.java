@@ -73,10 +73,10 @@ public class AdminController {
                 checkInService.getPendingCheckIns()
         );
 
-                //   model.addAttribute(
-                  //         "forecastData",
-                 //         forecastService.getForecastData()
-                  // );
+                   model.addAttribute(
+                         "forecastData",
+                         forecastService.getForecastData()
+                  );
 
         return "admin-dashboard";
     }
