@@ -26,7 +26,7 @@ public class User extends BinItRightUser{
     private LocalDateTime updatedat;
 
     @Column(name = "point_balance")
-    private int pointBalance;
+    private Integer pointBalance = 0;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserAccessories> userAccessories; 
@@ -91,9 +91,9 @@ public class User extends BinItRightUser{
 		this.updatedat = updatedat;
 	}
 
-    public int getPointBalance() { return pointBalance; }
+    public Integer getPointBalance() { return pointBalance; }
 
-    public void setPointBalance(int pointBalance) { this.pointBalance = pointBalance; }
+    public void setPointBalance(Integer pointBalance) { this.pointBalance = pointBalance; }
 
 	public List<UserAccessories> getUserAccessories() {
 		return userAccessories;
