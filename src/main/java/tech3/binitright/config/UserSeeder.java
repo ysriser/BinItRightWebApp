@@ -1,9 +1,11 @@
 package tech3.binitright.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import tech3.binitright.interfacemethods.AccessoriesInterface;
 import tech3.binitright.interfacemethods.UserAccessoriesInterface;
@@ -60,6 +62,7 @@ public class UserSeeder {
     }
 
     @Bean
+    @Order(4)
     @Profile({"test", "prod", "default"}) // Avoid running this in "prod" to keep the DB clean
     public CommandLineRunner seedUsers(PasswordEncoder passwordEncoder) {
         return args -> {
@@ -148,7 +151,8 @@ public class UserSeeder {
     }
 
     @Bean
-    @Profile({"test", "default"})
+    @Order(5)
+    @Profile({"test", "prod", "default"})
     public CommandLineRunner seedWasteCategories() {
         return args -> {
 
@@ -190,7 +194,8 @@ public class UserSeeder {
     }
 
     @Bean
-    @Profile({"test", "default"})
+    @Order(6)
+    @Profile({"test", "prod", "default"})
     public CommandLineRunner seedCheckIns() {
         return args -> {
 

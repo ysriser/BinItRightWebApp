@@ -109,12 +109,5 @@ public abstract class BinItRightUser {
 		this.created_at = created_at;
 	}
 
-    public Long getId() { // Add this getter
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 }
 	
