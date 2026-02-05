@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Bin It Right – Issue Management</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <h4><i class="bi bi-arrow-repeat me-1"></i>Bin It Right</h4>
+        <p>Admin Portal<br>Welcome, root</p>
+    </div>
+    <nav>
+        <a th:href="@{/admin/dashboard}"
+           th:classappend="${currentPath != null and currentPath.startsWith('/admin/dashboard')} ? 'active' : ''">
+            <i class="bi bi-grid-1x2"></i> Dashboard
+        </a>
+        <a th:href="@{/admin/checkin}"
+           th:classappend="${currentPath != null and
+                (currentPath.startsWith('/admin/checkin')
+                 or currentPath.startsWith('/admin/review'))} ? 'active' : ''">
+            <i class="bi bi-clipboard-check"></i> Check-In Review
+        </a>
+        <a href="#">
+            <i class="bi bi-file-text"></i> Sustainability Reports
+        </a>
+        <a th:href="@{/admin/issues}" class="active">
+            <i class="bi bi-exclamation-circle"></i> Issue Management
+        </a>
+        <a href="#">
+            <i class="bi bi-people"></i> Users
+        </a>
+        <a href="#">
+            <i class="bi bi-gear"></i> Settings
+        </a>
+    </nav>
+
+    <div class="sidebar-footer mt-auto p-3">
+        <form th:action="@{/logout}" method="post">
+            <button class="btn btn-outline-danger w-100">
+                <i class="bi bi-box-arrow-left me-2"></i> Logout
+            </button>
+        </form>
+    </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <h2>Issue Management</h2>
+            <p>Review and resolve reported issues</p>
+        </div>
+    </header>
+
+    <!-- BODY -->
+    <div class="content-body">
+        <div class="review-wrap">
+
+            <!-- COUNTERS -->
+            <div class="mb-section">
+                <span class="badge bg-secondary me-2">
+                    Total <span th:text="${totalCount}">0</span>
+                </span>
+                <span class="badge bg-warning text-dark me-2">
+                    New <span th:text="${newCount}">0</span>
+                </span>
+                <span class="badge bg-info text-dark me-2">
+                    In Progress <span th:text="${inProgressCount}">0</span>
+                </span>
+                <span class="badge bg-success">
+                    Resolved <span th:text="${resolvedCount}">0</span>
+                </span>
+            </div>
+
+            <!-- EMPTY -->
+            <div th:if="${#lists.isEmpty(issues)}"
+                 class="review-card text-center py-5 text-muted">
+                <i class="bi bi-inbox fs-2"></i>
+                <p class="mt-2">No issues reported</p>
+            </div>
+
+            <!-- ISSUE CARDS -->
+            <div th:each="issue : ${issues}" class="review-card mb-3">
+
+                <!-- HEADER -->
+                <div class="review-card-header">
+                    <div class="hdr-icon">
+                        <i class="bi bi-exclamation-circle"></i>
+                    </div>
+                    <div>
+                        <h4 th:text="${issue.raisedBy.name}">User</h4>
+                        <p th:text="${issue.description}">
+                            Issue description
+                        </p>
+                    </div>
+                </div>
+
+                <!-- DETAILS -->
+                <div class="detail-row">
+                    <div class="detail-label">Category</div>
+                    <div class="detail-value">
+                        <span class="badge bg-light text-dark"
+                              th:text="${issue.issueCategory}">
+                        </span>
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">Status</div>
+                    <div class="detail-value">
+                        <span class="status-badge"
+                              th:classappend="
+                                ${issue.status.name() == 'NEW'} ? '' :
+                                (${issue.status.name() == 'IN_PROGRESS'} ? ' approved' : ' denied')">
+                            <span class="dot"></span>
+                            <span th:text="${issue.status}">NEW</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">Reported</div>
+                    <div class="detail-value"
+                         th:text="${#temporals.format(issue.createdAt,'dd MMM yyyy HH:mm')}">
+                        04 Feb 2026 10:47
+                    </div>
+                </div>
+
+                <!-- ACTION -->
+                <div class="d-flex justify-content-end mt-3">
+                    <a th:href="@{/admin/issues/{id}(id=${issue.issueId})}"
+                       class="btn btn-outline-secondary">
+                        <i class="bi bi-eye"></i> View Issue
+                    </a>
+                </div>
+
+                <div class="review-card-footer">
+                    <i class="bi bi-shield-check me-1"></i> Admin Issue Panel
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

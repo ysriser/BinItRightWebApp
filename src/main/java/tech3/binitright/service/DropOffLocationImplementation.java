@@ -47,7 +47,7 @@ public class DropOffLocationImplementation implements DropOffLocationInterface{
                     System.out.println("BinSize"+allBins.size());
 
                     return new NearByBinDto(
-                            bin.getDropOffId(),
+                            bin.getId(),
                             bin.getName(),
                             bin.getAddress(),
                             bin.getDescription(),
@@ -100,7 +100,7 @@ public class DropOffLocationImplementation implements DropOffLocationInterface{
                     System.out.println("Return from search bins");
 
                     return new NearByBinDto(
-                            bin.getDropOffId(),
+                            bin.getId(),
                             bin.getName(),
                             bin.getAddress(),
                             bin.getDescription(),

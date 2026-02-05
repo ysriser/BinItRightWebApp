@@ -1,92 +1,38 @@
-INSERT IGNORE INTO waste_categories
+
+
+INSERT IGNORE INTO app_users
 (
-    cat_id,
-    avg_weight,
-    emission_factor,
-    icon_url,
-    is_hazardous,
+    user_id,
+    created_at,
+    email_address,
+    locale,
     name,
-    stream_type
+    password_hash,
+    role,
+    username,
+    carbon_emission_saved,
+    current_rank,
+    updated_at,
+    user_address
 )
 VALUES
 (
-    1,
-    0.30,
-    1.50,
-    'plastic',
-    b'0',
-    'Plastic',
-    'GENERAL'
+    1, NOW(), 'maha@test.com', 'en_SG', 'Maha',
+    '$2a$10$mahahashvalue', 'USER', 'maha',
+    0.0, 0, NOW(), 'Singapore'
 ),
 (
-    2,
-    1.20,
-    4.20,
-    'e-waste',
-    b'1',
-    'E-Waste',
-    'E_WASTE'
+    4, NOW(), 'john@test.com', 'en_SG', 'John Taylor',
+    '$2a$10$johnhashvalue', 'USER', 'john',
+    8.3, 2, NOW(), 'Singapore'
 ),
 (
-    3,
-    0.50,
-    0.90,
-    'glass',
-    b'0',
-    'Glass',
-    'GENERAL'
+    5, NOW(), 'priya@test.com', 'en_SG', 'Priya',
+    '$2a$10$priyahashvalue', 'USER', 'priya',
+    15.9, 3, NOW(), 'Singapore'
 );
 
-INSERT IGNORE INTO check_in
-(
-    checkin_id,
-    checkin_time,
-    duration,
-    file_name,
-    quantity,
-    reward_points,
-    status,
-    drop_off_id,
-    user_id,
-    waste_categories_cat_id
-)
-VALUES
-(
-    1001,
-    '2026-02-02 10:15:00',
-    12,
-    'plastic_1.jpg',
-    3,
-    30,
-    'COMPLETED',
-    10,
-    1,
-    1
-),
-(
-    1002,
-    '2026-02-01 09:30:00',
-    20,
-    'ewaste_1.jpg',
-    1,
-    50,
-    'COMPLETED',
-    11,
-    1,
-    2
-),
-(
-    1003,
-    '2026-01-30 18:45:00',
-    15,
-    'glass_1.jpg',
-    5,
-    25,
-    'COMPLETED',
-    12,
-    1,
-    3
-);
+
 -- Article 1: AI in Waste Management
 INSERT INTO news (news_id, description, image_url, name, status, published_date)
 SELECT 1,
@@ -183,3 +129,15 @@ SELECT 'Hoodie', 200
 INSERT INTO accessories (name, required_points)
 SELECT 'Recycling Fan', 1000
     WHERE NOT EXISTS (SELECT 1 FROM accessories WHERE name = 'Recycling Fan');
+
+INSERT IGNORE INTO issue (created_at, description, issue_category, status, raised_by_user_id)
+VALUES (NOW(6), 'App keeps crashing on the login screen.', 'AppProblems', 'NEW', 1);
+
+INSERT IGNORE INTO issue (created_at, description, issue_category, status, raised_by_user_id, resolved_by_admin_id)
+VALUES (NOW(6), 'Waste bin at Sector 7 is overflowing.', 'BinIssues', 'IN_PROGRESS', 2, 1);
+
+INSERT IGNORE INTO issue (created_at, description, issue_category, status, resolved_at, raised_by_user_id, resolved_by_admin_id)
+VALUES ('2026-02-01 10:00:00.000000', 'Incorrect GPS coordinates for Bin #42.', 'LocationErrors', 'RESOLVED', '2026-02-03 14:30:00.000000', 4, 1);
+
+INSERT IGNORE INTO issue (created_at, description, issue_category, status, raised_by_user_id)
+VALUES (NOW(6), 'Requesting more recycling options in the UI.', 'Others', 'NEW', 3);

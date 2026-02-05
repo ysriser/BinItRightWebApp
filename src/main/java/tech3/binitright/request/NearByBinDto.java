@@ -6,7 +6,7 @@ import tech3.binitright.model.DropOffLocation.Status;
 
 public class NearByBinDto {
 
-        private Long id;
+        private String id;
         private String name;
         private String address;
         private String description;
@@ -21,7 +21,7 @@ public class NearByBinDto {
 		
 		}
 
-		public NearByBinDto(Long dropOffId, String name, String address, String description, String postalCode,
+		public NearByBinDto(String dropOffId, String name, String address, String description, String postalCode,
 					String binType, Status status, BigDecimal latitude, BigDecimal longitude, double distance) {
 	    	 this.id = dropOffId;
 	         this.name = name;
@@ -32,11 +32,11 @@ public class NearByBinDto {
 	         this.status = status;
 	         this.latitude = latitude.doubleValue();
 	         this.longitude = longitude.doubleValue();
-	         this.distanceMeters = distanceMeters;
+	         this.distanceMeters = distance;
 				
 			}
 
-			public Long getId() {
+			public String getId() {
 		        return id;
 		    }
 		
@@ -80,7 +80,7 @@ public class NearByBinDto {
 				this.status = status;
 			}
 		
-			public void setId(Long id) {
+			public void setId(String id) {
 				this.id = id;
 			}
 		

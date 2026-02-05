@@ -83,6 +83,8 @@ jobs:
             export MYSQL_ROOT_PASSWORD='${{ secrets.TEST_DB_PASSWORD }}'
             export DATA_GOV_API_KEY='${{ secrets.DATA_GOV_API_KEY }}'
             export APP_ADMIN_PASSWORD='${{ secrets.APP_ADMIN_PASSWORD }}'
+            export SPACES_ACCESS_KEY='${{ secrets.SPACES_ACCESS_KEY }}'
+            export SPACES_SECRET_KEY='${{ secrets.SPACES_SECRET_KEY }}'
             export SPRING_PROFILES_ACTIVE=test
             
             # Pull the image using the variable
@@ -293,6 +295,8 @@ jobs:
             export MYSQL_ROOT_PASSWORD='${{ secrets.DB_PASSWORD }}'
             export DATA_GOV_API_KEY='${{ secrets.DATA_GOV_API_KEY }}'
             export APP_ADMIN_PASSWORD='${{ secrets.APP_ADMIN_PASSWORD }}'
+            export SPACES_ACCESS_KEY='${{ secrets.SPACES_ACCESS_KEY }}'
+            export SPACES_SECRET_KEY='${{ secrets.SPACES_SECRET_KEY }}'
             export SPRING_PROFILES_ACTIVE=prod
             
             # Login and Pull

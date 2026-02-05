@@ -470,6 +470,21 @@ body {
     color: #fff;
 }
 
+.status-approved {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-denied {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.status-pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
 
 /* ═══════════════════════════════════════════════════
    USER ISSUES LIST
@@ -540,6 +555,12 @@ body {
     flex-shrink: 0;
     margin-left: 12px;
 }
+
+.issue-actions form {
+    display: inline-block;
+    margin-right: 8px;
+}
+
 
 /* Status pills */
 .status-new {
@@ -844,4 +865,24 @@ body {
     font-size: .72rem;
     color: var(--text-muted);
     background: #fafafa;
+}
+
+/* Video player styling */
+#reviewVideo {
+    width: 100%;
+    height: auto;
+    max-height: 450px;
+    max-width: 800px;
+    margin: 0 auto;
+    display: block;
+    border-radius: 8px;
+    background: #000;
+    object-fit: contain;
+}
+
+.detail-value > div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
 }

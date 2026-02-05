@@ -29,14 +29,14 @@ public class UserLoginController {
 
         // ✅ 1. Validate request body
         if (request.getUsername() == null || request.getPassword() == null) {
-            return new LoginResponse(false, "Missing credentials", null);
+            return new LoginResponse(false, "Missing credentials", null, null);
         }
 
         // ✅ 2. Find APP USER (app_users table)
         List<User> users = userService.findByUsername(request.getUsername());
 
         if (users.isEmpty()) {
-            return new LoginResponse(false, "Invalid username or password", null);
+            return new LoginResponse(false, "Invalid username or password", null, null);
         }
 
         User user = users.get(0);
@@ -46,14 +46,15 @@ public class UserLoginController {
                 request.getPassword(),
                 user.getPassword_hash()
         )) {
-            return new LoginResponse(false, "Invalid username or password", null);
+            return new LoginResponse(false, "Invalid username or password", null, null);
         }
 
         // ✅ 4. Generate JWT token
         String token = jwtUtil.generateToken(user);
+        System.out.println("User: " +  user.getId());
 
         // ✅ 5. Return success
-        return new LoginResponse(true, "Login success", token);
+        return new LoginResponse(true, "Login success", token, user.getId());
     }
 }
 
