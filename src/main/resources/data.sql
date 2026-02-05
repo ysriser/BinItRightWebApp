@@ -82,6 +82,22 @@ INSERT INTO events (event_id, title, description, location_name, postal_code, st
 SELECT 6,'New Year E-Waste Collection', 'This event happened last month. It should be filtered out by the backend logic.','Tampines Hub','528523','2026-01-05 09:00:00','2026-01-05 17:00:00', 'https://images.unsplash.com/photo-1550009158-9ebf69173e03','APPROVED'
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM events WHERE event_id = 6);
 
+-- Insert Placeholder Accessories with specific URLs
+INSERT INTO accessories (name, required_points)
+SELECT 'Elegant Dress', 300
+    WHERE NOT EXISTS (SELECT 1 FROM accessories WHERE name = 'Elegant Dress');
+
+INSERT INTO accessories (name, required_points)
+SELECT 'Formal Suit', 500
+    WHERE NOT EXISTS (SELECT 1 FROM accessories WHERE name = 'Formal Suit');
+
+INSERT INTO accessories (name, required_points)
+SELECT 'Hoodie', 200
+    WHERE NOT EXISTS (SELECT 1 FROM accessories WHERE name = 'Hoodie');
+
+INSERT INTO accessories (name, required_points)
+SELECT 'Recycling Fan', 1000
+    WHERE NOT EXISTS (SELECT 1 FROM accessories WHERE name = 'Recycling Fan');
 
 INSERT IGNORE INTO issue (created_at, description, issue_category, status, raised_by_user_id)
 VALUES (NOW(6), 'App keeps crashing on the login screen.', 'AppProblems', 'NEW', 1);

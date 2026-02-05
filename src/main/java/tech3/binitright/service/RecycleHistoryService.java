@@ -7,11 +7,11 @@ import tech3.binitright.response.RecycleHistoryResponse;
 import java.util.List;
 
 @Service
-public class RecycledHistoryService {
+public class RecycleHistoryService {
 
     private final CheckInRepository repository;
 
-    public RecycledHistoryService(CheckInRepository repository) {
+    public RecycleHistoryService(CheckInRepository repository) {
         this.repository = repository;
     }
 

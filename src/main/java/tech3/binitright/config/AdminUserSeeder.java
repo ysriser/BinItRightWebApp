@@ -5,6 +5,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import tech3.binitright.interfacemethods.AdminInterface;
 import tech3.binitright.interfacemethods.UserInterface;
@@ -21,6 +22,7 @@ public class AdminUserSeeder {
         this.adminService = adminService;
     }
     @Bean
+    @Order(4)
     @Profile({"test","prod","default"}) // Only runs when SPRING_PROFILES_ACTIVE=test
     public CommandLineRunner seedAdmin(PasswordEncoder passwordEncoder) {
         return args -> {

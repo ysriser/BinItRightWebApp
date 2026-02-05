@@ -25,6 +25,9 @@ public class User extends BinItRightUser{
     @Column(name = "updated_At")
     private LocalDateTime updatedat;
 
+    @Column(name = "point_balance")
+    private Integer pointBalance = 0;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserAccessories> userAccessories; 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
@@ -32,8 +35,6 @@ public class User extends BinItRightUser{
 
     @OneToMany(mappedBy = "raisedBy", cascade = CascadeType.ALL)
     private List<Issue> issues;
-
-   
 
     @OneToMany(mappedBy="user")
     private List<CheckIn> checkin;
@@ -44,19 +45,18 @@ public class User extends BinItRightUser{
     @OneToMany(mappedBy="user")
     private List<Feedback> Feedbacks;
 
-
     public User() {}
 
     public User(String userAddress, int currentRank,float carbonEmissionSaved) {
         this.userAddress = userAddress;
         this.currentRank=currentRank;
         this.carbonEmissionSaved=carbonEmissionSaved;
+        ;
     }
 
     @PrePersist
     protected void onCreate() {
         this.updatedat = LocalDateTime.now();
-
     }
 
 	public String getUserAddress() {
@@ -90,6 +90,10 @@ public class User extends BinItRightUser{
 	public void setUpdatedat(LocalDateTime updatedat) {
 		this.updatedat = updatedat;
 	}
+
+    public Integer getPointBalance() { return pointBalance; }
+
+    public void setPointBalance(Integer pointBalance) { this.pointBalance = pointBalance; }
 
 	public List<UserAccessories> getUserAccessories() {
 		return userAccessories;

@@ -1,6 +1,8 @@
 package tech3.binitright.model;
 
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -26,25 +28,26 @@ public class Accessories {
     private int requiredPoints;
 
     @OneToMany(mappedBy="accessories")
+    @JsonIgnore
     private List<UserAccessories> userAccessories;
     
     public Accessories() {}
-    public Accessories(Long accesoriesId, String name, String imageUrl, int requiredPoints,
+    public Accessories(Long accessoriesId, String name, String imageUrl, int requiredPoints,
                        List<UserAccessories> userAccessories) {
         super();
-        this.accessoriesId = accesoriesId;
+        this.accessoriesId = accessoriesId;
         this.name = name;
         this.imageUrl = imageUrl;
         this.requiredPoints = requiredPoints;
         this.userAccessories = userAccessories;
     }
 
-    public Long getAccesoriesId() {
+    public Long getAccessoriesId() {
         return accessoriesId;
     }
 
-    public void setAccesoriesId(Long accesoriesId) {
-        this.accessoriesId = accesoriesId;
+    public void setAccessoriesId(Long accessoriesId) {
+        this.accessoriesId = accessoriesId;
     }
 
     public String getName() {
