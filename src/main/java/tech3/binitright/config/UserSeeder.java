@@ -80,7 +80,7 @@ public class UserSeeder {
                 user.setPassword_hash(passwordEncoder.encode("password"));
 
                 // Set requested stats
-                user.setPointBalance(1000); // Assuming this is in BinItRightUser
+                user.setPointBalance(800); // Assuming this is in BinItRightUser
                 user.setCurrentRank(1);
                 user.setCarbonEmissionSaved(0.0f);
                 user.setUserAddress("123 Sustainability Lane");

@@ -12,4 +12,6 @@ public interface UserAccessoriesRepository extends JpaRepository<UserAccessories
     List<UserAccessories> findByUser_IdAndEquippedTrue(Long userId);
 
     UserAccessories findByUser_IdAndAccessories_AccessoriesId(Long userId, Long accessoriesId);
+    
+    boolean existsByUser_IdAndAccessories_AccessoriesId(Long userId, Long accessoriesId);
 }
