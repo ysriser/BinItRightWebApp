@@ -21,14 +21,22 @@
         <a th:href="@{/admin/dashboard}">
             <i class="bi bi-grid-1x2"></i> Dashboard
         </a>
-        <a th:href="@{/admin/checkin-review}">
+        <a th:href="@{/admin/checkin}"
+           th:classappend="${currentPath != null and
+        (currentPath.startsWith('/admin/checkin')
+         or currentPath.startsWith('/admin/review')) ? 'active' : ''}">
             <i class="bi bi-clipboard-check"></i> Check-In Review
         </a>
+
         <a th:href="@{/admin/sustainability-reports}"
            th:classappend="${currentPath == '/admin/sustainability-reports' ? 'active' : ''}">
             <i class="bi bi-file-text"></i> Sustainability Reports
         </a>
-        <a href="#"><i class="bi bi-excircle"></i> Issue Management</a>
+        <a th:href="@{/admin/issues}"
+           th:classappend="${currentPath != null and currentPath.startsWith('/admin/issues') ? 'active' : ''}">
+            <i class="bi bi-exclamation-circle"></i> Issue Management
+        </a>
+
         <a href="#"><i class="bi bi-people"></i> Users</a>
         <a href="#"><i class="bi bi-gear"></i> Settings</a>
     </nav>
