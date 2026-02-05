@@ -3,6 +3,11 @@ package tech3.binitright.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import tech3.binitright.model.DropOffLocation;
 import tech3.binitright.model.DropOffLocation.Status;
 import tech3.binitright.repository.DropOffLocationRepository;
@@ -28,6 +33,8 @@ public class BinDataImporter {
     private final DropOffLocationRepository repo;
     private final ObjectMapper mapper;
     private final RestTemplate restTemplate;
+    @Value("${data.gov.api.key}")
+    private String dataGovApiKey;
 
     private static final String BLUE_BIN_API =
             "https://api-open.data.gov.sg/v1/public/api/datasets/d_4dde14826642f49eefff48b7832b90db/poll-download";
@@ -59,7 +66,21 @@ public class BinDataImporter {
 
     private void importFromApi(String pollUrl, String binType) {
         try {
-            JsonNode pollResp = restTemplate.getForObject(pollUrl, JsonNode.class);
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("X-API-KEY", dataGovApiKey);
+
+            System.out.println("Using API key header: " + dataGovApiKey.substring(0, 10));
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<JsonNode> response =
+                    restTemplate.exchange(
+                            pollUrl,
+                            HttpMethod.GET,
+                            entity,
+                            JsonNode.class
+                    );
+
+            JsonNode pollResp = response.getBody();
             String s3Url = pollResp.path("data").path("url").asText();
 
             if (s3Url == null || s3Url.isEmpty() || s3Url.equals("null")) {
