@@ -24,14 +24,17 @@ import java.util.List;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 
     @Bean
     @Order(1)
@@ -54,6 +57,12 @@ public class SecurityConfig {
                                 "/error"  // CRITICAL: Permit /error
                         ).permitAll()
                         .anyRequest().authenticated()
+                )
+                // ✅ ADD THIS: Prevents the 302 Redirect to /login
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.sendError(401, "Unauthorized");
+                        })
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(ex -> ex
@@ -99,7 +108,7 @@ public class SecurityConfig {
                         .cacheControl(withDefaults())
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/login", "/css/**", "/js/**","/api/admin/create").permitAll()
                         .requestMatchers("/admin/**").hasRole("admin")
                         .anyRequest().authenticated()
                 )

@@ -35,7 +35,10 @@
         <a th:href="@{/admin/checkin}" class="active">
             <i class="bi bi-clipboard-check"></i> Check-In Review
         </a>
-        <a href="#"><i class="bi bi-file-text"></i> Sustainability Reports</a>
+        <a th:href="@{/admin/sustainability-reports}"
+           th:classappend="${currentPath == '/admin/sustainability-reports' ? 'active' : ''}">
+            <i class="bi bi-file-text"></i> Sustainability Reports
+        </a>
         <a th:href="@{/admin/issues}">
             <i class="bi bi-exclamation-circle"></i> Issue Management
         </a>
