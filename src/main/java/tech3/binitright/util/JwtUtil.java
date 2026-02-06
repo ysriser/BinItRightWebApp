@@ -1,8 +1,5 @@
 package tech3.binitright.util;
 
-
-
-
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -23,6 +20,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .setSubject(user.getId().toString())
                 .claim("role", user.getRole())
+                .claim("username", user.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRY_MS))
                 .signWith(
@@ -41,4 +39,3 @@ public class JwtUtil {
                 .getSubject();
     }
 }
-
