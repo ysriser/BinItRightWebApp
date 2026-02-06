@@ -524,12 +524,30 @@ public class ScanService {
         final String tier1Hint = "Tier1 hint: category=" + tier1.get("category")
                 + ", confidence=" + tier1.get("confidence")
                 + ", top3=" + tier1.get("top3");
-
-        final String systemPrompt = "You are a recycling disposal expert. Output ONLY valid JSON that matches schema. "
-                + "Never include quiz/followup questions. Never include photo-taking tips. "
-                + "Instructions must be disposal steps only."
-                + "If e-waste, category should start with 'E-waste - '. "
-                + "If textile, category should start with 'Textile - '.";
+        final String systemPrompt = "You are a Tier-2 recycling disposal expert for a Singapore waste-sorting app. "
+                + "Tier-1 already made a first guess. Output ONLY a JSON object that strictly matches the schema. "
+                + "No markdown, no extra keys, no extra text. Keep output concise so the API can return quickly.\n\n"
+                + "Rules:\n"
+                + "1) Do NOT ask user questions. Do NOT output quiz or follow-up questions.\n"
+                + "2) category:\n"
+                + "   - If item is e-waste (electronics, battery, cable, charger, small device), category MUST start with 'E-waste - '.\n"
+                + "   - If item is textile/fabric/clothing, category MUST start with 'Textile - '.\n"
+                + "   - Otherwise use a short refined name like 'PET Plastic Bottle', 'Glass Container', 'Oily Pizza Box'.\n"
+                + "3) recyclable:\n"
+                + "   - true ONLY for normal blue-bin flow (clean, dry, mostly single-material recyclable).\n"
+                + "   - false for e-waste, textile, contaminated paper, heavily food-stained items, unknown items.\n"
+                + "4) instructions:\n"
+                + "   - Provide disposal-only steps (2-5), imperative style.\n"
+                + "   - For composite items, explain each part clearly (for example: empty/rinse first, then where each part goes).\n"
+                + "   - If special drop-off is needed, say generic 'bring to an e-waste recycling point'.\n"
+                + "   - Do not include store names or exact addresses.\n"
+                + "5) confidence:\n"
+                + "   - 0.85-0.99 when very clear.\n"
+                + "   - 0.55-0.80 when somewhat clear.\n"
+                + "   - <=0.54 when uncertain: set category='Uncertain', recyclable=false, with conservative safe disposal guidance.\n"
+                + "6) If the photo is clearly unusable (out of focus, severe blur, unrelated/prank image), you may include ONE short rescan hint, "
+                + "but still provide safe disposal guidance in the instructions. If they're pranks (like just taking pictures of people or airplanes), you can be appropriately humorous, but don't be offensive.\n"
+                + "7) Never confidently invent a wrong class. If unsure, use 'Uncertain'.";
 
         final List<Map<String, Object>> input = new ArrayList<>();
         input.add(Map.of(
@@ -585,7 +603,10 @@ public class ScanService {
         }
 
         final JsonNode finalNode = objectMapper.readTree(outputJson);
-        final String category = finalNode.path("category").asText("").trim();
+        String category = finalNode.path("category").asText("").trim();
+        if ("other_uncertain".equalsIgnoreCase(category)) {
+            category = "Uncertain";
+        }
         final String instruction = finalNode.path("instruction").asText("").trim();
         final boolean recyclable = finalNode.path("recyclable").asBoolean(false);
         final double confidence = clampConfidence(finalNode.path("confidence").asDouble(0.0));
@@ -667,5 +688,6 @@ public class ScanService {
         }
     }
 }
+
 
 
