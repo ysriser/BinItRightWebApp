@@ -1,4 +1,4 @@
-﻿package tech3.binitright.service;
+package tech3.binitright.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
