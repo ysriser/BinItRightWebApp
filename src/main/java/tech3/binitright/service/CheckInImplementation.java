@@ -110,6 +110,15 @@ public class CheckInImplementation implements CheckInInterface{
 			if (totalCheckIns >= 10) {
 				achievementImplementation.unlockAchievement(user.getId(), 2L);
 			}
+
+			if (totalCheckIns >= 50) {
+				achievementImplementation.unlockAchievement(user.getId(), 3L);
+			}
+
+			if (totalCheckIns >= 100) {
+				achievementImplementation.unlockAchievement(user.getId(), 4L);
+			}
+
 		} catch (Exception e) {
 			System.err.println("Error unlocking achievements: " + e.getMessage());
 		}
