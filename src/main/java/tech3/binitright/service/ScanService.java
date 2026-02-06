@@ -521,9 +521,21 @@ public class ScanService {
             text.put("verbosity", openAiVerbosity == null || openAiVerbosity.isBlank() ? "low" : openAiVerbosity);
         }
 
-        final String tier1Hint = "Tier1 hint: category=" + tier1.get("category")
-                + ", confidence=" + tier1.get("confidence")
-                + ", top3=" + tier1.get("top3");
+        final String tier1Category = String.valueOf(tier1.get("category")).trim().toLowerCase(Locale.ROOT);
+        final double tier1Confidence = toDouble(tier1.get("confidence"));
+        final boolean tier1HighlyUncertain = "other_uncertain".equals(tier1Category)
+                || "uncertain".equals(tier1Category)
+                || "unknown".equals(tier1Category)
+                || tier1Confidence < confThreshold;
+
+        final String tier1Hint;
+        if (tier1HighlyUncertain) {
+            tier1Hint = "Tier1 is uncertain. Do not mirror Tier1 label. Use image evidence as primary source.";
+        } else {
+            tier1Hint = "Tier1 hint (may still be wrong): category=" + tier1.get("category")
+                    + ", confidence=" + tier1.get("confidence")
+                    + ", top3=" + tier1.get("top3");
+        }
         final String systemPrompt = "You are a Tier-2 recycling disposal expert for a Singapore waste-sorting app. "
                 + "Tier-1 already made a first guess. Output ONLY a JSON object that strictly matches the schema. "
                 + "No markdown, no extra keys, no extra text. Keep output concise so the API can return quickly.\n\n"
