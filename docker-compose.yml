@@ -49,6 +49,8 @@ services:
       SPACES_SECRET_KEY: ${SPACES_SECRET_KEY}
       OPENAI_API_KEY_CHAT: ${OPENAI_API_KEY_CHAT}
       PYTHON_SERVICE_BASE_URL: http://host.docker.internal:8000
+      TIER2_PROVIDER: ${TIER2_PROVIDER}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
     depends_on:
       db:
         condition: service_healthy

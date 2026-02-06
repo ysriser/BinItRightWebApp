@@ -24,23 +24,23 @@ import java.util.List;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-
     @Bean
     @Order(1)
-    public SecurityFilterChain apiChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
+    public SecurityFilterChain apiChain(
+            final HttpSecurity http,
+            final JwtAuthFilter jwtAuthFilter
+    ) throws Exception {
         http
-                .securityMatcher("/api/**", "/error")  // CRITICAL: Also match /error in API chain
+                .securityMatcher("/api/**", "/error")
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -60,7 +60,6 @@ public class SecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-                // ✅ ADD THIS: Prevents the 302 Redirect to /login
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.sendError(401, "Unauthorized");
@@ -82,16 +81,13 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
         http
-                // IMPORTANT: Explicitly exclude /api/** from this chain
                 .securityMatcher(new NegatedRequestMatcher(new AntPathRequestMatcher("/api/**")))
-                .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/**")
-                )
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
                 .headers(headers -> headers
                         .frameOptions(frame -> frame.deny())
                         .contentTypeOptions(withDefaults())
-                        .contentSecurityPolicy(csp -> csp
-                                .policyDirectives("default-src 'self'; "
+                        .contentSecurityPolicy(csp -> csp.policyDirectives(
+                                "default-src 'self'; "
                                         + "style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com; "
                                         + "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; "
                                         + "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; "
@@ -103,14 +99,15 @@ public class SecurityConfig {
                         )
                         .addHeaderWriter(new StaticHeadersWriter(
                                 "Permissions-Policy",
-                                "camera=(), microphone=(), geolocation=()"))
+                                "camera=(), microphone=(), geolocation=()"
+                        ))
                         .addHeaderWriter(new StaticHeadersWriter("Cross-Origin-Resource-Policy", "same-origin"))
                         .addHeaderWriter(new StaticHeadersWriter("Cross-Origin-Embedder-Policy", "require-corp"))
                         .addHeaderWriter(new StaticHeadersWriter("Cross-Origin-Opener-Policy", "same-origin"))
                         .cacheControl(withDefaults())
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/css/**", "/js/**","/api/admin/create").permitAll()
+                        .requestMatchers("/login", "/css/**", "/js/**", "/api/admin/create").permitAll()
                         .requestMatchers("/admin/**").hasRole("admin")
                         .anyRequest().authenticated()
                 )
@@ -133,7 +130,7 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
+        final CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOriginPatterns(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
@@ -141,7 +138,7 @@ public class SecurityConfig {
         config.setAllowCredentials(false);
         config.setMaxAge(3600L);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
     }
@@ -151,3 +148,4 @@ public class SecurityConfig {
         return CookieSameSiteSupplier.ofLax();
     }
 }
+
