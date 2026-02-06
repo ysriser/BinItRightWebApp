@@ -86,6 +86,8 @@ jobs:
             export SPACES_ACCESS_KEY='${{ secrets.SPACES_ACCESS_KEY }}'
             export SPACES_SECRET_KEY='${{ secrets.SPACES_SECRET_KEY }}'
             export SPRING_PROFILES_ACTIVE=test
+            export TIER2_PROVIDER='${{ secrets.TIER2_PROVIDER }}'
+            export OPENAI_API_KEY='${{ secrets.OPENAI_API_KEY }}'
             
             # Pull the image using the variable
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
@@ -298,6 +300,8 @@ jobs:
             export SPACES_ACCESS_KEY='${{ secrets.SPACES_ACCESS_KEY }}'
             export SPACES_SECRET_KEY='${{ secrets.SPACES_SECRET_KEY }}'
             export SPRING_PROFILES_ACTIVE=prod
+            export TIER2_PROVIDER='${{ secrets.TIER2_PROVIDER }}'
+            export OPENAI_API_KEY='${{ secrets.OPENAI_API_KEY }}'
             
             # Login and Pull
             docker login -u _ -p ${{ secrets.DO_ACCESS_TOKEN }} registry.digitalocean.com
