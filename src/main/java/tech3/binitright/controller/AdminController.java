@@ -73,14 +73,13 @@ public class AdminController {
                 checkInService.getPendingCheckIns()
         );
 
-                  model.addAttribute(
-                       "forecastData",
-                       forecastService.getForecastData()
-                 );
+//                  model.addAttribute(
+//                       "forecastData",
+//                       forecastService.getForecastData()
+//                 );
 
         return "admin-dashboard";
     }
-
 
     @GetMapping("/review/{checkInId}")
     public String reviewCheckIn(@PathVariable Long checkInId, Model model, Principal principal) {
@@ -147,6 +146,4 @@ public class AdminController {
 
        return "sustainability-reports";
     }
-
-
 }

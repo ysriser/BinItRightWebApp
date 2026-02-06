@@ -54,6 +54,8 @@ public class SecurityConfig {
                                 "/api/checkin",
                                 "/api/videos/presign-upload",
                                 "/api/recycle-history",
+                                "/api/user/profile/**",
+                                "/api/chat",
                                 "/error"  // CRITICAL: Permit /error
                         ).permitAll()
                         .anyRequest().authenticated()

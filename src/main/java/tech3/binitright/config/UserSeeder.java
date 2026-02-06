@@ -237,7 +237,7 @@ public class UserSeeder {
             c2.setQuantity(1);
             c2.setDuration(20L);
             c2.setRewardPoints(50);
-            c2.setStatus(CheckIn.Status.APPROVED);
+            c2.setStatus(CheckIn.Status.PROCESSING);
 
             CheckIn c3 = new CheckIn();
             c3.setUser(user);
@@ -247,7 +247,7 @@ public class UserSeeder {
             c3.setQuantity(5);
             c3.setDuration(15L);
             c3.setRewardPoints(25);
-            c3.setStatus(CheckIn.Status.APPROVED);
+            c3.setStatus(CheckIn.Status.PROCESSING);
 
             checkInRepo.saveAll(List.of(c1, c2, c3));
 
