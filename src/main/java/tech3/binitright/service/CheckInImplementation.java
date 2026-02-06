@@ -50,6 +50,9 @@ public class CheckInImplementation implements CheckInInterface{
 	@Autowired
 	private WasteCategoryRepository wasteCatRepository;
 
+	@Autowired
+	private AchievementImplementation achievementImplementation;
+
     @Override
     @Transactional
     public List<CheckIn> getAllCheckIns() {
@@ -88,8 +91,28 @@ public class CheckInImplementation implements CheckInInterface{
 		checkIn.setCheckInTime(data.getCheckInTime());
         checkIn.setFileName(data.getVideoKey());
 		
-		return checkInRepository.save(checkIn); 	
+		CheckIn savedCheckIn = checkInRepository.save(checkIn);
+
+		checkAndUnlockAchievements(user);
 		
+		return savedCheckIn;
+		
+	}
+
+	private void checkAndUnlockAchievements(User user) {
+		try {
+			long totalCheckIns = checkInRepository.countByUser(user);
+			
+			if (totalCheckIns >= 1) {
+				achievementImplementation.unlockAchievement(user.getId(), 1L);
+			}
+			
+			if (totalCheckIns >= 10) {
+				achievementImplementation.unlockAchievement(user.getId(), 2L);
+			}
+		} catch (Exception e) {
+			System.err.println("Error unlocking achievements: " + e.getMessage());
+		}
 	}
 
 	@Override
