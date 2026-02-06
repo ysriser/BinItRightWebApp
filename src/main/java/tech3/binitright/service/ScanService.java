@@ -549,7 +549,7 @@ public class ScanService {
                 + "   - If category='Not sure', confidence MUST be <=0.54.\n"
                 + "6) If the photo is clearly unusable, you may include ONE short rescan hint, but still provide safe disposal guidance in instructions.\n"
                 + "If they're pranks (like just taking pictures of people or airplanes), you can be appropriately humorous, but don't be offensive.\n"
-                + "7) Never confidently invent a wrong class. If unsure, use 'Not sure'.";
+                ;
 
         final List<Map<String, Object>> input = new ArrayList<>();
         input.add(Map.of(
