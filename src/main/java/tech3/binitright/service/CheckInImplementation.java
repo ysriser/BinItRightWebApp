@@ -73,11 +73,17 @@ public class CheckInImplementation implements CheckInInterface{
                         "Waste category not found: " + data.getWasteCategory()
                 ));
 
-        if(data.getQuantity()<10){
-            checkIn.setRewardPoints(data.getQuantity()*10);
+        if(data.getQuantity()<=10){
+            int reward = data.getQuantity() * 10;
+            checkIn.setRewardPoints(reward);
             checkIn.setStatus(CheckIn.Status.APPROVED);
+
+            int currentBalance = user.getPointBalance() == null ? 0 : user.getPointBalance();
+            user.setPointBalance(currentBalance + reward);
+
+            userRepository.save(user);
         }
-        else if(data.getQuantity()>10){
+        else{
             checkIn.setStatus(CheckIn.Status.PROCESSING);
         }
 		checkIn.setUser(user);
@@ -96,5 +102,10 @@ public class CheckInImplementation implements CheckInInterface{
 	public List<CheckIn> getPendingCheckIns() {
 		return checkInRepository.findByStatusWithDetails(CheckIn.Status.PROCESSING);
 	}
+
+    @Override
+    public Integer getUserTotalRecycled(Long userId) {
+        return checkInRepository.getTotalRecycledByUser(userId);
+    }
 
 }

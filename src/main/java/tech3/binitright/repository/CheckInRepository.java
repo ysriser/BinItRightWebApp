@@ -53,4 +53,8 @@ public interface CheckInRepository extends JpaRepository<CheckIn, Long> {
     ORDER BY ci.checkInTime DESC
 """)
     List<RecycleHistoryResponse> findRecycleHistoryByUserId(@Param ("userId")Long userId);
+
+    @Query("SELECT COALESCE(SUM(c.quantity),0) FROM CheckIn c WHERE c.user.id = :userId AND c.status = 'APPROVED'")
+    Integer getTotalRecycledByUser(@Param("userId") Long userId);
+
 }

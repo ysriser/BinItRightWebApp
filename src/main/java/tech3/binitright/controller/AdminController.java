@@ -81,7 +81,6 @@ public class AdminController {
         return "admin-dashboard";
     }
 
-
     @GetMapping("/review/{checkInId}")
     public String reviewCheckIn(@PathVariable Long checkInId, Model model, Principal principal) {
         CheckIn checkIn = adminService.reviewCheckIn(checkInId);
@@ -147,6 +146,4 @@ public class AdminController {
 
        return "sustainability-reports";
     }
-
-
 }
