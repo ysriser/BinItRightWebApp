@@ -1,4 +1,4 @@
-package tech3.binitright.service;
+﻿package tech3.binitright.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,7 +47,7 @@ public class ScanService {
     @Value("${scan.tier2.openai.url:https://api.openai.com/v1/responses}")
     private String openAiUrl;
 
-    @Value("${scan.tier2.openai.model:gpt-4o-mini}")
+    @Value("${scan.tier2.openai.model:gpt-5-mini}")
     private String openAiModel;
 
     @Value("${scan.tier2.openai.timeout-ms:5000}")
@@ -56,7 +56,7 @@ public class ScanService {
     @Value("${scan.tier2.openai.max-retries:0}")
     private int openAiMaxRetries;
 
-    @Value("${scan.tier2.openai.reasoning-effort:none}")
+    @Value("${scan.tier2.openai.reasoning-effort:minimal}")
     private String openAiReasoningEffort;
 
     @Value("${scan.tier2.openai.verbosity:low}")
@@ -552,7 +552,7 @@ public class ScanService {
         if (model.startsWith("gpt-5")) {
             payload.put("reasoning", Map.of(
                     "effort", openAiReasoningEffort == null || openAiReasoningEffort.isBlank()
-                            ? "none"
+                            ? "minimal"
                             : openAiReasoningEffort
             ));
         }
@@ -667,4 +667,5 @@ public class ScanService {
         }
     }
 }
+
 
