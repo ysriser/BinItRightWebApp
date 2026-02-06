@@ -300,7 +300,7 @@ public class ScanService {
             ));
         }
 
-        return buildFinal("Uncertain", false, confidence, List.of(
+        return buildFinal("Not sure", false, confidence, List.of(
                 "Dispose as general waste to avoid recycling contamination.",
                 "If item has battery or electronics, use an e-waste collection point.",
                 "Only place clean paper/plastic/metal/glass into the blue recycling bin."
@@ -354,7 +354,7 @@ public class ScanService {
             ));
         }
 
-        return buildFinal("Uncertain", false, confidence, List.of(
+        return buildFinal("Not sure", false, confidence, List.of(
                 "Dispose as general waste to avoid contaminating recycling streams.",
                 "If the item may contain electronics or battery, use e-waste collection points.",
                 "Only place clean and known recyclable materials into the blue recycling bin."
@@ -532,7 +532,9 @@ public class ScanService {
                 + "2) category:\n"
                 + "   - If item is e-waste (electronics, battery, cable, charger, small device), category MUST start with 'E-waste - '.\n"
                 + "   - If item is textile/fabric/clothing, category MUST start with 'Textile - '.\n"
-                + "   - Otherwise use a short refined name like 'PET Plastic Bottle', 'Glass Container', 'Oily Pizza Box'.\n"
+                + "   - For any clearly visible main object, category MUST be a concrete short noun phrase (for example: 'Ceramic mug', 'Plastic takeaway box', 'A Heytea cup with lid').\n"
+                + "   - Do NOT output uncertain just because the object is outside Tier-1 labels.\n"
+                + "   - Use category='Not sure' ONLY when the image is truly unreadable (severe blur/out-of-focus/fully occluded) or no clear single main item exists.\n"
                 + "3) recyclable:\n"
                 + "   - true ONLY for normal blue-bin flow (clean, dry, mostly single-material recyclable).\n"
                 + "   - false for e-waste, textile, contaminated paper, heavily food-stained items, unknown items.\n"
@@ -544,10 +546,10 @@ public class ScanService {
                 + "5) confidence:\n"
                 + "   - 0.85-0.99 when very clear.\n"
                 + "   - 0.55-0.80 when somewhat clear.\n"
-                + "   - <=0.54 when uncertain: set category='Uncertain', recyclable=false, with conservative safe disposal guidance.\n"
-                + "6) If the photo is clearly unusable (out of focus, severe blur, unrelated/prank image), you may include ONE short rescan hint, "
-                + "but still provide safe disposal guidance in the instructions. If they're pranks (like just taking pictures of people or airplanes), you can be appropriately humorous, but don't be offensive.\n"
-                + "7) Never confidently invent a wrong class. If unsure, use 'Uncertain'.";
+                + "   - If category='Not sure', confidence MUST be <=0.54.\n"
+                + "6) If the photo is clearly unusable, you may include ONE short rescan hint, but still provide safe disposal guidance in instructions.\n"
+                + "If they're pranks (like just taking pictures of people or airplanes), you can be appropriately humorous, but don't be offensive.\n"
+                + "7) Never confidently invent a wrong class. If unsure, use 'Not sure'.";
 
         final List<Map<String, Object>> input = new ArrayList<>();
         input.add(Map.of(
@@ -604,8 +606,11 @@ public class ScanService {
 
         final JsonNode finalNode = objectMapper.readTree(outputJson);
         String category = finalNode.path("category").asText("").trim();
-        if ("other_uncertain".equalsIgnoreCase(category)) {
-            category = "Uncertain";
+        if ("other_uncertain".equalsIgnoreCase(category)
+                || "uncertain".equalsIgnoreCase(category)
+                || "not sure".equalsIgnoreCase(category)
+                || "unknown".equalsIgnoreCase(category)) {
+            category = "Not sure";
         }
         final String instruction = finalNode.path("instruction").asText("").trim();
         final boolean recyclable = finalNode.path("recyclable").asBoolean(false);
