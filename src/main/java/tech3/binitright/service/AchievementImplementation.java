@@ -65,4 +65,18 @@ public class AchievementImplementation {
         
         userAchievementRepo.save(newUnlock);
     }
+
+    public void checkProfileAchievements(User user) {
+        try {
+            if (user.getPointBalance() != null && user.getPointBalance() >= 5000) {
+                unlockAchievement(user.getId(), 5L);
+            }
+
+            if (user.getCurrentRank() >= 2) {
+                unlockAchievement(user.getId(), 6L);
+            }
+        } catch (Exception e) {
+            System.err.println("Error checking profile achievements: " + e.getMessage());
+        }
+    }
 }

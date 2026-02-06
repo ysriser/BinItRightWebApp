@@ -93,7 +93,13 @@ public class CheckInImplementation implements CheckInInterface{
 		
 		CheckIn savedCheckIn = checkInRepository.save(checkIn);
 
+        if (checkIn.getRewardPoints() > 0) {
+            user.setPointBalance(user.getPointBalance() + checkIn.getRewardPoints());
+            userRepository.save(user);
+        }
+
 		checkAndUnlockAchievements(user);
+        achievementImplementation.checkProfileAchievements(user);
 		
 		return savedCheckIn;
 		
