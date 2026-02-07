@@ -62,7 +62,7 @@ public class JmxGenerator {
                             defaultAppUser, defaultAppPass
                         ))
                         .children(
-                            jsonExtractor("jwt_token", "$.token")
+                            jsonPath("jwt_token", "$.token")
                         ),
 
                    
@@ -75,13 +75,13 @@ public class JmxGenerator {
                         .children(
 
                             httpSampler("API_GET_SUMMARY",
-                                baseUrl + "/api/summary"),
+                                baseUrl + "/api/summary/profile"),
 
                             httpSampler("API_GET_USER_ACCESSORIES",
-                                baseUrl + "/api/user-accessories"),
+                                baseUrl + "/api/user-accessories/my-items"),
 
                             httpSampler("API_GET_REWARD_SHOP",
-                                baseUrl + "/api/reward-shop")
+                                baseUrl + "/api/reward-shop/items")
                         )
                 )
 
