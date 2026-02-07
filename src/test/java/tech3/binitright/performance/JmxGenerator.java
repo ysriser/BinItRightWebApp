@@ -44,8 +44,8 @@ public class JmxGenerator {
 
                     httpSampler("5_Issue_Management", baseUrl + "/admin/issues")
                 )
-        ).saveAsJmx("tests/web_admin_load_test.jmx");
+        ).saveAsJmx("tests/load_test.jmx");
 
-        System.out.println("JMX Generated. Remember to create src/test/resources/admin_users.csv");
+        System.out.println("JMX Generated.");
     }
 }
