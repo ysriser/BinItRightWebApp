@@ -53,31 +53,25 @@ public class IssueManagementPage {
     }
 
     public void clickResolveIssue() {
-        // Broaden locator to handle potential icons inside the button
         By locator = By.xpath("//button[contains(., 'Resolve')]");
 
         for (int i = 0; i < 3; i++) {
             try {
-                // Wait for the button to be physically ready for interaction
                 WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(locator));
 
-                // Standard click
-                btn.click();
+                // Fix for Mac/Headless: Scroll the button to the middle of the screen
+                ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center'});", btn);
 
-                // Wait for the page to transition (staleness)
+                btn.click();
                 wait.until(ExpectedConditions.stalenessOf(btn));
                 return;
             } catch (Exception e) {
-                System.out.println(">>> Resolve button attempt " + (i + 1) + " failed. Refreshing...");
+                System.out.println(">>> Resolve attempt " + (i + 1) + " failed. Refreshing...");
                 driver.navigate().refresh();
-                // Brief pause to allow JS/CSS to settle after refresh
                 try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
             }
         }
-
-        // Final debug info if it fails
-        String currentBadge = driver.findElement(By.cssSelector(".status-badge")).getText();
-        throw new RuntimeException("Resolve button never appeared. Status is: " + currentBadge);
+        throw new RuntimeException("Resolve button never appeared or was blocked.");
     }
 
     public String getDetailPageStatus() {
