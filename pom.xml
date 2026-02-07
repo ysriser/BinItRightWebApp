@@ -105,7 +105,7 @@
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-devtools-v131</artifactId>
-            <version>${selenium.version}</version>
+            <version>4.27.0</version>
         </dependency>
         <dependency>
             <groupId>io.qameta.allure</groupId>

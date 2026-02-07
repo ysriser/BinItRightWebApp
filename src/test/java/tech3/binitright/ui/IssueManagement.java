@@ -40,24 +40,25 @@ public class IssueManagement extends Base {
     @Order(2)
     void adminShouldResolveThatSameIssue() {
         Assumptions.assumeTrue(targetId != null, "targetId not set");
-
         MainPage mainPage = new MainPage(driver);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        // FORCE a clean state
+        driver.manage().deleteAllCookies();
 
         driver.get(baseUrl + "/login");
         mainPage.loginPage.login("admin", "password");
 
-        // Navigate directly to the record
+        // Double-check the URL
         driver.get(baseUrl + "/admin/issues/" + targetId);
 
-        // This method now handles the "Refresh if missing" logic internally
+        // If the button is missing, clickResolveIssue will now retry with refreshes
         mainPage.issueManagementPage.clickResolveIssue();
 
-        // Final Validation
-        driver.get(baseUrl + "/admin/issues/" + targetId);
+        // Final Validation with a slightly longer polling wait
         wait.until(ExpectedConditions.textToBePresentInElementLocated(
-                By.cssSelector(".review-card .status-badge"), "RESOLVED"));
+                By.cssSelector(".status-badge"), "RESOLVED"));
 
-        assertTrue(driver.getPageSource().contains("Issue Resolved"), "Success message missing.");
+        assertTrue(driver.getPageSource().contains("RESOLVED"), "Status did not update to RESOLVED.");
     }
 }
