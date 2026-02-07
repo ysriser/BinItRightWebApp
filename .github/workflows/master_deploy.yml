@@ -237,24 +237,25 @@ jobs:
           echo "SESSION_ID=$SESSION" >> $GITHUB_ENV
 
       - name: Run ZAP Baseline Scan
-        id: zap_scan # We need this ID to check the outcome later
+        id: zap_scan
         uses: zaproxy/action-baseline@v0.15.0
-        continue-on-error: true # This keeps the pipeline moving forward
+        continue-on-error: true
         with:
           target: "https://${{ secrets.TEST_URL }}:443"
-          fail_action: true # This triggers the failure state if bugs are found
-          # Injected Headers for both Auth types
+          fail_action: true
+          # We pass each -z flag separately.
+          # Note: No ampersands are needed between properties when using multiple -z flags.
           cmd_options: >-
-            -z "replacer.full_list(0).description=user1_jwt&
-            replacer.full_list(0).enabled=true&
-            replacer.full_list(0).matchtype=REQ_HEADER&
-            replacer.full_list(0).matchstr=Authorization&
-            replacer.full_list(0).replacement=Bearer ${{ env.JWT_TOKEN }}"
-            -z "replacer.full_list(1).description=admin_session&
-            replacer.full_list(1).enabled=true&
-            replacer.full_list(1).matchtype=REQ_HEADER&
-            replacer.full_list(1).matchstr=Cookie&
-            replacer.full_list(1).replacement=JSESSIONID=${{ env.SESSION_ID }}"
+            -z "replacer.full_list(0).description=user1_jwt" 
+            -z "replacer.full_list(0).enabled=true" 
+            -z "replacer.full_list(0).matchtype=REQ_HEADER" 
+            -z "replacer.full_list(0).matchstr=Authorization" 
+            -z "replacer.full_list(0).replacement=Bearer ${{ env.JWT_TOKEN }}" 
+            -z "replacer.full_list(1).description=admin_session" 
+            -z "replacer.full_list(1).enabled=true" 
+            -z "replacer.full_list(1).matchtype=REQ_HEADER" 
+            -z "replacer.full_list(1).matchstr=Cookie" 
+            -z "replacer.full_list(1).replacement=JSESSIONID=${{ env.SESSION_ID }}"
 
       - name: Upload DAST Artifacts
         if: always() # Upload reports even if scan found bugs
