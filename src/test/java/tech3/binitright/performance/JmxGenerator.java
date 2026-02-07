@@ -7,11 +7,11 @@ import org.apache.http.entity.ContentType;
 public class JmxGenerator {
     public static void main(String[] args) throws IOException {
        
-        String host = System.getProperty("target_host");
+       // String host = System.getProperty("target_host");
         String testUrl = System.getProperty("test_url");
-        String baseUrl;
+        String baseUrl="https://"+ testUrl;
         
-        if (host != null && !host.isEmpty()) {
+      /*  if (host != null && !host.isEmpty()) {
             // target_host is set, check if test_url is also provided
             if (testUrl != null && !testUrl.isEmpty()) {
                 // Use the full test_url and add https protocol
@@ -24,7 +24,7 @@ public class JmxGenerator {
         } else {
             // No target_host, use default localhost
             baseUrl = "http://localhost:8080";
-        }
+        }*/
         
         String defaultUser = System.getProperty("perf_user", "admin");
         String defaultPass = System.getProperty("perf_pass", "none");
