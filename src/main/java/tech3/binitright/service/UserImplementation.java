@@ -16,9 +16,13 @@ public class UserImplementation implements UserInterface {
     @Autowired
     private UserRepository userRepo;
 
+    @Autowired
+    private AchievementImplementation achievementImplementation;
+
     @Override
     public User saveUser(User user) {
         userRepo.save(user);
+        achievementImplementation.checkProfileAchievements(user);
         return user;
     }
 
@@ -31,6 +35,4 @@ public class UserImplementation implements UserInterface {
     public User findById(Long userId) {
         return userRepo.findById(userId).orElse(null);
     }
-
-
 }
