@@ -41,24 +41,27 @@ public class IssueManagement extends Base {
     void adminShouldResolveThatSameIssue() {
         Assumptions.assumeTrue(targetId != null, "targetId not set");
         MainPage mainPage = new MainPage(driver);
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15)); // Increased timeout
 
-        // FORCE a clean state
         driver.manage().deleteAllCookies();
-
         driver.get(baseUrl + "/login");
         mainPage.loginPage.login("admin", "password");
 
-        // Double-check the URL
+        // 1. Go to the issue
         driver.get(baseUrl + "/admin/issues/" + targetId);
 
-        // If the button is missing, clickResolveIssue will now retry with refreshes
+        // 2. CRITICAL: Wait for the status to actually BE In Progress
+        // This handles the DB lag between the two test methods.
+        wait.until(ExpectedConditions.textToBePresentInElementLocated(
+                By.cssSelector(".status-badge"), "IN_PROGRESS"));
+
+        // 3. Now perform the resolution
         mainPage.issueManagementPage.clickResolveIssue();
 
-        // Final Validation with a slightly longer polling wait
+        // 4. Verify the final state
         wait.until(ExpectedConditions.textToBePresentInElementLocated(
                 By.cssSelector(".status-badge"), "RESOLVED"));
 
-        assertTrue(driver.getPageSource().contains("RESOLVED"), "Status did not update to RESOLVED.");
+        assertTrue(driver.getPageSource().contains("RESOLVED"));
     }
 }
