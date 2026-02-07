@@ -20,6 +20,7 @@ public class AchievementSeeder {
     public CommandLineRunner seedAchievements(AchievementRepository repo) {
         return args -> {
             if (repo.count() > 0) {
+                seedingComplete.set(true);
                 System.out.println(">>> Achievements already seeded, skipping.");
                 return;
             }
