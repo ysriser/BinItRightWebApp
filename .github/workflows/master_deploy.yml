@@ -173,7 +173,7 @@ load-test:
       run: |
         mvn test-compile exec:java -Dexec.classpathScope="test" \
           -Dexec.mainClass="tech3.binitright.performance.JmxGenerator" \
-          -Dtarget_host="${{ secrets.TEST_URL }}" \
+          -Dtarget_host="target_host" \
           -Dtest_url="${{ secrets.TEST_URL }}" \
           -Dperf_user="${{ secrets.PERF_ADMIN_USER }}" \
           -Dperf_pass="${{ secrets.PERF_ADMIN_PASS }}"
