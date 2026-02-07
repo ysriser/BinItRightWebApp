@@ -266,7 +266,10 @@ jobs:
           target: "https://${{ secrets.TEST_URL }}:443/v3/api-docs"
           format: openapi
           artifact_name: "zap-api-report"
-          cmd_options: '-z "-configfile /zap/wrk/zap_auth.prop"'
+          cmd_options:
+            -z "-configfile /zap/wrk/zap_auth.prop"
+            -z "-config scanner.threadPerHost=2"
+            -z "-config scanner.maxRuleDurationInMins=2"
 
       - name: Upload Combined Artifacts
         if: always()
