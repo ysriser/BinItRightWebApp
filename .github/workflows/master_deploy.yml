@@ -260,7 +260,7 @@ jobs:
       # --- PART 2: API SCAN (Deep Attack) ---
       - name: Run ZAP API Scan
         id: api_scan
-        uses: zaproxy/action-api-scan@v0.12.0
+        uses: zaproxy/action-api-scan@v0.10.0
         continue-on-error: true
         with:
           target: "https://${{ secrets.TEST_URL }}:443/v3/api-docs"
