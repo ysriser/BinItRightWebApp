@@ -68,10 +68,30 @@ public class JmxGenerator {
                                 httpSampler("Access Summary Profile API", baseUrl+ "/api/summary/profile")
                                         .header("Authorization", "Bearer ${extracted_token}"),
                                 httpSampler("Access User Accessories API", baseUrl+ "/api/user-accessories/my-items")
-                                        .header("Authorization", "Bearer ${extracted_token}")
+                                        .header("Authorization", "Bearer ${extracted_token}"),
+                                httpSampler("Access News API", baseUrl+ "/api/news")
+                                        .header("Authorization", "Bearer ${extracted_token}"),
+                                httpSampler("Access Event API", baseUrl+ "/api/events")
+                                        .header("Authorization", "Bearer ${extracted_token}"),
+                                httpSampler("Access Recycle history API", baseUrl+ "/api/recycle-history")
+                                        .header("Authorization", "Bearer ${extracted_token}"),
+                                httpSampler("API_POST_CheckIn", baseUrl + "/api/checkin")
+                                        .method("POST")
+                                        .contentType(ContentType.APPLICATION_JSON)
+                                        .body("{"
+                                                + "\"binId\": \"06383D31CA5CC778\"," 
+                                                + "\"wasteCategoryId\": 1,"          
+                                                + "\"fileName\": \"load_test_${__UUID}.jpg\"," 
+                                                + "\"quantity\": 2,"
+                                                + "\"rewardPoints\": 20,"
+                                                + "\"duration\": 15"
+                                                + "}")
+                                       .children(
+                                               httpHeaders()
+                                                  .header("Authorization", "Bearer ${extracted_token}")
+                                                        )
                         )
-                // comment out below resultTreeVisualizer to disable GUI
-               // , resultsTreeVisualizer()
+              
         ).saveAsJmx("tests/load_test.jmx");
 
     }
