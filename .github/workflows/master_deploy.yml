@@ -85,6 +85,7 @@ jobs:
             export APP_ADMIN_PASSWORD='${{ secrets.APP_ADMIN_PASSWORD }}'
             export SPACES_ACCESS_KEY='${{ secrets.SPACES_ACCESS_KEY }}'
             export SPACES_SECRET_KEY='${{ secrets.SPACES_SECRET_KEY }}'
+            export OPENAI_API_KEY_CHAT='${{ secrets.OPENAI_API_KEY_CHAT }}'
             export SPRING_PROFILES_ACTIVE=test
             export TIER2_PROVIDER='${{ secrets.TIER2_PROVIDER }}'
             export OPENAI_API_KEY='${{ secrets.OPENAI_API_KEY }}'
@@ -171,7 +172,7 @@ jobs:
 
       - name: Generate JMX Script
         # Passing port 8080 to match your TEST_IP environment
-        run: mvn test-compile exec:java -Dexec.classpathScope="test" -Dexec.mainClass="tech3.binitright.performance.JmxGenerator" -Dtarget_port=8080
+        run: mvn test-compile exec:java -Dexec.classpathScope=test -Dexec.mainClass=tech3.binitright.performance.JmxGenerator -Dtarget_port=8080 -Dperf_user=${{ secrets.APP_ADMIN_USER }} -Dperf_pass=${{ secrets.APP_ADMIN_PASSWORD }}
 
       - name: Install & Run Apache JMeter
         run: |
@@ -299,6 +300,7 @@ jobs:
             export APP_ADMIN_PASSWORD='${{ secrets.APP_ADMIN_PASSWORD }}'
             export SPACES_ACCESS_KEY='${{ secrets.SPACES_ACCESS_KEY }}'
             export SPACES_SECRET_KEY='${{ secrets.SPACES_SECRET_KEY }}'
+            export OPENAI_API_KEY_CHAT='${{ secrets.OPENAI_API_KEY_CHAT }}'
             export SPRING_PROFILES_ACTIVE=prod
             export TIER2_PROVIDER='${{ secrets.TIER2_PROVIDER }}'
             export OPENAI_API_KEY='${{ secrets.OPENAI_API_KEY }}'

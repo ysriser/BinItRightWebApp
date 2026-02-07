@@ -2,7 +2,6 @@ package tech3.binitright.controller;
 
 import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +30,7 @@ public class CheckInController {
     @ResponseBody
     public ResponseEntity<CheckInDataResponse> submitRecycleCheckIn(
             @RequestBody CheckInDataReq data) throws IOException{
-        System.out.println("Inside checkIn controller:  "+data.getUserId());
+        System.out.println("Inside checkIn controller:  "+data.getBinId());
 		
         CheckIn saved = checkInService.processCheckIn(data);
 

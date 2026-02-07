@@ -6,7 +6,6 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.http.ResponseEntity;
 
 import tech3.binitright.model.CheckIn;
 import tech3.binitright.model.User;
@@ -36,17 +35,22 @@ public interface CheckInRepository extends JpaRepository<CheckIn, Long> {
 		   "JOIN FETCH c.dropOffLocation")
 	List<CheckIn> findAllWithDetails();
 
-	@Query("SELECT new tech3.binitright.response.RecycleHistoryResponse(" +
-		   "    wc.name, " +
-		   "    wc.iconUrl, " +
-		   "    ci.checkInTime, " +
-		   "    ci.quantity " +
-		   ") " +
-		   "FROM CheckIn ci " +
-		   "JOIN ci.wasteCategories wc " +
-		   "WHERE ci.user.id = :userId " +
-		   "ORDER BY ci.checkInTime DESC")
-	List<RecycleHistoryResponse> findRecycleHistoryByUserId(@Param ("userId")Long userId);
+    @Query("""
+    SELECT new tech3.binitright.response.RecycleHistoryResponse(
+        wc.name,
+        wc.iconUrl,
+        ci.checkInTime,
+        ci.quantity
+    )
+    FROM CheckIn ci
+    JOIN ci.wasteCategories wc
+    WHERE ci.user.id = :userId
+    ORDER BY ci.checkInTime DESC
+""")
+    List<RecycleHistoryResponse> findRecycleHistoryByUserId(@Param ("userId")Long userId);
 
 	long countByUser(User user);
+
+    @Query("SELECT COALESCE(SUM(c.quantity),0) FROM CheckIn c WHERE c.user.id = :userId AND c.status = 'APPROVED'")
+    Integer getTotalRecycledByUser(@Param("userId") Long userId);
 }
