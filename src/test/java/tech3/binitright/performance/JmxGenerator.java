@@ -10,8 +10,8 @@ public class JmxGenerator {
         String host = System.getProperty("target_host", "localhost");
         int port = Integer.getInteger("target_port", 8080);
         String baseUrl = "http://" + host + ":" + port;
-        String defaultUser = System.getProperty("perf_user"."admin"); 
-        String defaultPass = System.getProperty("perf_pass","admin123");
+         String defaultUser = System.getProperty("perf_user", "admin");
+        String defaultPass = System.getProperty("perf_pass", "admin123");
 
         testPlan(
             threadGroup("Web_Admin_Load_Test")
