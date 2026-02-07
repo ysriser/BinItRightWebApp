@@ -62,7 +62,7 @@ public class JmxGenerator {
                             defaultAppUser, defaultAppPass
                         ))
                         .children(
-                            jsonPath("jwt_token", "$.token")
+                            jsonExtractor("jwt_token", "$.token")
                         ),
 
                    
@@ -71,7 +71,7 @@ public class JmxGenerator {
                         .header("Content-Type", "application/json"),
 
                    
-                    transactionController("Authenticated_API_Calls")
+                    transaction("Authenticated_API_Calls")
                         .children(
 
                             httpSampler("API_GET_SUMMARY",
