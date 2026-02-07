@@ -149,49 +149,49 @@ jobs:
           path: target/site/allure-maven-plugin/
           retention-days: 7
 
- # ==========================================
-  # BOX 7b: JMETER LOAD TEST (Stability Gate)
-  # ==========================================
-  load-test:
-    name: JMeter Load Test
-    needs: selenium-e2e
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-          cache: maven
-
-      - name: Create Tests Directory
-        run: mkdir -p tests
-
-      - name: Generate JMX Script
-        # We map your capitalized Secrets to the lowercase properties the Java code uses
-        run: |
-          mvn test-compile exec:java -Dexec.classpathScope="test" \
-            -Dexec.mainClass="tech3.binitright.performance.JmxGenerator" \
-            -Dtest_url="${{ secrets.TEST_URL }}" \
-            -Dperf_user="${{ secrets.PERF_ADMIN_USER }}" \
-            -Dperf_pass="${{ secrets.PERF_ADMIN_PASS }}"
-
-      - name: Install & Run Apache JMeter
-        run: |
-          wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.6.3.tgz
-          tar -xzf apache-jmeter-5.6.3.tgz
-          # The JMX already has the URL baked in from the generation step above.
-          ./apache-jmeter-5.6.3/bin/jmeter -n -t tests/load_test.jmx \
-            -l results.jtl -e -o dashboard
-
-      - name: Upload Performance Dashboard
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: java-performance-report
-          path: dashboard/
+# ==========================================
+# BOX 7b: JMETER LOAD TEST (Stability Gate)
+# ==========================================
+load-test:
+  name: JMeter Load Test
+  needs: selenium-e2e
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+        
+    - name: Create Tests Directory
+      run: mkdir -p tests
+      
+    - name: Generate JMX Script
+      run: |
+        mvn test-compile exec:java -Dexec.classpathScope="test" \
+          -Dexec.mainClass="tech3.binitright.performance.JmxGenerator" \
+          -Dtarget_host="${{ secrets.TEST_URL }}" \
+          -Dtest_url="${{ secrets.TEST_URL }}" \
+          -Dperf_user="${{ secrets.PERF_ADMIN_USER }}" \
+          -Dperf_pass="${{ secrets.PERF_ADMIN_PASS }}"
+          
+    - name: Install & Run Apache JMeter
+      run: |
+        wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.6.3.tgz
+        tar -xzf apache-jmeter-5.6.3.tgz
+        # The JMX already has the URL baked in from the generation step above.
+        ./apache-jmeter-5.6.3/bin/jmeter -n -t tests/load_test.jmx \
+          -l results.jtl -e -o dashboard
+          
+    - name: Upload Performance Dashboard
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: jmeter-performance-report
+        path: dashboard/
   # ==========================================
   # BOX 7c: DAST SECURITY SCAN
   # ==========================================
