@@ -150,7 +150,7 @@ jobs:
           path: target/site/allure-maven-plugin/
           retention-days: 7
 
-  # ==========================================
+ # ==========================================
   # BOX 7b: JMETER LOAD TEST (Stability Gate)
   # ==========================================
   load-test:
@@ -171,16 +171,21 @@ jobs:
         run: mkdir -p tests
 
       - name: Generate JMX Script
-        # Passing port 8080 to match your TEST_IP environment
-        run: mvn test-compile exec:java -Dexec.classpathScope=test -Dexec.mainClass=tech3.binitright.performance.JmxGenerator -Dtarget_host=${{ secrets.TEST_IP }} -Dtarget_port=8080 -Dperf_user=${{ secrets.APP_ADMIN_USER }} -Dperf_pass=${{ secrets.APP_ADMIN_PASSWORD }}
+        # We map your capitalized Secrets to the lowercase properties the Java code uses
+        run: |
+          mvn test-compile exec:java -Dexec.classpathScope="test" \
+            -Dexec.mainClass="tech3.binitright.performance.JmxGenerator" \
+            -Dtest_url="${{ secrets.TEST_URL }}" \
+            -Dperf_user="${{ secrets.PERF_ADMIN_USER }}" \
+            -Dperf_pass="${{ secrets.PERF_ADMIN_PASS }}"
 
       - name: Install & Run Apache JMeter
         run: |
           wget https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.6.3.tgz
           tar -xzf apache-jmeter-5.6.3.tgz
+          # The JMX already has the URL baked in from the generation step above.
           ./apache-jmeter-5.6.3/bin/jmeter -n -t tests/load_test.jmx \
-           -l results.jtl -e -o dashboard \
-           -Jtarget_host=${{ secrets.TEST_IP }}
+            -l results.jtl -e -o dashboard
 
       - name: Upload Performance Dashboard
         if: always()
@@ -188,7 +193,6 @@ jobs:
         with:
           name: java-performance-report
           path: dashboard/
-
   # ==========================================
   # BOX 7c: DAST SECURITY SCAN
   # ==========================================
