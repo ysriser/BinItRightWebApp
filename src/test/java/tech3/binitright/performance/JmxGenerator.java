@@ -6,11 +6,24 @@ import java.time.Duration;
 import org.apache.http.entity.ContentType;
 
 public class JmxGenerator {
-    public static void main(String[] args) throws IOException {
-        String host = System.getProperty("target_host", "localhost");
-        int port = Integer.getInteger("target_port", 8080);
-        String baseUrl = "http://" + host + ":" + port;
-         String defaultUser = System.getProperty("perf_user", "admin");
+      public static void main(String[] args) throws IOException {
+
+    String host = System.getProperty("target_host", "localhost");
+    int port = Integer.getInteger("target_port", 8080);
+    String testUrl = System.getProperty("test_url");
+
+    String baseUrl;
+
+    if (testUrl != null && !testUrl.isBlank()) {
+        // CI / environment-specific URL
+        baseUrl = testUrl;
+    } else {
+        // Local 
+        baseUrl = "http://" + host + ":" + port;
+    }
+  
+
+        String defaultUser = System.getProperty("perf_user", "admin");
         String defaultPass = System.getProperty("perf_pass", "admin123");
 
         testPlan(
