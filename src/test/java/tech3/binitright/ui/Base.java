@@ -20,13 +20,17 @@ public abstract class Base {
     protected WebDriver driver;
     protected String baseUrl;
 
+
     @BeforeEach
     void setUp() {
         WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
 
         if (Boolean.parseBoolean(System.getProperty("headless", "false"))) {
-            options.addArguments("--headless=new", "--disable-gpu", "--no-sandbox", "--disable-dev-shm-usage");
+            options.addArguments("--headless");
+            options.addArguments("--window-size=1920,1080"); // Standard 1080p resolution
+            options.addArguments("--no-sandbox");
+            options.addArguments("--disable-dev-shm-usage");
         }
 
         this.driver = new ChromeDriver(options);
