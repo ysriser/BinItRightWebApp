@@ -59,12 +59,7 @@ public class JmxGenerator {
                     httpSampler("API_Login", baseUrl + "/api/auth/login")
                         .method("POST")
                         .contentType(ContentType.APPLICATION_JSON)
-                        .body("""
-                            {
-                              "username": "%s",
-                              "password": "%s"
-                            }
-                        """.formatted(defaultAppUser, defaultAppPass))
+                        .body(String.format(   "{\"username\":\"%s\",\"password\":\"%s\"}", defaultAppUser, defaultAppPass ))
                         .children(
                             jsonExtractor("jwt_token", "$.token")
                         ),
@@ -80,7 +75,7 @@ public class JmxGenerator {
                             baseUrl + "/api/events"), //event api 
                     
                     httpSampler("API_GET_RECYCLE_HISTORY",
-                                baseUrl + "/api/recycle-history"), // recycle history api
+                                baseUrl + "/api/recycle-history") // recycle history api
                 )
                 
         ).saveAsJmx("tests/load_test.jmx");
