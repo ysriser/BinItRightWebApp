@@ -177,7 +177,7 @@ jobs:
       - name: Generate JMX Script
         continue-on-error: true #REMEMBER TO COMMENT OUT
         run: |
-          mvn test-compile exec:java -Dexec.classpathScope="test" \
+          mvn test-compile exec:java -Dexec.classpathScope=test \
             -Dexec.mainClass="tech3.binitright.performance.JmxGenerator" \
             -Dtarget_host=test \
             -Dtest_url="${{ secrets.TEST_URL }}" \
