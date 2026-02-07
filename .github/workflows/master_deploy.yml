@@ -121,10 +121,14 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Wait for App to be Ready
+      - name: Wait for Seeders to Finish
         run: |
-          echo "Waiting for app at http://${{ secrets.TEST_IP }}:8080/login..."
-          timeout 180s bash -c 'until curl -sSf http://${{ secrets.TEST_IP }}:8080/login > /dev/null; do echo "Tomcat still booting..."; sleep 5; done'
+          echo "Waiting for app readiness and data seeding at http://${{ secrets.TEST_URL }}:443/api/ready..."
+          # Increase timeout to 300s (4 mins) to give API calls time to finish
+          timeout 240s bash -c 'until curl -sSf https://${{ secrets.TEST_URL }}:8080/api/ready | grep "READY"; do 
+            echo "Seeding data from APIs... please wait..."
+            sleep 10
+          done'
 
       # Run the actual tests (generates the JSON results)
       - name: Run Selenium Tests
@@ -132,8 +136,8 @@ jobs:
           mvn verify \
           -Dmaven.test.failure.ignore=true \
           -Dsurefire.skip=true \
-          -Dtarget_host=${{ secrets.TEST_IP }} \
-          -Dtarget_port=8080 \
+          -Dtarget_host=${{ secrets.TEST_URL }} \
+          -Dtarget_port=443 \
           -Dheadless=true
 
       # Convert JSONs into an HTML website

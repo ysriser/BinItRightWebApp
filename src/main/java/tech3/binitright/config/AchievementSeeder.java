@@ -8,15 +8,19 @@ import tech3.binitright.model.Achievement;
 import tech3.binitright.repository.AchievementRepository;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Configuration
 public class AchievementSeeder {
 
+    private static final AtomicBoolean seedingComplete = new AtomicBoolean(false);
+
     @Bean
-    @Profile({"test", "default"})
+    @Profile({"test", "default", "prod"})
     public CommandLineRunner seedAchievements(AchievementRepository repo) {
         return args -> {
             if (repo.count() > 0) {
+                seedingComplete.set(true);
                 System.out.println(">>> Achievements already seeded, skipping.");
                 return;
             }
@@ -36,6 +40,13 @@ public class AchievementSeeder {
 
             repo.saveAll(list);
             System.out.println(">>> 10 Achievements seeded successfully.");
+
+            seedingComplete.set(true);
+            System.out.println(">>> ALL SEEDING OPERATIONS COMPLETE.");
         };
+    }
+
+    public boolean isSeedingComplete() {
+        return seedingComplete.get();
     }
 }

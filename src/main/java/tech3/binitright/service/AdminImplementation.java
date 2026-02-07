@@ -13,7 +13,9 @@ import tech3.binitright.repository.CheckInRepository;
 import tech3.binitright.repository.UserRepository;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -90,7 +92,12 @@ public class AdminImplementation implements AdminInterface{
         checkInRepository.save(checkIn);
 	}
 
-	@Override
+    @Override
+    public Optional<Admin> findById(long l) {
+        return adminrepo.findById(l);
+    }
+
+    @Override
 	@Transactional
 	public CheckIn reviewCheckIn(Long checkInId) {
 		return checkInRepository.findByIdWithDetails(checkInId)

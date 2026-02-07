@@ -14,6 +14,7 @@ import tech3.binitright.repository.IssueRepository;
 import tech3.binitright.repository.UserRepository;
 import tech3.binitright.request.IssueCreateRequest;
 
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -58,6 +59,16 @@ public class IssueImplementation implements IssueInterface {
     @Override
     public Issue getIssueById(Long id) {
         return issueRepo.findByIdWithRaisedBy(id).orElseThrow(() -> new RuntimeException("Issue not found"));
+    }
+
+    @Override
+    public Collection<Issue> findAll() {
+        return issueRepo.findAll();
+    }
+
+    @Override
+    public List<Issue> saveAll(List<Issue> issues) {
+        return issueRepo.saveAll(issues);
     }
 
     @Override
