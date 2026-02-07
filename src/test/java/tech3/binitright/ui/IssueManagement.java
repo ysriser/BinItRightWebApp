@@ -41,24 +41,32 @@ public class IssueManagement extends Base {
     void adminShouldResolveThatSameIssue() {
         Assumptions.assumeTrue(targetId != null, "targetId not set");
         MainPage mainPage = new MainPage(driver);
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15)); // Increased timeout
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
 
-        driver.manage().deleteAllCookies();
+        // Explicitly Logout to ensure a clean server-side session
+        driver.get(baseUrl + "/logout");
+
+        // Go to login and wait for the username field to be ready
         driver.get(baseUrl + "/login");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("username")));
+
         mainPage.loginPage.login("admin", "password");
 
-        // 1. Go to the issue
+        // Wait for the dashboard/management redirect to finish
+        wait.until(ExpectedConditions.urlContains("/admin"));
+
+        // Navigate directly to the specific issue
         driver.get(baseUrl + "/admin/issues/" + targetId);
 
-        // 2. CRITICAL: Wait for the status to actually BE In Progress
-        // This handles the DB lag between the two test methods.
+        // NAVIGATION GUARD: Wait for the review card to exist
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".review-card")));
+
+        // STATE GUARD: Wait for the badge to show IN_PROGRESS
         wait.until(ExpectedConditions.textToBePresentInElementLocated(
                 By.cssSelector(".status-badge"), "IN_PROGRESS"));
 
-        // 3. Now perform the resolution
+        // Action & Final Verify
         mainPage.issueManagementPage.clickResolveIssue();
-
-        // 4. Verify the final state
         wait.until(ExpectedConditions.textToBePresentInElementLocated(
                 By.cssSelector(".status-badge"), "RESOLVED"));
 
