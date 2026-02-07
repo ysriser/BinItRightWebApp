@@ -4,12 +4,14 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import tech3.binitright.service.ScanService;
+import tech3.binitright.util.JwtUtil;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -20,6 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ScanRestController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class TestControllerTest {
 
     @Autowired
@@ -27,6 +30,9 @@ class TestControllerTest {
 
     @MockBean
     private ScanService scanService;
+
+    @MockBean
+    private JwtUtil jwtUtil;
 
     @Test
     void scanReturnsV01EnvelopeAndFinalFiveFields() throws Exception {
