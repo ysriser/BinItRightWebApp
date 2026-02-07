@@ -157,7 +157,14 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
+
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-suite</artifactId>
+            <version>1.10.1</version> <scope>test</scope>
+        </dependency>
     </dependencies>
+
 
     <build>
         <plugins>

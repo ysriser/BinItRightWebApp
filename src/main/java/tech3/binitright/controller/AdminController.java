@@ -117,7 +117,7 @@ public class AdminController {
                 "Check-in " + status.name().toLowerCase() + " successfully"
         );
 
-        return "redirect:/admin/dashboard";
+        return "redirect:/admin/checkin";
     }
 
     @GetMapping("/checkin")
@@ -127,7 +127,7 @@ public class AdminController {
         List<CheckIn> allCheckIns = checkInService.getAllCheckIns();
         model.addAttribute("currentPath", "/admin/checkin");
         model.addAttribute("checkIns", allCheckIns);
-        return "checkin-list";
+        return "checkin-list"; 
     }
       @GetMapping("/sustainability-reports")
       public String showSustainabilityReports(

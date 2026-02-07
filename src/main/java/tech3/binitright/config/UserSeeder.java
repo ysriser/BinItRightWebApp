@@ -7,22 +7,19 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import tech3.binitright.interfacemethods.AccessoriesInterface;
-import tech3.binitright.interfacemethods.UserAccessoriesInterface;
-import tech3.binitright.interfacemethods.UserInterface;
-import tech3.binitright.model.CheckIn;
-import tech3.binitright.model.DropOffLocation;
-import tech3.binitright.model.Accessories;
-import tech3.binitright.model.User;
-import tech3.binitright.model.WasteCategories;
+import tech3.binitright.interfacemethods.*;
+import tech3.binitright.model.*;
 import tech3.binitright.repository.CheckInRepository;
 import tech3.binitright.repository.DropOffLocationRepository;
 import tech3.binitright.repository.WasteCategoryRepository;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
-import tech3.binitright.model.UserAccessories;
+
 import tech3.binitright.service.AccessoriesImplementation;
+import tech3.binitright.service.AdminImplementation;
+import tech3.binitright.service.IssueImplementation;
 import tech3.binitright.service.UserAccessoriesImplementation;
 
 import java.util.List;
@@ -44,11 +41,26 @@ public class UserSeeder {
     }
 
     @Autowired
+    private IssueInterface issueService;
+
+    @Autowired
+    public void setIssueService(IssueImplementation issueImplementation) {
+        this.issueService = issueImplementation;
+    }
+
+    @Autowired
     private UserAccessoriesInterface userAccessoriesService;
 
     @Autowired
     public void setUserAccessoriesService(UserAccessoriesImplementation userAccessoriesImplementation) {
         this.userAccessoriesService = userAccessoriesImplementation;
+    }
+
+    @Autowired
+    private AdminInterface adminService;
+
+    public void setAdminService(AdminImplementation adminserviceImp) {
+        this.adminService = adminserviceImp;
     }
 
     public UserSeeder(UserInterface userService,
@@ -253,6 +265,45 @@ public class UserSeeder {
 
             System.out.println(">>> Check-ins seeded");
 
+        };
+    }
+
+    @Bean
+    @Order(8)
+    @Profile({"test", "prod", "default"})
+    public CommandLineRunner seedIssues() {
+        return args -> {
+            if (!issueService.findAll().isEmpty()) {
+                System.out.println(">>> Issues already exist, skipping.");
+                return;
+            }
+
+            // Retrieve users seeded in Order 5
+            User u1 = userService.findByUsername("User1").getFirst();
+            User u2 = userService.findByUsername("User2").getFirst();
+            User u3 = userService.findByUsername("User3").getFirst();
+            User u4 = userService.findByUsername("User4").getFirst();
+
+            // Assuming at least one admin exists with ID 1
+            Admin admin1 = adminService.findById(1L).orElse(null);
+
+            // Issue 1: Login crash
+            Issue i1 = new Issue(Issue.IssueCategory.AppProblems, "App crashes immediately after tapping the login button.", Issue.IssueStatus.NEW, u1, null);
+
+            // Issue 2: Overflowing bin
+            Issue i2 = new Issue(Issue.IssueCategory.BinIssues, "Recycling bin near Block 512 is overflowing and needs collection.", Issue.IssueStatus.IN_PROGRESS, u2, admin1);
+
+            // Issue 3: Incorrect map location (Resolved)
+            // Note: We use the constructor and then manually set dates to match your SQL '2026-02-01' requirement
+            Issue i3 = new Issue(Issue.IssueCategory.LocationErrors, "GPS location for Jurong recycling point is incorrect on the map.", Issue.IssueStatus.RESOLVED, u3, admin1);
+            i3.setCreatedAt(LocalDateTime.of(2026, 2, 1, 9, 10));
+            i3.setResolvedAt(LocalDateTime.of(2026, 2, 3, 15, 25));
+
+            // Issue 4: Slow dashboard
+            Issue i4 = new Issue(Issue.IssueCategory.AppProblems, "User dashboard takes more than 10 seconds to load history.", Issue.IssueStatus.NEW, u4, null);
+
+            issueService.saveAll(List.of(i1, i2, i3, i4));
+            System.out.println(">>> Issues seeded (4 entries)");
         };
     }
 }
