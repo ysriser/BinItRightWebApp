@@ -172,7 +172,8 @@ jobs:
 
       - name: Generate JMX Script
         # Passing port 8080 to match your TEST_IP environment
-        run: mvn test-compile exec:java -Dexec.classpathScope="test" -Dexec.mainClass="tech3.binitright.performance.JmxGenerator" -Dtarget_port=8080
+        run: mvn test-compile exec:java -Dexec.classpathScope="test" -Dexec.mainClass="tech3.binitright.performance.JmxGenerator" -Dtarget_port=8080 -Dperf_user=${{ secrets.APP_ADMIN_USER }} \
+          -Dperf_pass=${{ secrets.APP_ADMIN_PASSWORD }}
 
       - name: Install & Run Apache JMeter
         run: |
