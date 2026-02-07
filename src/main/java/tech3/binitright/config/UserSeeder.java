@@ -23,6 +23,7 @@ import tech3.binitright.service.IssueImplementation;
 import tech3.binitright.service.UserAccessoriesImplementation;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Configuration
 public class UserSeeder {

@@ -47,7 +47,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/auth/login",
-                                "/api/admin/create",
                                 "/api/bins/**",
                                 "/api/bins/nearby",
                                 "/api/bins/all",
@@ -56,6 +55,7 @@ public class SecurityConfig {
                                 "/api/recycle-history",
                                 "/api/user/profile/**",
                                 "/api/chat",
+                                "/api/ready",
                                 "/error"  // CRITICAL: Permit /error
                         ).permitAll()
                         .anyRequest().authenticated()
