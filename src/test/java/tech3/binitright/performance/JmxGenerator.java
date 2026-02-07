@@ -46,40 +46,49 @@ public class JmxGenerator {
                         .param("_csrf", "${csrf_token}"),
                         
                     httpSampler("GET_Admin_Forecast", baseUrl + "/admin/forecast"),
-
                     httpSampler("4_GET_Checkin_List", baseUrl + "/admin/checkin"),
-                    
-                     
                     httpSampler("5_GET_Reports", baseUrl + "/admin/sustainability-reports")),
-
             threadGroup("ANDROID_API_Load_Test")
                 .rampTo(10, Duration.ofSeconds(15))
                 .holdIterating(20)
                 .children(
+
+                    
                     httpSampler("API_Login", baseUrl + "/api/auth/login")
                         .method("POST")
                         .contentType(ContentType.APPLICATION_JSON)
-                        .body(String.format(   "{\"username\":\"%s\",\"password\":\"%s\"}", defaultAppUser, defaultAppPass ))
+                        .body(String.format(
+                            "{\"username\":\"%s\",\"password\":\"%s\"}",
+                            defaultAppUser, defaultAppPass
+                        ))
                         .children(
                             jsonExtractor("jwt_token", "$.token")
                         ),
 
+                   
                     httpHeaders()
                         .header("Authorization", "Bearer ${jwt_token}")
                         .header("Content-Type", "application/json"),
 
-                    httpSampler("API_GET_News_List",
-                            baseUrl + "/api/news"), // news api
+                   
+                    transaction("Authenticated_API_Calls")
+                        .children(
 
-                    httpSampler("API_GET_Events_All",
-                            baseUrl + "/api/events"), //event api 
-                    
-                    httpSampler("API_GET_RECYCLE_HISTORY",
-                                baseUrl + "/api/recycle-history") // recycle history api
+                            httpSampler("API_GET_SUMMARY",
+                                baseUrl + "/api/summary/profile"),
+
+                            httpSampler("API_GET_USER_ACCESSORIES",
+                                baseUrl + "/api/user-accessories/my-items"),
+
+                            httpSampler("API_GET_REWARD_SHOP",
+                                baseUrl + "/api/reward-shop/items")
+                        )
                 )
-                
+
         ).saveAsJmx("tests/load_test.jmx");
-        
-        System.out.println("JMX Generated for: " + baseUrl);
+
+        System.out.println("JMX generated" );
     }
+
+          
 }
