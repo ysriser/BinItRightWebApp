@@ -2,15 +2,13 @@ package tech3.binitright.controller;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import tech3.binitright.interfacemethods.AdminInterface;
 import tech3.binitright.interfacemethods.CheckInInterface;
@@ -145,5 +143,10 @@ public class AdminController {
         model.addAttribute("currentPath", "/admin/sustainability-reports");
 
        return "sustainability-reports";
+    }
+    @GetMapping("/forecast")
+    @ResponseBody
+    public Map<String, Object> forecast() {
+        return forecastService.getForecastData();
     }
 }
