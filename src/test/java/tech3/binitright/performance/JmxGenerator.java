@@ -62,7 +62,7 @@ public class JmxGenerator {
                         .contentType(ContentType.APPLICATION_JSON)
                         .body(String.format(
                             "{\"username\":\"%s\",\"password\":\"%s\"}",
-                            appUser, appPass
+                            defaultAppUser, defaultAppPass
                         ))
                         .children(
                             jsonExtractor("jwt_token", "$.token")
@@ -90,7 +90,7 @@ public class JmxGenerator {
 
         ).saveAsJmx("tests/load_test.jmx");
 
-        System.out.println("JMX generated );
+        System.out.println("JMX generated" );
     }
 
           
