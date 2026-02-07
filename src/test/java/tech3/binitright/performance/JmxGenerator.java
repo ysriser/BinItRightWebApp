@@ -62,7 +62,7 @@ public class JmxGenerator {
                                                 defaultAppUser, defaultAppPass
                                         ))
                                         .children(
-                                                jsonExtractor("extracted_token", "$.token")
+                                                jsonExtractor("extracted_token", "token")
                                         ),
                                 // STEP 2: PROTECTED RESOURCE (The test)
                                 httpSampler("Access Summary Profile API", baseUrl+ "/api/summary/profile")
