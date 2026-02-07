@@ -2,7 +2,9 @@ package tech3.binitright;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
+import tech3.binitright.service.DigitalOceanStorageService;
 
 @SpringBootTest(
         properties = {
@@ -11,6 +13,9 @@ import org.springframework.test.context.ActiveProfiles;
 )
 @ActiveProfiles("test")
 class BinItRightApplicationTests {
+
+    @MockBean
+    private DigitalOceanStorageService digitalOceanStorageService;
 
     @Test
     void contextLoads() {
