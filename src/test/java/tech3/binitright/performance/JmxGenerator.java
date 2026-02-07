@@ -80,7 +80,7 @@ public class JmxGenerator {
                             httpSampler("API_GET_USER_ACCESSORIES",
                                 baseUrl + "/api/user-accessories"),
 
-                            httpSampler("API_GET_ReWARD_SHOP",
+                            httpSampler("API_GET_REWARD_SHOP",
                                 baseUrl + "/api/reward-shop")
                         )
                 )
