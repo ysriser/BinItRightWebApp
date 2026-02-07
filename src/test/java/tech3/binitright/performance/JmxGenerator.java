@@ -24,7 +24,7 @@ public class JmxGenerator {
   
 
         String defaultUser = System.getProperty("perf_user", "admin");
-        String defaultPass = System.getProperty("perf_pass", "admin123");
+        String defaultPass = System.getProperty("perf_pass", "null");//using default password is taken from secrets
 
         testPlan(
             threadGroup("Web_Admin_Load_Test")
