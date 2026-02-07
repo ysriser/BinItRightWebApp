@@ -48,43 +48,58 @@ public class JmxGenerator {
                     httpSampler("GET_Admin_Forecast", baseUrl + "/admin/forecast"),
                     httpSampler("4_GET_Checkin_List", baseUrl + "/admin/checkin"),
                     httpSampler("5_GET_Reports", baseUrl + "/admin/sustainability-reports")),
-            threadGroup("ANDROID_API_Load_Test")
-                .rampTo(10, Duration.ofSeconds(15))
-                .holdIterating(20)
-                .children(
-
-                    
-                    httpSampler("API_Login", baseUrl + "/api/auth/login")
-                        .method("POST")
-                        .contentType(ContentType.APPLICATION_JSON)
-                        .body(String.format(
-                            "{\"username\":\"%s\",\"password\":\"%s\"}",
-                            defaultAppUser, defaultAppPass
-                        ))
-                        .children(
-                            jsonExtractor("jwt_token", "$.token")
-                        ),
-
-                   
-                    httpHeaders()
-                        .header("Authorization", "Bearer ${jwt_token}")
-                        .header("Content-Type", "application/json"),
-
-                   
-                    transaction("Authenticated_API_Calls")
+                threadGroup("ANDROID_API_Load_Test")
+                        .rampTo(10, Duration.ofSeconds(15))
+                        .holdIterating(20)
                         .children(
 
-                            httpSampler("API_GET_SUMMARY",
-                                baseUrl + "/api/summary/profile"),
+                                /* ---- LOGIN ---- */
+                                httpSampler("API_Login", baseUrl + "/api/auth/login")
+                                        .method("POST")
+                                        .contentType(ContentType.APPLICATION_JSON)
+                                        .body(String.format(
+                                                "{\"username\":\"%s\",\"password\":\"%s\"}",
+                                                defaultAppUser, defaultAppPass
+                                        ))
+                                        .children(
+                                                jsonExtractor("jwt_token", "$.token")
+                                        ),
 
-                            httpSampler("API_GET_USER_ACCESSORIES",
-                                baseUrl + "/api/user-accessories/my-items"),
+                                /* ---- AUTHENTICATED CALLS ---- */
+                                transaction("Authenticated_API_Calls")
+                                        .children(
 
-                            httpSampler("API_GET_REWARD_SHOP",
-                                baseUrl + "/api/reward-shop/items")
+                                                httpSampler("API_GET_SUMMARY_PROFILE",
+                                                        baseUrl + "/api/summary/profile")
+                                                        .children(
+                                                                httpHeaders()
+                                                                        .header("Authorization",
+                                                                                "Bearer ${jwt_token}")
+                                                                        .header("Content-Type",
+                                                                                "application/json")
+                                                        ),
+
+                                                httpSampler("API_GET_USER_ACCESSORIES",
+                                                        baseUrl + "/api/user-accessories/my-items")
+                                                        .children(
+                                                                httpHeaders()
+                                                                        .header("Authorization",
+                                                                                "Bearer ${jwt_token}")
+                                                                        .header("Content-Type",
+                                                                                "application/json")
+                                                        ),
+
+                                                httpSampler("API_GET_REWARD_SHOP",
+                                                        baseUrl + "/api/reward-shop/items")
+                                                        .children(
+                                                                httpHeaders()
+                                                                        .header("Authorization",
+                                                                                "Bearer ${jwt_token}")
+                                                                        .header("Content-Type",
+                                                                                "application/json")
+                                                        )
+                                        )
                         )
-                )
-
         ).saveAsJmx("tests/load_test.jmx");
 
         System.out.println("JMX generated" );
