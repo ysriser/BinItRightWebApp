@@ -21,6 +21,9 @@ public class JmxGenerator {
         }
         String defaultUser = System.getProperty("perf_user", "admin");
         String defaultPass = System.getProperty("perf_pass", "none");
+        String defaultAppUser = System.getProperty("perf_app_user", "user");
+        String defaultAppPass = System.getProperty("perf_app_pass", "none");
+        
         
         testPlan(
             threadGroup("Admin_Load_Test")
@@ -58,12 +61,12 @@ public class JmxGenerator {
                         .contentType(ContentType.APPLICATION_JSON)
                         .body("""
                             {
-                              "username": "androiduser",
-                              "password": "password"
+                              "username": defaultAppUser,
+                              "password": defaultAppPass
                             }
                         """)
                         .children(
-                            jsonExtractor("jwt_token", "token")
+                            jsonExtractor("jwt_token", "$.token")
                         ),
 
                     httpHeaders()
@@ -71,16 +74,19 @@ public class JmxGenerator {
                         .header("Content-Type", "application/json"),
 
                     httpSampler("API_GET_News_List",
-                            baseUrl + "/api/news"),
+                            baseUrl + "/api/news"), // news api
 
                     httpSampler("API_GET_News_By_Id",
-                            baseUrl + "/api/news/1"),
+                            baseUrl + "/api/news/1"), // news api with id =1
 
                     httpSampler("API_GET_Events_All",
-                            baseUrl + "/api/events"),
-
+                            baseUrl + "/api/events"), //event api 
+                    
+                    httpSampler("API_GET_RECYCLE_HISTORY",
+                                baseUrl + "api/recycle-history"), // recycle history api
+                    
                     httpSampler("API_GET_Events_Upcoming",
-                            baseUrl + "/api/events?filter=upcoming")
+                            baseUrl + "/api/events?filter=upcoming") // events api with filter 
                 )
                 
         ).saveAsJmx("tests/load_test.jmx");
