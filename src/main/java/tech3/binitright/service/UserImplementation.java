@@ -25,6 +25,10 @@ public class UserImplementation implements UserInterface {
         achievementImplementation.checkProfileAchievements(user);
         return user;
     }
+    @Override
+    public boolean existsByUsername(String username) {
+        return userRepo.existsByUsername(username);
+    }
 
     @Override
     public List<User> findByUsername(String username) {

@@ -47,12 +47,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/auth/login",
+                                "/api/admin/create",
                                 "/api/bins/**",
                                 "/api/bins/nearby",
                                 "/api/bins/all",
                                 "/api/checkin",
                                 "/api/videos/presign-upload",
                                 "/api/recycle-history",
+                                "/api/auth/register",
                                 "/api/user/profile/**",
                                 "/api/chat",
                                 "/api/ready",

@@ -12,4 +12,7 @@ public interface UserInterface {
     List<User> findByUsername(String username);
     User findById(Long userId);
 
+    boolean existsByUsername(String username);
+
+
 }
