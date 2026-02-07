@@ -16,7 +16,7 @@ import tech3.binitright.model.User;
 
 public class CheckInDataReq {	
     private Long userId;
-    private Long binId;
+    private String binId;
     private String wasteCategory;
     private LocalDateTime checkInTime;
     private CheckIn.Status status;
@@ -33,11 +33,11 @@ public class CheckInDataReq {
         this.userId = userId;
     }
 
-    public Long getBinId() {
+    public String getBinId() {
         return binId;
     }
 
-    public void setBinId(Long binId) {
+    public void setBinId(String binId) {
         this.binId = binId;
     }
 

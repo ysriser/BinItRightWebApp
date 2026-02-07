@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -50,6 +51,9 @@ public class CheckInImplementation implements CheckInInterface{
 	@Autowired
 	private WasteCategoryRepository wasteCatRepository;
 
+	@Autowired
+	private AchievementImplementation achievementImplementation;
+
     @Override
     @Transactional
     public List<CheckIn> getAllCheckIns() {
@@ -88,8 +92,55 @@ public class CheckInImplementation implements CheckInInterface{
 		checkIn.setCheckInTime(data.getCheckInTime());
         checkIn.setFileName(data.getVideoKey());
 		
-		return checkInRepository.save(checkIn); 	
+		CheckIn savedCheckIn = checkInRepository.save(checkIn);
+
+        if (checkIn.getRewardPoints() != null && checkIn.getRewardPoints() > 0) {
+            int currentBalance = (user.getPointBalance() == null) ? 0 : user.getPointBalance();
+            user.setPointBalance(currentBalance + checkIn.getRewardPoints());
+            userRepository.save(user);
+        }
+
+		checkAndUnlockAchievements(user, savedCheckIn);
+        achievementImplementation.checkProfileAchievements(user);
 		
+		return savedCheckIn;
+		
+	}
+
+	private void checkAndUnlockAchievements(User user, CheckIn currentCheckIn) {
+		try {
+			long totalCheckIns = checkInRepository.countByUser(user);
+			
+			if (totalCheckIns >= 1) {
+				achievementImplementation.unlockAchievement(user.getId(), 1L);
+			}
+			
+			if (totalCheckIns >= 10) {
+				achievementImplementation.unlockAchievement(user.getId(), 2L);
+			}
+
+			if (totalCheckIns >= 50) {
+				achievementImplementation.unlockAchievement(user.getId(), 3L);
+			}
+
+			if (totalCheckIns >= 100) {
+				achievementImplementation.unlockAchievement(user.getId(), 4L);
+			}
+
+            LocalDateTime time = currentCheckIn.getCheckInTime();
+            int hour = time.getHour();
+
+            if (hour >= 6 && hour < 8) {
+                achievementImplementation.unlockAchievement(user.getId(), 7L);
+            }
+
+            if (hour >= 22 || hour < 4) {
+                achievementImplementation.unlockAchievement(user.getId(), 8L);
+            }
+
+		} catch (Exception e) {
+			System.err.println("Error unlocking achievements: " + e.getMessage());
+		}
 	}
 
 	@Override
@@ -97,4 +148,8 @@ public class CheckInImplementation implements CheckInInterface{
 		return checkInRepository.findByStatusWithDetails(CheckIn.Status.PROCESSING);
 	}
 
+    @Override
+    public Integer getUserTotalRecycled(Long userId) {
+        return checkInRepository.getTotalRecycledByUser(userId);
+    }
 }

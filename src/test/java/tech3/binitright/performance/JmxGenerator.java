@@ -1,25 +1,109 @@
 package tech3.binitright.performance;
-
 import static us.abstracta.jmeter.javadsl.JmeterDsl.*;
 import java.io.IOException;
 import java.time.Duration;
+import org.apache.http.entity.ContentType;
 
 public class JmxGenerator {
     public static void main(String[] args) throws IOException {
-        int port = Integer.parseInt(System.getProperty("target_port", "8080"));
 
+
+        String host = System.getProperty("target_host", "localhost");
+        String testUrl = System.getProperty("test_url");
+        String baseUrl;
+        if (host.equals("localhost")) {
+            // Local environment uses HTTP and 8080
+            baseUrl = "http://localhost:8080";
+        } else {
+            // Remote environments use HTTPS and the provided host
+            // We use port 443 (standard for HTTPS)
+            baseUrl = "https://" + testUrl;
+        }
+        String defaultUser = System.getProperty("perf_user", "admin");
+        String defaultPass = System.getProperty("perf_pass", "none");
+        String defaultAppUser = System.getProperty("perf_app_user", "user");
+        String defaultAppPass = System.getProperty("perf_app_pass", "none");
+        
+        
         testPlan(
-                threadGroup("CI_Load_Test")
-                        .rampTo(10, Duration.ofSeconds(30))
+            threadGroup("Admin_Load_Test")
+                .rampTo(5, Duration.ofSeconds(10))
+                .holdIterating(10)
+                .children(
+                    httpCookies(), // Necessary to maintain the session
+                    
+                    // 1. LOGIN (Required to access /admin/**)
+                    httpSampler("1_GET_Login", baseUrl + "/login")
+                        .children(
+                            regexExtractor("csrf_token", "name=\"_csrf\" value=\"(.+?)\"")
+                        ),
+                        
+                    httpSampler("2_POST_Login", baseUrl + "/login")
+                        .method("POST")
+                        .contentType(ContentType.APPLICATION_FORM_URLENCODED)
+                        .param("username", defaultUser)
+                        .param("password", defaultPass)
+                        .param("_csrf", "${csrf_token}"),
+                        
+                    httpSampler("GET_Admin_Forecast", baseUrl + "/admin/forecast"),
+                    httpSampler("4_GET_Checkin_List", baseUrl + "/admin/checkin"),
+                    httpSampler("5_GET_Reports", baseUrl + "/admin/sustainability-reports")),
+                threadGroup("ANDROID_API_Load_Test")
+                        .rampTo(10, Duration.ofSeconds(15))
                         .holdIterating(20)
                         .children(
-                                uniformRandomTimer(Duration.ofSeconds(1), Duration.ofSeconds(3)),
-                                httpSampler("Homepage", "${__P(target_host, localhost)}")
-                                        .port(port)
-                                        .method("GET")
+
+                                /* ---- LOGIN ---- */
+                                httpSampler("API_Login", baseUrl + "/api/auth/login")
+                                        .method("POST")
+                                        .contentType(ContentType.APPLICATION_JSON)
+                                        .body(String.format(
+                                                "{\"username\":\"%s\",\"password\":\"%s\"}",
+                                                defaultAppUser, defaultAppPass
+                                        ))
+                                        .children(
+                                                jsonExtractor("jwt_token", "$.token")
+                                        ),
+
+                                /* ---- AUTHENTICATED CALLS ---- */
+                                transaction("Authenticated_API_Calls")
+                                        .children(
+
+                                                httpSampler("API_GET_SUMMARY_PROFILE",
+                                                        baseUrl + "/api/summary/profile")
+                                                        .children(
+                                                                httpHeaders()
+                                                                        .header("Authorization",
+                                                                                "Bearer ${jwt_token}")
+                                                                        .header("Content-Type",
+                                                                                "application/json")
+                                                        ),
+
+                                                httpSampler("API_GET_USER_ACCESSORIES",
+                                                        baseUrl + "/api/user-accessories/my-items")
+                                                        .children(
+                                                                httpHeaders()
+                                                                        .header("Authorization",
+                                                                                "Bearer ${jwt_token}")
+                                                                        .header("Content-Type",
+                                                                                "application/json")
+                                                        ),
+
+                                                httpSampler("API_GET_REWARD_SHOP",
+                                                        baseUrl + "/api/reward-shop/items")
+                                                        .children(
+                                                                httpHeaders()
+                                                                        .header("Authorization",
+                                                                                "Bearer ${jwt_token}")
+                                                                        .header("Content-Type",
+                                                                                "application/json")
+                                                        )
+                                        )
                         )
         ).saveAsJmx("tests/load_test.jmx");
 
-        System.out.println("JMX file generated successfully.");
+        System.out.println("JMX generated" );
     }
+
+          
 }

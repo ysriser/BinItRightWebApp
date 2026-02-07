@@ -55,6 +55,7 @@ public class SecurityConfig {
                                 "/api/videos/presign-upload",
                                 "/api/recycle-history",
                                 "/api/auth/register",
+
                                 "/error"  // CRITICAL: Permit /error
                         ).permitAll()
                         .anyRequest().authenticated()

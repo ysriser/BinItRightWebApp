@@ -16,6 +16,10 @@ public class RecycleHistoryService {
     }
 
     public List<RecycleHistoryResponse> getRecycleHistory(Long userId) {
-        return repository.findRecycleHistoryByUserId(userId);
+        List<RecycleHistoryResponse> history =repository.findRecycleHistoryByUserId(userId);
+        if (history == null || history.isEmpty()) {
+            return List.of();
+        }
+        return history;
     }
 }

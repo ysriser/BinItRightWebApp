@@ -1,7 +1,5 @@
 SELECT 1;
 
-
-
 -- Article 1: AI in Waste Management
 INSERT INTO news (news_id, description, image_url, name, status, published_date)
 SELECT 1,
@@ -98,29 +96,3 @@ SELECT 'Hoodie', 200
 INSERT INTO accessories (name, required_points)
 SELECT 'Recycling Fan', 1000
     WHERE NOT EXISTS (SELECT 1 FROM accessories WHERE name = 'Recycling Fan');
-
--- Issue 1: Login crash (NEW)
-INSERT IGNORE INTO issue (created_at, description, issue_category, status, raised_by_user_id)
-VALUES (NOW(6), 'App crashes immediately after tapping the login button.', 'AppProblems', 'NEW', 1);
-
-
--- Issue 2: Overflowing recycling bin (IN_PROGRESS)
-INSERT IGNORE INTO issue (created_at, description, issue_category, status, raised_by_user_id, resolved_by_admin_id)
-VALUES (NOW(6), 'Recycling bin near Block 512 is overflowing and needs collection.', 'BinIssues', 'IN_PROGRESS', 2, 1);
-
-
--- Issue 3: Incorrect map location (RESOLVED)
-INSERT IGNORE INTO issue (created_at, description, issue_category, status, resolved_at, raised_by_user_id, resolved_by_admin_id)
-VALUES ('2026-02-01 09:10:00.000000',
-        'GPS location for Jurong recycling point is incorrect on the map.',
-        'LocationErrors',
-        'RESOLVED',
-        '2026-02-03 15:25:00.000000',
-        3,
-        1);
-
-
--- Issue 4: Slow dashboard loading (NEW)
-INSERT IGNORE INTO issue (created_at, description, issue_category, status, raised_by_user_id)
-VALUES (NOW(6), 'User dashboard takes more than 10 seconds to load history.', 'AppProblems', 'NEW', 4);
-

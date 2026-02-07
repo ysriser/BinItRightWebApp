@@ -18,4 +18,6 @@ public interface AdminInterface {
 	public List<CheckIn> getPendingCheckIns();
 	public CheckIn reviewCheckIn(Long checkInId);
 	public void updateCheckInStatus(Long id, CheckIn.Status status, String remarks);
+
+    public Optional<Admin> findById(long l);
 }

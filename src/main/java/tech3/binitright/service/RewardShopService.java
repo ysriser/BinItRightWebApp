@@ -18,15 +18,18 @@ public class RewardShopService {
     private final UserRepository userRepository;
     private final AccessoriesRepository accessoryRepository;
     private final UserAccessoriesRepository userAccessoriesRepository;
+    private final AchievementImplementation achievementImplementation;
 
     public RewardShopService(
             UserRepository userRepository,
             AccessoriesRepository accessoryRepository,
-            UserAccessoriesRepository userAccessoriesRepository
+            UserAccessoriesRepository userAccessoriesRepository,
+            AchievementImplementation achievementImplementation
     ) {
         this.userRepository = userRepository;
         this.accessoryRepository = accessoryRepository;
         this.userAccessoriesRepository = userAccessoriesRepository;
+        this.achievementImplementation = achievementImplementation;
     }
 
     public List<Accessories> getItems() {
@@ -94,8 +97,10 @@ public class RewardShopService {
         ua.setEquipped(false);
         userAccessoriesRepository.save(ua);
 
+        achievementImplementation.unlockAchievement(userId, 10L);
+        achievementImplementation.checkProfileAchievements(user);
+
         return new RedeemResponse(user.getPointBalance(), "Redeemed successfully");
     }
 
 }
-

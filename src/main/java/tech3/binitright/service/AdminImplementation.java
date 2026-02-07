@@ -7,9 +7,13 @@ import jakarta.transaction.Transactional;
 import tech3.binitright.interfacemethods.AdminInterface;
 import tech3.binitright.model.Admin;
 import tech3.binitright.model.CheckIn;
+import tech3.binitright.model.User;
 import tech3.binitright.repository.AdminRepository;
 import tech3.binitright.repository.CheckInRepository;
+import tech3.binitright.repository.UserRepository;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,6 +23,9 @@ public class AdminImplementation implements AdminInterface{
 
     @Autowired
     private AdminRepository adminRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
 	private CheckInRepository checkInRepository;
@@ -67,6 +74,15 @@ public class AdminImplementation implements AdminInterface{
             checkIn.setStatus(status);
             rewards = checkIn.getQuantity()*10;
             checkIn.setRewardPoints(rewards);
+
+            User user = checkIn.getUser();
+
+            int currentBalance = user.getPointBalance() == null ? 0 : user.getPointBalance();
+            user.setPointBalance(currentBalance + rewards);
+
+            System.out.println(currentBalance + "  " + user.getPointBalance());
+
+            userRepository.save(user);
         } else {
             checkIn.setStatus(status);
             checkIn.setRewardPoints(0);
@@ -76,15 +92,16 @@ public class AdminImplementation implements AdminInterface{
         checkInRepository.save(checkIn);
 	}
 
-	@Override
+    @Override
+    public Optional<Admin> findById(long l) {
+        return adminrepo.findById(l);
+    }
+
+    @Override
 	@Transactional
 	public CheckIn reviewCheckIn(Long checkInId) {
 		return checkInRepository.findByIdWithDetails(checkInId)
                 .orElseThrow(() ->
                         new EntityNotFoundException("CheckIn not found: " + checkInId));
 	}
-
-	
-
-	
 }

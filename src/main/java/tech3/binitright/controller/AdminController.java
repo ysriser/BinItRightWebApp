@@ -2,15 +2,13 @@ package tech3.binitright.controller;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import tech3.binitright.interfacemethods.AdminInterface;
 import tech3.binitright.interfacemethods.CheckInInterface;
@@ -81,7 +79,6 @@ public class AdminController {
         return "admin-dashboard";
     }
 
-
     @GetMapping("/review/{checkInId}")
     public String reviewCheckIn(@PathVariable Long checkInId, Model model, Principal principal) {
         CheckIn checkIn = adminService.reviewCheckIn(checkInId);
@@ -118,7 +115,7 @@ public class AdminController {
                 "Check-in " + status.name().toLowerCase() + " successfully"
         );
 
-        return "redirect:/admin/dashboard";
+        return "redirect:/admin/checkin";
     }
 
     @GetMapping("/checkin")
@@ -128,7 +125,7 @@ public class AdminController {
         List<CheckIn> allCheckIns = checkInService.getAllCheckIns();
         model.addAttribute("currentPath", "/admin/checkin");
         model.addAttribute("checkIns", allCheckIns);
-        return "checkin-list";
+        return "checkin-list"; 
     }
       @GetMapping("/sustainability-reports")
       public String showSustainabilityReports(
@@ -147,6 +144,9 @@ public class AdminController {
 
        return "sustainability-reports";
     }
-
-
+    @GetMapping("/forecast")
+    @ResponseBody
+    public Map<String, Object> forecast() {
+        return forecastService.getForecastData();
+    }
 }

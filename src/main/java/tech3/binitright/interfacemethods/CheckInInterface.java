@@ -14,4 +14,6 @@ public interface CheckInInterface {
 
     public List<CheckIn> getPendingCheckIns();
 
+    public Integer getUserTotalRecycled(Long userId);
+
 }

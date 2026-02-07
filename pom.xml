@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.5</version>
+        <version>3.4.7</version>
         <relativePath/>
     </parent>
 
@@ -18,8 +18,8 @@
 
     <properties>
         <java.version>21</java.version>
-        <selenium.version>4.21.0</selenium.version>
-        <webdrivermanager.version>5.8.0</webdrivermanager.version>
+        <selenium.version>4.27.0</selenium.version>
+        <webdrivermanager.version>5.9.2</webdrivermanager.version>
         <target_host>localhost</target_host>
         <target_port>8080</target_port>
         <headless>false</headless>
@@ -29,6 +29,19 @@
         <tomcat.version>10.1.46</tomcat.version>
         <mysql-connector-j.version>9.2.0</mysql-connector-j.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Force patched Netty version to fix CVE-2025-55163 -->
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-bom</artifactId>
+                <version>4.1.124.Final</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -94,6 +107,11 @@
             <version>${selenium.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-devtools-v131</artifactId>
+            <version>4.27.0</version>
+        </dependency>
+        <dependency>
             <groupId>io.qameta.allure</groupId>
             <artifactId>allure-junit5</artifactId>
             <version>2.24.0</version>
@@ -136,7 +154,26 @@
             <version>0.11.5</version>
             <scope>runtime</scope>
         </dependency>
+
+        <!-- WebClient -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-suite</artifactId>
+            <version>1.10.1</version> <scope>test</scope>
+        </dependency>
     </dependencies>
+
 
     <build>
         <plugins>
