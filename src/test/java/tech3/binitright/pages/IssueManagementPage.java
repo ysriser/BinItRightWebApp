@@ -52,23 +52,32 @@ public class IssueManagementPage {
         wait.until(ExpectedConditions.stalenessOf(btn));
     }
 
-    /**
-     * SMART RETRY: If the button isn't found (due to DB lag),
-     * refresh the page and try again.
-     */
     public void clickResolveIssue() {
+        // Broaden locator to handle potential icons inside the button
         By locator = By.xpath("//button[contains(., 'Resolve')]");
+
         for (int i = 0; i < 3; i++) {
             try {
+                // Wait for the button to be physically ready for interaction
                 WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(locator));
+
+                // Standard click
                 btn.click();
+
+                // Wait for the page to transition (staleness)
                 wait.until(ExpectedConditions.stalenessOf(btn));
-                return; // Success!
+                return;
             } catch (Exception e) {
+                System.out.println(">>> Resolve button attempt " + (i + 1) + " failed. Refreshing...");
                 driver.navigate().refresh();
+                // Brief pause to allow JS/CSS to settle after refresh
+                try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
             }
         }
-        throw new RuntimeException("Resolve button never appeared after 3 refreshes.");
+
+        // Final debug info if it fails
+        String currentBadge = driver.findElement(By.cssSelector(".status-badge")).getText();
+        throw new RuntimeException("Resolve button never appeared. Status is: " + currentBadge);
     }
 
     public String getDetailPageStatus() {
