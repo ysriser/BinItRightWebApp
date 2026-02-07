@@ -202,9 +202,10 @@ jobs:
         with:
           name: jmeter-performance-report
           path: dashboard/
-# ==========================================
-# DAST SECURITY SCAN (NON-BLOCKING)
-# ==========================================
+
+  # ==========================================
+  # DAST SECURITY SCAN (FULL MONOLITH COVERAGE)
+  # ==========================================
   dast-scan:
     name: DAST Security Scan
     needs: load-test
@@ -212,30 +213,28 @@ jobs:
     steps:
       - name: Wait for App to be Responsive
         run: |
-          timeout 300s bash -c 'until curl -sSf "https://${{ secrets.TEST_URL }}:443" > /dev/null; do echo "Waiting for app..."; sleep 5; done'
+          timeout 300s bash -c 'until curl -sSf "https://${{ secrets.TEST_URL }}:443" > /dev/null; do echo "Waiting..."; sleep 5; done'
 
-      - name: Get Auth Tokens and Create ZAP Config
-        id: get_tokens
+      - name: Get Tokens and Verify OpenAPI
+        id: setup
         run: |
-          # 1. USER1 LOGIN: Get JWT for APIs
+          # 1. Capture user1 JWT
           JWT=$(curl -s -X POST "https://${{ secrets.TEST_URL }}:443/api/auth/login" \
             -H "Content-Type: application/json" \
             -d '{"username":"user1","password":"${{ secrets.APP_USER_PASSWORD }}"}' | jq -r '.token')
   
-          # 2. ADMIN LOGIN: Get JSESSIONID for UI Dashboard
-          # Visit page for initial session/CSRF
+          # 2. Capture Admin JSESSIONID
           curl -s -c cookies.txt "https://${{ secrets.TEST_URL }}:443/login" > login.html
           CSRF=$(grep -oP '(?<=_csrf" value=")[^"]*' login.html)
-          
-          # Perform Form Login
           curl -s -b cookies.txt -c cookies.txt -X POST "https://${{ secrets.TEST_URL }}:443/login" \
             -d "username=admin&password=${{ secrets.APP_ADMIN_PASSWORD }}&_csrf=$CSRF"
-          
-          # Extract the authenticated Session ID
           SESSION=$(grep "JSESSIONID" cookies.txt | awk '{print $7}')
   
-          # 3. CREATE ZAP PROPERTIES FILE
-          # This prevents shell escaping issues with Docker/ZAP
+          # 3. VERIFY OPENAPI (Map Check)
+          # This confirms ZAP will be able to see the endpoints
+          curl -sIf "https://${{ secrets.TEST_URL }}:443/v3/api-docs" || exit 1
+  
+          # 4. Create ZAP Auth Prop File
           cat <<EOF > zap_auth.prop
           replacer.full_list(0).description=user1_jwt
           replacer.full_list(0).enabled=true
@@ -249,42 +248,42 @@ jobs:
           replacer.full_list(1).replacement=JSESSIONID=$SESSION
           EOF
 
-      - name: Run ZAP Baseline Scan
-        id: zap_scan
+      # --- PART 1: UI SCAN (Baseline) ---
+      - name: Run ZAP UI Baseline Scan
         uses: zaproxy/action-baseline@v0.15.0
-        continue-on-error: true # Keep pipeline moving even if bugs found
+        continue-on-error: true
         with:
           target: "https://${{ secrets.TEST_URL }}:443"
-          fail_action: true # This triggers the step-level "failure" for our summary
-          # /zap/wrk/ is the internal Docker path for your current workspace
-          cmd_options: >-
-            -z "-configfile /zap/wrk/zap_auth.prop"
-            -z "-config openapi.importUrl=https://${{ secrets.TEST_URL }}:443/v3/api-docs"
+          artifact_name: "zap-ui-report"
+          cmd_options: '-z "-configfile /zap/wrk/zap_auth.prop" -j' # -j enables AJAX spider
 
-      - name: Upload DAST Artifacts
+      # --- PART 2: API SCAN (Deep Attack) ---
+      - name: Run ZAP API Scan
+        id: api_scan
+        uses: zaproxy/action-api-scan@v0.12.0
+        continue-on-error: true
+        with:
+          target: "https://${{ secrets.TEST_URL }}:443/v3/api-docs"
+          format: openapi
+          artifact_name: "zap-api-report"
+          cmd_options: '-z "-configfile /zap/wrk/zap_auth.prop"'
+
+      - name: Upload Combined Artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: java-monolith-dast-results
+          name: dast-security-reports
           path: |
             report_html.html
             report_json.json
-            report_md.md
 
       - name: Create DAST Summary
         if: always()
         run: |
-          echo "## 🛡️ DAST Security Scan Summary" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ steps.zap_scan.outcome }}" == "failure" ]; then
-            echo "### ⚠️ WARNING: Vulnerabilities Detected" >> $GITHUB_STEP_SUMMARY
-            echo "The baseline scan found potential security issues. Please review the attached HTML report for details." >> $GITHUB_STEP_SUMMARY
-          else
-            echo "### ✅ PASS: No Major Issues Found" >> $GITHUB_STEP_SUMMARY
-            echo "The baseline scan did not find any high-level vulnerabilities." >> $GITHUB_STEP_SUMMARY
-          fi
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Target: https://${{ secrets.TEST_URL }}:443" >> $GITHUB_STEP_SUMMARY
-          echo "OpenAPI Map: https://${{ secrets.TEST_URL }}:443/v3/api-docs" >> $GITHUB_STEP_SUMMARY
+          echo "## 🛡️ DAST Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "View the **dast-security-reports** artifact for full details." >> $GITHUB_STEP_SUMMARY
+          echo "- **UI Baseline Scan Outcome:** ${{ steps.zap_scan.outcome }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **API Deep Scan Outcome:** ${{ steps.api_scan.outcome }}" >> $GITHUB_STEP_SUMMARY
 
   # ==========================================
   # BOX 8: PRODUCTION RELEASE & VERSION TAGGING
