@@ -61,10 +61,10 @@ public class JmxGenerator {
                         .contentType(ContentType.APPLICATION_JSON)
                         .body("""
                             {
-                              "username": defaultAppUser,
-                              "password": defaultAppPass
+                              "username": "%s",
+                              "password": "%s"
                             }
-                        """)
+                        """.formatted(defaultAppUser, defaultAppPass))
                         .children(
                             jsonExtractor("jwt_token", "$.token")
                         ),
@@ -83,7 +83,7 @@ public class JmxGenerator {
                             baseUrl + "/api/events"), //event api 
                     
                     httpSampler("API_GET_RECYCLE_HISTORY",
-                                baseUrl + "api/recycle-history"), // recycle history api
+                                baseUrl + "/api/recycle-history"), // recycle history api
                     
                     httpSampler("API_GET_Events_Upcoming",
                             baseUrl + "/api/events?filter=upcoming") // events api with filter 
