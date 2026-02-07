@@ -62,11 +62,18 @@ public class JmxGenerator {
                                                 defaultAppUser, defaultAppPass
                                         ))
                                         .children(
-                                                jsonExtractor("jwt_token", "$.token")
+                                                jsonExtractor("extracted_token", "token")
                                         ),
+                                // STEP 2: PROTECTED RESOURCE (The test)
+                                httpSampler("Access Summary Profile API", baseUrl+ "/api/summary/profile")
+                                        .header("Authorization", "Bearer ${extracted_token}")
+                        )
+                // comment out below resultTreeVisualizer to disable GUI
+                , resultsTreeVisualizer()
+        ).run();
 
                                 /* ---- AUTHENTICATED CALLS ---- */
-                                transaction("Authenticated_API_Calls")
+                              /*  transaction("Authenticated_API_Calls")
                                         .children(
 
                                                 httpSampler("API_GET_SUMMARY_PROFILE",
@@ -100,9 +107,9 @@ public class JmxGenerator {
                                                         )
                                         )
                         )
-        ).saveAsJmx("tests/load_test.jmx");
+        ).saveAsJmx("tests/load_test.jmx");*/
 
-        System.out.println("JMX generated" );
+       // System.out.println("JMX generated" );
     }
 
           
