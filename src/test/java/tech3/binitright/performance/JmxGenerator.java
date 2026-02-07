@@ -72,7 +72,7 @@ public class JmxGenerator {
                         )
                 // comment out below resultTreeVisualizer to disable GUI
                // , resultsTreeVisualizer()
-        ).run();
+        ).saveAsJmx("tests/load_test.jmx");
 
     }
 
