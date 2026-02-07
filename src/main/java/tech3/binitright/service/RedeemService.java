@@ -2,7 +2,7 @@ package tech3.binitright.service;
 
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-import tech3.binitright.dto.RedeemResponse;
+import tech3.binitright.response.RedeemResponse;
 import tech3.binitright.model.Accessories;
 import tech3.binitright.model.User;
 import tech3.binitright.model.UserAccessories;

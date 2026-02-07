@@ -1,4 +1,4 @@
-package tech3.binitright.dto;
+package tech3.binitright.response;
 
 public class RedeemResponse {
     private int newTotalPoints;

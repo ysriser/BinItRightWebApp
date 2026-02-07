@@ -21,6 +21,10 @@ public class UserImplementation implements UserInterface {
         userRepo.save(user);
         return user;
     }
+    @Override
+    public boolean existsByUsername(String username) {
+        return userRepo.existsByUsername(username);
+    }
 
     @Override
     public List<User> findByUsername(String username) {
