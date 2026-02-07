@@ -8,7 +8,7 @@ import org.apache.http.entity.ContentType;
 public class JmxGenerator {
     public static void main(String[] args) throws IOException {
 
-        // --- ENVIRONMENT CONFIG (Using your IF style) ---
+       
         String host = System.getProperty("target_host", "localhost");
         int port = Integer.getInteger("target_port", 8080);
         String testUrl = System.getProperty("test_url");
@@ -21,7 +21,7 @@ public class JmxGenerator {
         }
 
         String defaultUser = System.getProperty("perf_user", "admin");
-        String defaultPass = System.getProperty("perf_pass", "admin123");
+        String defaultPass = System.getProperty("perf_pass", "none");
 
         testPlan(
             threadGroup("Admin_Load_Test")
@@ -43,7 +43,7 @@ public class JmxGenerator {
                         .param("password", defaultPass)
                         .param("_csrf", "${csrf_token}"),
 
-                    // 3. ADMIN DASHBOARD (From your AdminController)
+                    // 3. ADMIN DASHBOARD 
                     httpSampler("3_GET_Admin_Dashboard", baseUrl + "/admin/dashboard")
                         .children(
                             responseAssertion().containsSubstrings("admin-dashboard")
@@ -52,10 +52,9 @@ public class JmxGenerator {
                     // 4. CHECK-IN LIST
                     httpSampler("4_GET_Checkin_List", baseUrl + "/admin/checkin"),
 
-                    // 5. SUSTAINABILITY REPORTS (With optional query params)
+                    // 5. SUSTAINABILITY REPORTS 
                     httpSampler("5_GET_Reports", baseUrl + "/admin/sustainability-reports")
-                        .param("month", "2")
-                        .param("year", "2026")
+                        
                 )
         ).saveAsJmx("tests/load_test.jmx");
 
