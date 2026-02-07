@@ -46,10 +46,7 @@ public class JmxGenerator {
                         .param("_csrf", "${csrf_token}"),
                         
                     httpSampler("GET_Admin_Forecast", baseUrl + "/admin/forecast"),
-
                     httpSampler("4_GET_Checkin_List", baseUrl + "/admin/checkin"),
-                    
-                     
                     httpSampler("5_GET_Reports", baseUrl + "/admin/sustainability-reports")),
             threadGroup("ANDROID_API_Load_Test")
                 .rampTo(10, Duration.ofSeconds(15))
