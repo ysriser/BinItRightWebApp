@@ -1,9 +1,7 @@
 package tech3.binitright.ui;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
+import io.github.bonigarcia.wdm.WebDriverManager;
+import io.qameta.allure.Attachment;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,8 +11,9 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
-import io.github.bonigarcia.wdm.WebDriverManager;
-import io.qameta.allure.Attachment;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public abstract class Base {
 
@@ -25,7 +24,7 @@ public abstract class Base {
     @BeforeEach
     void setUp() {
         WebDriverManager.chromedriver().setup();
-        final ChromeOptions options = new ChromeOptions();
+        ChromeOptions options = new ChromeOptions();
 
         if (Boolean.parseBoolean(System.getProperty("headless", "false"))) {
             options.addArguments("--headless");
@@ -36,7 +35,7 @@ public abstract class Base {
 
         this.driver = new ChromeDriver(options);
 
-        final String host = System.getProperty("targetUhost", "localhost");
+        String host = System.getProperty("targetUhost", "localhost");
 
         if (host.equals("localhost")) {
             // Local environment uses HTTP and 8080
@@ -57,7 +56,7 @@ public abstract class Base {
         }
     }
 
-    protected void captureAllArtifacts(final String name) {
+    protected void captureAllArtifacts(String name) {
         if (driver != null) {
             saveScreenshot(name);
             savePageSource(name);
@@ -65,20 +64,20 @@ public abstract class Base {
     }
 
     @Attachment(value = "{name} Screenshot", type = "image/png")
-    public byte[] saveScreenshot(final String name) {
-        final byte[] screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
+    public byte[] saveScreenshot(String name) {
+        byte[] screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
         try {
             FileUtils.writeByteArrayToFile(new File("target/screenshots/" + name + ".png"), screenshot);
-        } catch (final IOException e) { e.printStackTrace(); }
+        } catch (IOException e) { e.printStackTrace(); }
         return screenshot;
     }
 
     @Attachment(value = "{name} Page Source", type = "text/html")
-    public String savePageSource(final String name) {
-        final String html = driver.getPageSource();
+    public String savePageSource(String name) {
+        String html = driver.getPageSource();
         try {
             FileUtils.writeStringToFile(new File("target/screenshots/" + name + ".html"), html, StandardCharsets.UTF_8);
-        } catch (final IOException e) { e.printStackTrace(); }
+        } catch (IOException e) { e.printStackTrace(); }
         return html;
     }
 }

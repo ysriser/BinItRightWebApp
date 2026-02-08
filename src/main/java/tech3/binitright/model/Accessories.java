@@ -3,7 +3,6 @@ package tech3.binitright.model;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -31,10 +30,10 @@ public class Accessories {
     @OneToMany(mappedBy="accessories")
     @JsonIgnore
     private List<UserAccessories> userAccessories;
-
+    
     public Accessories() {}
-    public Accessories(final Long accessoriesId, final String name, final String imageUrl, final int requiredPoints,
-                       final List<UserAccessories> userAccessories) {
+    public Accessories(Long accessoriesId, String name, String imageUrl, int requiredPoints,
+                       List<UserAccessories> userAccessories) {
         super();
         this.accessoriesId = accessoriesId;
         this.name = name;
@@ -47,7 +46,7 @@ public class Accessories {
         return accessoriesId;
     }
 
-    public void setAccessoriesId(final Long accessoriesId) {
+    public void setAccessoriesId(Long accessoriesId) {
         this.accessoriesId = accessoriesId;
     }
 
@@ -55,7 +54,7 @@ public class Accessories {
         return name;
     }
 
-    public void setName(final String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -63,7 +62,7 @@ public class Accessories {
         return imageUrl;
     }
 
-    public void setImageUrl(final String imageUrl) {
+    public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
 
@@ -71,7 +70,7 @@ public class Accessories {
         return requiredPoints;
     }
 
-    public void setRequiredPoints(final int requiredPoints) {
+    public void setRequiredPoints(int requiredPoints) {
         this.requiredPoints = requiredPoints;
     }
 
@@ -79,7 +78,7 @@ public class Accessories {
         return userAccessories;
     }
 
-    public void setUserAccessories(final List<UserAccessories> userAccessories) {
+    public void setUserAccessories(List<UserAccessories> userAccessories) {
         this.userAccessories = userAccessories;
     }
 

@@ -11,7 +11,7 @@ public class LoginRequest {
 
     public LoginRequest() {}
 
-    public LoginRequest(final String username, final String password) {
+    public LoginRequest(String username, String password) {
 
         this.username = username;
         this.password = password;
@@ -21,7 +21,7 @@ public class LoginRequest {
         return username;
     }
 
-    public void setUsername(final String username) {
+    public void setUsername(String username) {
         this.username = username;
     }
 
@@ -29,7 +29,7 @@ public class LoginRequest {
         return password;
     }
 
-    public void setPassword(final String password) {
+    public void setPassword(String password) {
         this.password = password;
     }
 }

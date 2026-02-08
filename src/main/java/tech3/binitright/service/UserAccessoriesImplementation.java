@@ -1,14 +1,16 @@
 package tech3.binitright.service;
 
-import java.util.List;
-
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import jakarta.transaction.Transactional;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import tech3.binitright.interfacemethods.UserAccessoriesInterface;
 import tech3.binitright.model.UserAccessories;
 import tech3.binitright.repository.UserAccessoriesRepository;
+import tech3.binitright.request.RedeemRequest;
+
+import java.util.List;
 
 @Service
 public class UserAccessoriesImplementation implements UserAccessoriesInterface {
@@ -17,7 +19,7 @@ public class UserAccessoriesImplementation implements UserAccessoriesInterface {
     private UserAccessoriesRepository userAccessoriesRepository;
 
     @Override
-    public void save(final UserAccessories userAccessories) {
+    public void save(UserAccessories userAccessories) {
         userAccessoriesRepository.save(userAccessories);
     }
 
@@ -27,23 +29,23 @@ public class UserAccessoriesImplementation implements UserAccessoriesInterface {
     }
 
     @Override
-    public List<UserAccessories> findAllByUserUId(final Long id) {
+    public List<UserAccessories> findAllByUserUId(Long id) {
         return userAccessoriesRepository.findAllByUserUId(id);
     }
 
     @Override
     @Transactional
-    public void equipItem(final Long userId, final Long accessoriesId) {
+    public void equipItem(Long userId, Long accessoriesId) {
 
-        final List<UserAccessories> currentEquipped =
+        List<UserAccessories> currentEquipped =
                 userAccessoriesRepository.findByUserUIdAndEquippedTrue(userId);
 
-        for (final UserAccessories item : currentEquipped) {
+        for (UserAccessories item : currentEquipped) {
             item.setEquipped(false);
         }
         userAccessoriesRepository.saveAll(currentEquipped);
 
-        final UserAccessories itemToEquip =
+        UserAccessories itemToEquip =
                 userAccessoriesRepository.findByUserUIdAndAccessoriesUAccessoriesId(userId, accessoriesId);
 
         if (itemToEquip == null) {
@@ -56,8 +58,8 @@ public class UserAccessoriesImplementation implements UserAccessoriesInterface {
 
     @Override
     @Transactional
-    public void unequipItem(final Long userId, final Long accessoryId) {
-        final UserAccessories itemToUnequip =
+    public void unequipItem(Long userId, Long accessoryId) {
+        UserAccessories itemToUnequip =
                 userAccessoriesRepository.findByUserUIdAndAccessoriesUAccessoriesId(userId, accessoryId);
 
         if (itemToUnequip != null) {

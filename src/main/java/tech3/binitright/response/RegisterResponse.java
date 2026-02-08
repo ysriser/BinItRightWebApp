@@ -1,10 +1,10 @@
 package tech3.binitright.response;
 
 public final class RegisterResponse {
-    private final boolean success;
-    private final String message;
+    private boolean success;
+    private String message;
 
-    public RegisterResponse(final boolean success, final String message) {
+    public RegisterResponse(boolean success, String message) {
         this.success = success;
         this.message = message;
     }

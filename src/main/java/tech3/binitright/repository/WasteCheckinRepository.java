@@ -2,10 +2,12 @@ package tech3.binitright.repository;
 
 
 
+import tech3.binitright.model.CheckIn;
+import tech3.binitright.model.WasteCategories;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-
-import tech3.binitright.model.CheckIn;
+import java.util.List;
+import java.util.Map;
 
 public interface WasteCheckinRepository extends JpaRepository<CheckIn, Long> {
 

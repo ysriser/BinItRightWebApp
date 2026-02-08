@@ -6,15 +6,15 @@ public class RedeemRequest {
 
     public RedeemRequest() {}
 
-    public RedeemRequest(final Long userId, final Long accessoriesId) {
+    public RedeemRequest(Long userId, Long accessoriesId) {
         this.userId = userId;
         this.accessoriesId = accessoriesId;
     }
 
     public Long getUserId() { return userId; }
-    public void setUserId(final Long userId) { this.userId = userId; }
+    public void setUserId(Long userId) { this.userId = userId; }
 
     public Long getAccessoriesId() { return accessoriesId; }
-    public void setAccessoriesId(final Long accessoriesId) { this.accessoriesId = accessoriesId; }
+    public void setAccessoriesId(Long accessoriesId) { this.accessoriesId = accessoriesId; }
 }
 

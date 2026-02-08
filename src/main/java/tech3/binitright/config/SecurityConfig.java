@@ -117,7 +117,7 @@ public class SecurityConfig {
                         .cacheControl(withDefaults())
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/css/**", "/js/**", "/api/admin/create",
+                        .requestMatchers("/login", "/css/**", "/js/**", "/api/admin/create", 
                         		"/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/admin/**").hasRole("admin")
                         .anyRequest().authenticated()

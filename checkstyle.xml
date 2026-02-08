@@ -4,22 +4,21 @@
         "https://checkstyle.org/dtds/configuration_1_3.dtd">
 
 <module name="Checker">
-	<module name="LineLength">
-		<property name="max" value="120" />
-	</module>
+    <module name="LineLength">
+        <property name="max" value="120"/>
+    </module>
 
-	<module name="TreeWalker">
-		<module name="DesignForExtension">
-			<property name="ignoredAnnotations"
-				value="Configuration, SpringBootApplication, RestController, Bean" />
-		</module>
+    <module name="TreeWalker">
+        <module name="DesignForExtension">
+            <property name="ignoredAnnotations"
+                      value="Configuration, SpringBootApplication, RestController, Bean"/>
+        </module>
 
-		<module name="PackageName">
-			<property name="format"
-				value="^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*)*$" />
-		</module>
+        <module name="PackageName">
+            <property name="format" value="^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*)*$"/>
+        </module>
 
-		<module name="MethodName" />
-		<module name="FinalParameters" />
-	</module>
+        <module name="MethodName"/>
+        <module name="FinalParameters"/>
+    </module>
 </module>

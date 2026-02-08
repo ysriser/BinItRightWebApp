@@ -1,12 +1,24 @@
 package tech3.binitright.service;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import tech3.binitright.interfacemethods.CheckInInterface;
 import tech3.binitright.model.CheckIn;
@@ -18,22 +30,24 @@ import tech3.binitright.repository.LocationRepository;
 import tech3.binitright.repository.UserRepository;
 import tech3.binitright.repository.WasteCategoryRepository;
 import tech3.binitright.request.CheckInDataReq;
+import tech3.binitright.request.RecycledItemReq;
+import tech3.binitright.response.CheckInDataResponse;
 
 @Service
 @Transactional
 public class CheckInImplementation implements CheckInInterface{
-
+	
 	private static final int MINUDURATIONUSECONDS = 5;
-
+    
 	@Autowired
 	private CheckInRepository checkInRepository;
-
+	
 	@Autowired
 	private UserRepository userRepository;
-
+	
 	@Autowired
 	private LocationRepository locationRepository;
-
+	
 	@Autowired
 	private WasteCategoryRepository wasteCatRepository;
 
@@ -47,17 +61,17 @@ public class CheckInImplementation implements CheckInInterface{
     }
 
 	@Override
-	public CheckIn processCheckIn(final CheckInDataReq data, final Long userId) throws IOException{
-
+	public CheckIn processCheckIn(CheckInDataReq data, Long userId) throws IOException{
+		
 		//Save request to DB
-		final CheckIn checkIn = new CheckIn();
-		final User user = userRepository.findById(userId)
+		CheckIn checkIn = new CheckIn();
+		User user = userRepository.findById(userId)
 		        .orElseThrow(() -> new RuntimeException("User not found"));
-
-		final DropOffLocation location = locationRepository.findById(data.getBinId())
+		    
+		DropOffLocation location = locationRepository.findById(data.getBinId())
 		            .orElseThrow(() -> new RuntimeException("Location not found"));
 
-        final WasteCategories category = wasteCatRepository
+        WasteCategories category = wasteCatRepository
                 .findByNameIgnoreCase(data.getWasteCategory())
                 .orElseThrow(() -> new RuntimeException(
                         "Waste category not found: " + data.getWasteCategory()
@@ -77,30 +91,30 @@ public class CheckInImplementation implements CheckInInterface{
 		checkIn.setQuantity(data.getQuantity());
 		checkIn.setCheckInTime(data.getCheckInTime());
         checkIn.setFileName(data.getVideoKey());
-
-		final CheckIn savedCheckIn = checkInRepository.save(checkIn);
+		
+		CheckIn savedCheckIn = checkInRepository.save(checkIn);
 
         if (checkIn.getRewardPoints() != null && checkIn.getRewardPoints() > 0) {
-            final int currentBalance = (user.getPointBalance() == null) ? 0 : user.getPointBalance();
+            int currentBalance = (user.getPointBalance() == null) ? 0 : user.getPointBalance();
             user.setPointBalance(currentBalance + checkIn.getRewardPoints());
             userRepository.save(user);
         }
 
 		checkAndUnlockAchievements(user, savedCheckIn);
         achievementImplementation.checkProfileAchievements(user);
-
+		
 		return savedCheckIn;
-
+		
 	}
 
-	private void checkAndUnlockAchievements(final User user, final CheckIn currentCheckIn) {
+	private void checkAndUnlockAchievements(User user, CheckIn currentCheckIn) {
 		try {
-			final long totalCheckIns = checkInRepository.countByUser(user);
-
+			long totalCheckIns = checkInRepository.countByUser(user);
+			
 			if (totalCheckIns >= 1) {
 				achievementImplementation.unlockAchievement(user.getId(), 1L);
 			}
-
+			
 			if (totalCheckIns >= 10) {
 				achievementImplementation.unlockAchievement(user.getId(), 2L);
 			}
@@ -113,8 +127,8 @@ public class CheckInImplementation implements CheckInInterface{
 				achievementImplementation.unlockAchievement(user.getId(), 4L);
 			}
 
-            final LocalDateTime time = currentCheckIn.getCheckInTime();
-            final int hour = time.getHour();
+            LocalDateTime time = currentCheckIn.getCheckInTime();
+            int hour = time.getHour();
 
             if (hour >= 6 && hour < 8) {
                 achievementImplementation.unlockAchievement(user.getId(), 7L);
@@ -124,7 +138,7 @@ public class CheckInImplementation implements CheckInInterface{
                 achievementImplementation.unlockAchievement(user.getId(), 8L);
             }
 
-		} catch (final Exception e) {
+		} catch (Exception e) {
 			System.err.println("Error unlocking achievements: " + e.getMessage());
 		}
 	}
@@ -135,7 +149,7 @@ public class CheckInImplementation implements CheckInInterface{
 	}
 
     @Override
-    public Integer getUserTotalRecycled(final Long userId) {
+    public Integer getUserTotalRecycled(Long userId) {
         return checkInRepository.getTotalRecycledByUser(userId);
     }
 }

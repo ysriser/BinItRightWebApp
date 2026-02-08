@@ -305,22 +305,22 @@ public class UserSeeder {
             		Issue.IssueStatus.NEW, u1, null);
 
             // Issue 2: Overflowing bin
-            final Issue i2 = new Issue(Issue.IssueCategory.BinIssues,
-            		"Recycling bin near Block 512 is overflowing and needs collection.",
+            final Issue i2 = new Issue(Issue.IssueCategory.BinIssues, 
+            		"Recycling bin near Block 512 is overflowing and needs collection.", 
             		Issue.IssueStatus.INUPROGRESS, u2, admin1);
 
             // Issue 3: Incorrect map location (Resolved)
             // Note: We use the constructor and then manually
             // set dates to match your SQL '2026-02-01' requirement
             final Issue i3 = new Issue(Issue.IssueCategory.LocationErrors,
-            		"GPS location for Jurong recycling point is incorrect on the map.",
+            		"GPS location for Jurong recycling point is incorrect on the map.", 
             		Issue.IssueStatus.RESOLVED, u3, admin1);
             i3.setCreatedAt(LocalDateTime.of(2026, 2, 1, 9, 10));
             i3.setResolvedAt(LocalDateTime.of(2026, 2, 3, 15, 25));
 
             // Issue 4: Slow dashboard
             final Issue i4 = new Issue(Issue.IssueCategory.AppProblems,
-            		"User dashboard takes more than 10 seconds to load history.",
+            		"User dashboard takes more than 10 seconds to load history.", 
             		Issue.IssueStatus.NEW, u4, null);
 
             issueService.saveAll(List.of(i1, i2, i3, i4));

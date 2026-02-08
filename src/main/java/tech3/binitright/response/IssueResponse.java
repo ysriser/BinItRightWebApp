@@ -5,7 +5,7 @@ public final class IssueResponse {
 
     public IssueResponse() {}
 
-    public IssueResponse(final Long issueId) {
+    public IssueResponse(Long issueId) {
         this.issueId = issueId;
     }
 
@@ -13,7 +13,7 @@ public final class IssueResponse {
         return issueId;
     }
 
-    public void setIssueId(final Long issueId) {
+    public void setIssueId(Long issueId) {
         this.issueId = issueId;
     }
 }

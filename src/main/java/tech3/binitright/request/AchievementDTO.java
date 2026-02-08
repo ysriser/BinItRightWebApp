@@ -8,8 +8,8 @@ public class AchievementDTO {
     private final String badgeIconUrl;
     private final boolean isUnlocked;
 
-    public AchievementDTO(final Long id, final String name,
-    		final String description, final String criteria,
+    public AchievementDTO(final Long id, final String name, 
+    		final String description, final String criteria, 
     		final String badgeIconUrl, final boolean isUnlocked) {
         this.id = id;
         this.name = name;

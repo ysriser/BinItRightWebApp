@@ -1,18 +1,17 @@
 package tech3.binitright.service;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Service;
 import tech3.binitright.dto.ShopItemDTO;
+import tech3.binitright.response.RedeemResponse;
 import tech3.binitright.model.Accessories;
 import tech3.binitright.model.User;
 import tech3.binitright.model.UserAccessories;
 import tech3.binitright.repository.AccessoriesRepository;
 import tech3.binitright.repository.UserAccessoriesRepository;
 import tech3.binitright.repository.UserRepository;
-import tech3.binitright.response.RedeemResponse;
+
+import java.util.List;
 
 @Service
 public class RewardShopService {
@@ -22,10 +21,10 @@ public class RewardShopService {
     private final AchievementImplementation achievementImplementation;
 
     public RewardShopService(
-            final UserRepository userRepository,
-            final AccessoriesRepository accessoryRepository,
-            final UserAccessoriesRepository userAccessoriesRepository,
-            final AchievementImplementation achievementImplementation
+            UserRepository userRepository,
+            AccessoriesRepository accessoryRepository,
+            UserAccessoriesRepository userAccessoriesRepository,
+            AchievementImplementation achievementImplementation
     ) {
         this.userRepository = userRepository;
         this.accessoryRepository = accessoryRepository;
@@ -37,21 +36,21 @@ public class RewardShopService {
         return accessoryRepository.findAll();
     }
 
-    public List<ShopItemDTO> getItemsForUser(final Long userId) {
+    public List<ShopItemDTO> getItemsForUser(Long userId) {
 
-        final List<Accessories> all = accessoryRepository.findAll();
-        final List<UserAccessories> ownedRows = userAccessoriesRepository.findAllByUserUId(userId);
+        List<Accessories> all = accessoryRepository.findAll();
+        List<UserAccessories> ownedRows = userAccessoriesRepository.findAllByUserUId(userId);
 
-        final java.util.Map<Long, Boolean> ownedEquippedMap = new java.util.HashMap<>();
-        for (final UserAccessories ua : ownedRows) {
+        java.util.Map<Long, Boolean> ownedEquippedMap = new java.util.HashMap<>();
+        for (UserAccessories ua : ownedRows) {
             ownedEquippedMap.put(ua.getAccessories().getAccessoriesId(), ua.isEquipped());
         }
 
-        final List<ShopItemDTO> result = new java.util.ArrayList<>();
-        for (final Accessories a : all) {
-            final Long id = a.getAccessoriesId();
-            final boolean owned = ownedEquippedMap.containsKey(id);
-            final boolean equipped = owned && Boolean.TRUE.equals(ownedEquippedMap.get(id));
+        List<ShopItemDTO> result = new java.util.ArrayList<>();
+        for (Accessories a : all) {
+            Long id = a.getAccessoriesId();
+            boolean owned = ownedEquippedMap.containsKey(id);
+            boolean equipped = owned && Boolean.TRUE.equals(ownedEquippedMap.get(id));
 
             result.add(new ShopItemDTO(
                     id,
@@ -66,20 +65,20 @@ public class RewardShopService {
 
 
     @Transactional
-    public RedeemResponse redeem(final Long userId, final Long accessoriesId) {
+    public RedeemResponse redeem(Long userId, Long accessoriesId) {
 
-        final User user = userRepository.findById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        final Accessories accessory = accessoryRepository.findById(accessoriesId)
+        Accessories accessory = accessoryRepository.findById(accessoriesId)
                 .orElseThrow(() -> new RuntimeException("Accessory not found"));
 
-        final boolean alreadyOwned =
+        boolean alreadyOwned =
                 userAccessoriesRepository
                         .existsByUserUIdAndAccessoriesUAccessoriesId(userId, accessoriesId);
 
-        final int balance = user.getPointBalance() == null ? 0 : user.getPointBalance();
-        final int price = accessory.getRequiredPoints();
+        int balance = user.getPointBalance() == null ? 0 : user.getPointBalance();
+        int price = accessory.getRequiredPoints();
 
         if (alreadyOwned) {
             return new RedeemResponse(balance, "Already owned");
@@ -92,7 +91,7 @@ public class RewardShopService {
         user.setPointBalance(balance - price);
         userRepository.save(user);
 
-        final UserAccessories ua = new UserAccessories();
+        UserAccessories ua = new UserAccessories();
         ua.setUser(user);
         ua.setAccessories(accessory);
         ua.setEquipped(false);

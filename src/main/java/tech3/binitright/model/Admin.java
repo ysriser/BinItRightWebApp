@@ -1,9 +1,9 @@
 package tech3.binitright.model;
 
 import java.util.List;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -21,7 +21,7 @@ public class Admin extends BinItRightUser{
     private List<Issue> issue;
 
     public Admin() {}
-    public Admin(final String permissionLevel, final String department, final List<Issue> issue) {
+    public Admin(String permissionLevel, String department, List<Issue> issue) {
         super();
         this.permissionLevel = permissionLevel;
         this.department = department;
@@ -32,7 +32,7 @@ public class Admin extends BinItRightUser{
         return permissionLevel;
     }
 
-    public void setPermissionLevel(final String permissionLevel) {
+    public void setPermissionLevel(String permissionLevel) {
         this.permissionLevel = permissionLevel;
     }
 
@@ -40,7 +40,7 @@ public class Admin extends BinItRightUser{
         return department;
     }
 
-    public void setDepartment(final String department) {
+    public void setDepartment(String department) {
         this.department = department;
     }
 
@@ -48,7 +48,7 @@ public class Admin extends BinItRightUser{
         return issue;
     }
 
-    public void setIssue(final List<Issue> issue) {
+    public void setIssue(List<Issue> issue) {
         this.issue = issue;
     }
 

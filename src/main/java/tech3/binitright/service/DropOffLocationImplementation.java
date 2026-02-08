@@ -2,10 +2,8 @@ package tech3.binitright.service;
 
 import java.util.Comparator;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import jakarta.transaction.Transactional;
 import tech3.binitright.interfacemethods.DropOffLocationInterface;
 import tech3.binitright.model.DropOffLocation;
@@ -16,7 +14,7 @@ import tech3.binitright.util.DistanceUtil;
 @Service
 @Transactional
 public class DropOffLocationImplementation implements DropOffLocationInterface{
-
+	
 	@Autowired
 	private DropOffLocationRepository repository;
 
@@ -25,16 +23,16 @@ public class DropOffLocationImplementation implements DropOffLocationInterface{
     }
 
     public List<NearByBinDto> getNearbyBins(
-            final double userLat, final double userLng, final double radiusMeters) {
+            double userLat, double userLng, double radiusMeters) {
     	System.out.println("###getNearbyBins"+userLat);
 
-        final List<DropOffLocation> allBins = repository.findAll();
+        List<DropOffLocation> allBins = repository.findAll();
 
         return allBins.stream()
                 .map(bin -> {
-                    final double distance = DistanceUtil.distanceInMeters(
+                    double distance = DistanceUtil.distanceInMeters(
                             userLat, userLng,
-                            bin.getLatitude().doubleValue(),
+                            bin.getLatitude().doubleValue(), 
                             bin.getLongitude().doubleValue());
 
                     return new Object[]{bin, distance};
@@ -43,8 +41,8 @@ public class DropOffLocationImplementation implements DropOffLocationInterface{
                 .sorted(Comparator.comparingDouble(obj -> (double) obj[1]))
                 .limit(3)
                 .map(obj -> {
-                    final DropOffLocation bin = (DropOffLocation) obj[0];
-                    final double distance = (double) obj[1];
+                    DropOffLocation bin = (DropOffLocation) obj[0];
+                    double distance = (double) obj[1];
 
                     System.out.println("BinSize"+allBins.size());
 
@@ -65,26 +63,26 @@ public class DropOffLocationImplementation implements DropOffLocationInterface{
     }
 
     public List<NearByBinDto> searchBins(
-            final double userLat,
-            final double userLng,
-            final String type
+            double userLat,
+            double userLng,
+            String type
     ) {
-        final List<DropOffLocation> allBins = repository.findAll();
+        List<DropOffLocation> allBins = repository.findAll();
         System.out.println("AllBins size"+allBins.size());
 
         return allBins.stream()
 
                 // Filter by bin type
         		.filter(bin ->
-        	    type == null
-        	    || type.isBlank()
-        	    || type.equalsIgnoreCase("All")
+        	    type == null 
+        	    || type.isBlank() 
+        	    || type.equalsIgnoreCase("All")     
         	    || bin.getBinType().equalsIgnoreCase(type)
         	)
 
                 // Distance
                 .map(bin -> {
-                    final double distance = DistanceUtil.distanceInMeters(
+                    double distance = DistanceUtil.distanceInMeters(
                             userLat, userLng,
                             bin.getLatitude().doubleValue(), bin.getLongitude().doubleValue()
                     );
@@ -96,9 +94,9 @@ public class DropOffLocationImplementation implements DropOffLocationInterface{
 
                 // Convert to DTO
                 .map(obj -> {
-                    final DropOffLocation bin = (DropOffLocation) obj[0];
-                    final double distance = (double) obj[1];
-
+                    DropOffLocation bin = (DropOffLocation) obj[0];
+                    double distance = (double) obj[1];
+                    
                     System.out.println("Return from search bins");
 
                     return new NearByBinDto(

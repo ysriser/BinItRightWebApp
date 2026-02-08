@@ -1,14 +1,13 @@
 package tech3.binitright.service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import tech3.binitright.interfacemethods.EventInterface;
 import tech3.binitright.model.Event;
 import tech3.binitright.repository.EventRepository;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class EventImplementation implements EventInterface {

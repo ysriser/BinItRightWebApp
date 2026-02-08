@@ -12,7 +12,7 @@ public final class PresignedUploadResponse {
 
     public PresignedUploadResponse() {}
 
-    public PresignedUploadResponse(final String uploadUrl, final String objectKey) {
+    public PresignedUploadResponse(String uploadUrl, String objectKey) {
         this.uploadUrl = uploadUrl;
         this.objectKey = objectKey;
     }
@@ -21,7 +21,7 @@ public final class PresignedUploadResponse {
         return uploadUrl;
     }
 
-    public void setUploadUrl(final String uploadUrl) {
+    public void setUploadUrl(String uploadUrl) {
         this.uploadUrl = uploadUrl;
     }
 
@@ -29,7 +29,7 @@ public final class PresignedUploadResponse {
         return objectKey;
     }
 
-    public void setObjectKey(final String objectKey) {
+    public void setObjectKey(String objectKey) {
         this.objectKey = objectKey;
     }
 }

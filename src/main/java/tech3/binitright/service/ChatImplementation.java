@@ -3,7 +3,6 @@ package tech3.binitright.service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import tech3.binitright.ai.OpenAIClient;
 import tech3.binitright.interfacemethods.ChatInterface;
 
@@ -16,14 +15,13 @@ public class ChatImplementation implements ChatInterface{
     @Value("${openai.model}")
     private String model;
 
-    public ChatImplementation(final OpenAIClient openAIClient) {
+    public ChatImplementation(OpenAIClient openAIClient) {
         this.openAIClient = openAIClient;
     }
 
-    @Override
-	public String askRecyclingAssistant(final String userMessage) {
+    public String askRecyclingAssistant(String userMessage) {
         try {
-            final String systemPrompt = """
+            String systemPrompt = """
 You are Bin-It-Right, an AI recycling assistant for Singapore that helps users
 identify waste items from images and dispose of them correctly.
 
@@ -56,20 +54,19 @@ Always focus on helping the user dispose of the detected item correctly in Singa
 
             return openAIClient.chat(model, systemPrompt, userMessage);
 
-        } catch (final Exception ex) {
+        } catch (Exception ex) {
             return "Recycling assistant is temporarily unavailable. Please try again later.";
         }
     }
 
-    @Override
-	public String generateProgressSummary(
-            final int pointBalance,
-            final double carbonEmissionSaved,
-            final int currentRank,
-            final int totalRecycledItems
+    public String generateProgressSummary(
+            int pointBalance,
+            double carbonEmissionSaved,
+            int currentRank,
+            int totalRecycledItems
     ) {
         try {
-            final String systemPrompt = """
+            String systemPrompt = """
 You are Bin-It-Right AI, a sustainability progress assistant in Singapore.
 
 Your task:
@@ -81,7 +78,7 @@ Your task:
 - Tone: friendly, positive, eco-focused, mobile-app style.
 """;
 
-            final String userPrompt = String.format("""
+            String userPrompt = String.format("""
 User stats:
 Point balance: %d
 Carbon emission saved: %.1f kg
@@ -98,7 +95,7 @@ Write the dashboard AI progress summary.
 
             return openAIClient.chat(model, systemPrompt, userPrompt);
 
-        } catch (final Exception ex) {
+        } catch (Exception ex) {
             // graceful fallback if OpenAI fails
             return "You're making a real environmental impact 🌱 Keep recycling to climb higher and save more CO₂!";
         }

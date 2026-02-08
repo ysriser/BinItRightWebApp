@@ -8,7 +8,7 @@ class BinItRightApplicationTests {
 
     @Test
     void applicationClassConstructs() {
-        final BinItRightApplication app = new BinItRightApplication();
+        BinItRightApplication app = new BinItRightApplication();
         assertNotNull(app);
     }
 

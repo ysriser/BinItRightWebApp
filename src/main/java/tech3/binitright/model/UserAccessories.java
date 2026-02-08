@@ -1,7 +1,6 @@
 package tech3.binitright.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,6 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 
 @Entity
@@ -28,13 +28,13 @@ public class UserAccessories {
     private User user;
 
     @ManyToOne
-
+    
     @JoinColumn(name = "accessoriesUid")
     private Accessories accessories;
-
+   
     public UserAccessories() {}
-    public UserAccessories( final boolean equipped, final User user, final Accessories accessories) {
-
+    public UserAccessories( boolean equipped, User user, Accessories accessories) {
+        
         this.equipped = equipped;
         this.user = user;
         this.accessories = accessories;
@@ -44,7 +44,7 @@ public class UserAccessories {
         return userAccessoriesId;
     }
 
-    public void setUserAccessoriesId(final Long userAccessoriesId) {
+    public void setUserAccessoriesId(Long userAccessoriesId) {
         this.userAccessoriesId = userAccessoriesId;
     }
 
@@ -52,7 +52,7 @@ public class UserAccessories {
         return equipped;
     }
 
-    public void setEquipped(final boolean equipped) {
+    public void setEquipped(boolean equipped) {
         this.equipped = equipped;
     }
 
@@ -60,7 +60,7 @@ public class UserAccessories {
         return user;
     }
 
-    public void setUser(final User user) {
+    public void setUser(User user) {
         this.user = user;
     }
 
@@ -68,7 +68,7 @@ public class UserAccessories {
         return accessories;
     }
 
-    public void setAccessories(final Accessories accessories) {
+    public void setAccessories(Accessories accessories) {
         this.accessories = accessories;
     }
 

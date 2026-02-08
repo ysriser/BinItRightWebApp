@@ -1,17 +1,16 @@
 package tech3.binitright.repository;
 
-import java.util.List;
-import java.util.Optional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import tech3.binitright.model.DropOffLocation;
 
-public interface DropOffLocationRepository extends JpaRepository<DropOffLocation, String> {
-    @Override
-	List<DropOffLocation> findAll();
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
 
-    @Override
-	Optional<DropOffLocation> findById(String id);
+public interface DropOffLocationRepository extends JpaRepository<DropOffLocation, String> {
+    List<DropOffLocation> findAll();
+
+    Optional<DropOffLocation> findById(String id);
 
 }

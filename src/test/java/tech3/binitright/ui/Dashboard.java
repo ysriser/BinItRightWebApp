@@ -1,21 +1,18 @@
 package tech3.binitright.ui;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.time.Duration;
-
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-
 import tech3.binitright.pages.MainPage;
+import java.time.Duration;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Dashboard extends Base {
 
     @Test
     void adminShouldBeAbleToNavigateToReviewsFromDashboardTables() {
-        final MainPage mainPage = new MainPage(driver);
-        final WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        MainPage mainPage = new MainPage(driver);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
         // Authenticate and stay on Dashboard
         driver.get(baseUrl + "/login");

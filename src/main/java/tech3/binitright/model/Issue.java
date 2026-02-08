@@ -1,7 +1,6 @@
 package tech3.binitright.model;
 
 import java.time.LocalDateTime;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -40,7 +39,7 @@ public class Issue {
 
     @Column(name = "resolvedUat")
     private LocalDateTime resolvedAt;
-
+    
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
@@ -72,12 +71,12 @@ public class Issue {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "resolvedUbyUadminUid")
     private Admin resolvedBy;
-
+    
     public Issue() {}
-	public Issue( final IssueCategory issueCategory, final String description,
-			 final IssueStatus status, final User raisedBy, final Admin resolvedBy) {
+	public Issue( IssueCategory issueCategory, String description, 
+			 IssueStatus status, User raisedBy, Admin resolvedBy) {
 		super();
-
+		
 		this.issueCategory = issueCategory;
 		this.description = description;
 		this.status = status;
@@ -89,7 +88,7 @@ public class Issue {
 		return issueId;
 	}
 
-	public void setIssueId(final Long issueId) {
+	public void setIssueId(Long issueId) {
 		this.issueId = issueId;
 	}
 
@@ -97,7 +96,7 @@ public class Issue {
 		return issueCategory;
 	}
 
-	public void setIssueCategory(final IssueCategory issueCategory) {
+	public void setIssueCategory(IssueCategory issueCategory) {
 		this.issueCategory = issueCategory;
 	}
 
@@ -105,7 +104,7 @@ public class Issue {
 		return description;
 	}
 
-	public void setDescription(final String description) {
+	public void setDescription(String description) {
 		this.description = description;
 	}
 
@@ -113,7 +112,7 @@ public class Issue {
 		return createdAt;
 	}
 
-	public void setCreatedAt(final LocalDateTime createdAt) {
+	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
 
@@ -121,7 +120,7 @@ public class Issue {
 		return resolvedAt;
 	}
 
-	public void setResolvedAt(final LocalDateTime resolvedAt) {
+	public void setResolvedAt(LocalDateTime resolvedAt) {
 		this.resolvedAt = resolvedAt;
 	}
 
@@ -129,7 +128,7 @@ public class Issue {
 		return status;
 	}
 
-	public void setStatus(final IssueStatus status) {
+	public void setStatus(IssueStatus status) {
 		this.status = status;
 	}
 
@@ -137,7 +136,7 @@ public class Issue {
 		return raisedBy;
 	}
 
-	public void setRaisedBy(final User raisedBy) {
+	public void setRaisedBy(User raisedBy) {
 		this.raisedBy = raisedBy;
 	}
 
@@ -145,10 +144,10 @@ public class Issue {
 		return resolvedBy;
 	}
 
-	public void setResolvedBy(final Admin resolvedBy) {
+	public void setResolvedBy(Admin resolvedBy) {
 		this.resolvedBy = resolvedBy;
 	}
 
 
-
+    
 }

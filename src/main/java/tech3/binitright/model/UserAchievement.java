@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 
 @Entity
@@ -18,17 +19,17 @@ public class UserAchievement {
     private Long userAchievementId;
 
     @ManyToOne
-
+    
     @JoinColumn(name = "userUid")
     private User user;
 
     @ManyToOne
-
+    
     @JoinColumn(name = "achievementUid")
     private Achievement achievement;
-
+    
     public UserAchievement() {}
-    public UserAchievement(final Long userAchievementId, final User user, final Achievement achievement) {
+    public UserAchievement(Long userAchievementId, User user, Achievement achievement) {
         super();
         this.userAchievementId = userAchievementId;
         this.user = user;
@@ -39,7 +40,7 @@ public class UserAchievement {
         return userAchievementId;
     }
 
-    public void setUserAchievementId(final Long userAchievementId) {
+    public void setUserAchievementId(Long userAchievementId) {
         this.userAchievementId = userAchievementId;
     }
 
@@ -47,7 +48,7 @@ public class UserAchievement {
         return user;
     }
 
-    public void setUser(final User user) {
+    public void setUser(User user) {
         this.user = user;
     }
 
@@ -55,7 +56,7 @@ public class UserAchievement {
         return achievement;
     }
 
-    public void setAchievement(final Achievement achievement) {
+    public void setAchievement(Achievement achievement) {
         this.achievement = achievement;
     }
 

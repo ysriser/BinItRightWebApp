@@ -37,7 +37,7 @@ public class DropOffLocationController {
     }
 
     @GetMapping("/search")
-    public List<NearByBinDto> findBins(
+    public List<NearByBinDto> FindBins(
             @RequestParam final double lat,
             @RequestParam final double lng,
             @RequestParam(required = false) final Double radius,
@@ -58,9 +58,9 @@ public class DropOffLocationController {
                 .stream()
                 .limit(limit != null ? limit : Long.MAX_VALUE)
                 .toList();
-
+        
        System.out.println("list size:"+list.size());
        return list;
     }
-
+    
 }

@@ -1,10 +1,20 @@
 package tech3.binitright.request;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import tech3.binitright.model.CheckIn;
+import tech3.binitright.model.DropOffLocation;
+import tech3.binitright.model.User;
 
-public class CheckInDataReq {
+public class CheckInDataReq {	
     private Long userId;
     private String binId;
     private String wasteCategory;
@@ -19,7 +29,7 @@ public class CheckInDataReq {
         return userId;
     }
 
-    public void setUserId(final Long userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 
@@ -27,7 +37,7 @@ public class CheckInDataReq {
         return binId;
     }
 
-    public void setBinId(final String binId) {
+    public void setBinId(String binId) {
         this.binId = binId;
     }
 
@@ -35,7 +45,7 @@ public class CheckInDataReq {
         return wasteCategory;
     }
 
-    public void setWasteCategory(final String wasteCategory) {
+    public void setWasteCategory(String wasteCategory) {
         this.wasteCategory = wasteCategory;
     }
 
@@ -43,7 +53,7 @@ public class CheckInDataReq {
         return checkInTime;
     }
 
-    public void setCheckInTime(final LocalDateTime checkInTime) {
+    public void setCheckInTime(LocalDateTime checkInTime) {
         this.checkInTime = checkInTime;
     }
 
@@ -51,7 +61,7 @@ public class CheckInDataReq {
         return status;
     }
 
-    public void setStatus(final CheckIn.Status status) {
+    public void setStatus(CheckIn.Status status) {
         this.status = status;
     }
 
@@ -59,7 +69,7 @@ public class CheckInDataReq {
         return quantity;
     }
 
-    public void setQuantity(final Integer quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 
@@ -67,7 +77,7 @@ public class CheckInDataReq {
         return rewardPoints;
     }
 
-    public void setRewardPoints(final Integer rewardPoints) {
+    public void setRewardPoints(Integer rewardPoints) {
         this.rewardPoints = rewardPoints;
     }
 
@@ -75,7 +85,7 @@ public class CheckInDataReq {
         return duration;
     }
 
-    public void setDuration(final Long duration) {
+    public void setDuration(Long duration) {
         this.duration = duration;
     }
 
@@ -83,7 +93,7 @@ public class CheckInDataReq {
         return videoKey;
     }
 
-    public void setVideoKey(final String videoKey) {
+    public void setVideoKey(String videoKey) {
         this.videoKey = videoKey;
     }
 

@@ -1,13 +1,14 @@
 package tech3.binitright.pages;
 
-import java.time.Duration;
-
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import tech3.binitright.ui.SustainabilityReport;
+
+import java.time.Duration;
 
 public class MainPage {
     private final WebDriver driver;
@@ -35,7 +36,7 @@ public class MainPage {
     private WebElement issueManagementSidebarLink;
 
 
-    public MainPage(final WebDriver driver) {
+    public MainPage(WebDriver driver) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         PageFactory.initElements(driver, this);
