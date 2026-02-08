@@ -52,23 +52,26 @@ public class IssueManagementPage {
         wait.until(ExpectedConditions.stalenessOf(btn));
     }
 
-    /**
-     * SMART RETRY: If the button isn't found (due to DB lag),
-     * refresh the page and try again.
-     */
     public void clickResolveIssue() {
         By locator = By.xpath("//button[contains(., 'Resolve')]");
+
         for (int i = 0; i < 3; i++) {
             try {
                 WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(locator));
+
+                // Fix for Mac/Headless: Scroll the button to the middle of the screen
+                ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center'});", btn);
+
                 btn.click();
                 wait.until(ExpectedConditions.stalenessOf(btn));
-                return; // Success!
+                return;
             } catch (Exception e) {
+                System.out.println(">>> Resolve attempt " + (i + 1) + " failed. Refreshing...");
                 driver.navigate().refresh();
+                try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
             }
         }
-        throw new RuntimeException("Resolve button never appeared after 3 refreshes.");
+        throw new RuntimeException("Resolve button never appeared or was blocked.");
     }
 
     public String getDetailPageStatus() {

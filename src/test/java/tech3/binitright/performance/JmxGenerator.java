@@ -53,7 +53,6 @@ public class JmxGenerator {
                         .holdIterating(20)
                         .children(
 
-                                /* ---- LOGIN ---- */
                                 httpSampler("API_Login", baseUrl + "/api/auth/login")
                                         .method("POST")
                                         .contentType(ContentType.APPLICATION_JSON)
@@ -64,53 +63,27 @@ public class JmxGenerator {
                                         .children(
                                                 jsonExtractor("extracted_token", "token")
                                         ),
-                                // STEP 2: PROTECTED RESOURCE (The test)
-                                httpSampler("Access Summary Profile API", baseUrl+ "/api/summary/profile")
+
+                                httpSampler("Access Summary Profile API", baseUrl + "/api/summary/profile")
+                                        .header("Authorization", "Bearer ${extracted_token}"),
+
+                                httpSampler("Access User Accessories API", baseUrl + "/api/user-accessories/my-items")
+                                        .header("Authorization", "Bearer ${extracted_token}"),
+
+                                httpSampler("Access News API", baseUrl + "/api/news")
+                                        .header("Authorization", "Bearer ${extracted_token}"),
+
+                                httpSampler("Access Event API", baseUrl + "/api/events")
+                                        .header("Authorization", "Bearer ${extracted_token}"),
+
+                                httpSampler("Access Recycle History API", baseUrl + "/api/recycle-history")
                                         .header("Authorization", "Bearer ${extracted_token}")
                         )
-                // comment out below resultTreeVisualizer to disable GUI
-                , resultsTreeVisualizer()
-        ).run();
 
-                                /* ---- AUTHENTICATED CALLS ---- */
-                              /*  transaction("Authenticated_API_Calls")
-                                        .children(
-
-                                                httpSampler("API_GET_SUMMARY_PROFILE",
-                                                        baseUrl + "/api/summary/profile")
-                                                        .children(
-                                                                httpHeaders()
-                                                                        .header("Authorization",
-                                                                                "Bearer ${jwt_token}")
-                                                                        .header("Content-Type",
-                                                                                "application/json")
-                                                        ),
-
-                                                httpSampler("API_GET_USER_ACCESSORIES",
-                                                        baseUrl + "/api/user-accessories/my-items")
-                                                        .children(
-                                                                httpHeaders()
-                                                                        .header("Authorization",
-                                                                                "Bearer ${jwt_token}")
-                                                                        .header("Content-Type",
-                                                                                "application/json")
-                                                        ),
-
-                                                httpSampler("API_GET_REWARD_SHOP",
-                                                        baseUrl + "/api/reward-shop/items")
-                                                        .children(
-                                                                httpHeaders()
-                                                                        .header("Authorization",
-                                                                                "Bearer ${jwt_token}")
-                                                                        .header("Content-Type",
-                                                                                "application/json")
-                                                        )
-                                        )
-                        )
-        ).saveAsJmx("tests/load_test.jmx");*/
-
-       // System.out.println("JMX generated" );
+        ).saveAsJmx("tests/load_test.jmx");
     }
-
-          
 }
+
+
+
+

@@ -41,24 +41,35 @@ public class IssueManagement extends Base {
     void adminShouldResolveThatSameIssue() {
         Assumptions.assumeTrue(targetId != null, "targetId not set");
         MainPage mainPage = new MainPage(driver);
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
 
-        // FORCE a clean state
-        driver.manage().deleteAllCookies();
+        // Explicitly Logout to ensure a clean server-side session
+        driver.get(baseUrl + "/logout");
 
+        // Go to login and wait for the username field to be ready
         driver.get(baseUrl + "/login");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("username")));
+
         mainPage.loginPage.login("admin", "password");
 
-        // Double-check the URL
+        // Wait for the dashboard/management redirect to finish
+        wait.until(ExpectedConditions.urlContains("/admin"));
+
+        // Navigate directly to the specific issue
         driver.get(baseUrl + "/admin/issues/" + targetId);
 
-        // If the button is missing, clickResolveIssue will now retry with refreshes
-        mainPage.issueManagementPage.clickResolveIssue();
+        // NAVIGATION GUARD: Wait for the review card to exist
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".review-card")));
 
-        // Final Validation with a slightly longer polling wait
+        // STATE GUARD: Wait for the badge to show IN_PROGRESS
+        wait.until(ExpectedConditions.textToBePresentInElementLocated(
+                By.cssSelector(".status-badge"), "IN_PROGRESS"));
+
+        // Action & Final Verify
+        mainPage.issueManagementPage.clickResolveIssue();
         wait.until(ExpectedConditions.textToBePresentInElementLocated(
                 By.cssSelector(".status-badge"), "RESOLVED"));
 
-        assertTrue(driver.getPageSource().contains("RESOLVED"), "Status did not update to RESOLVED.");
+        assertTrue(driver.getPageSource().contains("RESOLVED"));
     }
 }

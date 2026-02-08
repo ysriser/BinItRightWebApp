@@ -45,6 +45,10 @@ public class AchievementImplementation {
         )).collect(Collectors.toList());
     }
 
+    public int getTotalAchievements(Long userId) {
+        return userAchievementRepo.countByUserId(userId);
+    }
+
     public void unlockAchievement(Long userId, Long achievementId) {
         boolean alreadyUnlocked = userAchievementRepo.findByUser_Id(userId).stream()
                 .anyMatch(ua -> ua.getAchievement().getAchievementId().equals(achievementId));
@@ -55,14 +59,14 @@ public class AchievementImplementation {
 
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        
+
         Achievement achievement = achievementRepo.findById(achievementId)
                 .orElseThrow(() -> new RuntimeException("Achievement not found"));
 
         UserAchievement newUnlock = new UserAchievement();
         newUnlock.setUser(user);
         newUnlock.setAchievement(achievement);
-        
+
         userAchievementRepo.save(newUnlock);
     }
 

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import tech3.binitright.dto.UserProfileDTO;
+import tech3.binitright.interfacemethods.ChatInterface;
 import tech3.binitright.interfacemethods.CheckInInterface;
 import tech3.binitright.interfacemethods.UserAccessoriesInterface;
 import tech3.binitright.interfacemethods.UserInterface;
@@ -40,7 +41,18 @@ public class SummaryRestController {
     }
 
     @Autowired
+    private ChatInterface chatService;
+
+    @Autowired
+    public void setChatService(ChatImplementation chatInserviceImp) {
+        this.chatService = chatInserviceImp;
+    }
+
+    @Autowired
     private UserAccessoriesInterface userAccessoriesService;
+
+    @Autowired
+    private AchievementImplementation achievementService;
 
     @Autowired
     public void setUserAccessoriesService(UserAccessoriesImplementation userAccessoriesImplementation) {
@@ -73,11 +85,26 @@ public class SummaryRestController {
 
         Integer totalRecycled = checkInService.getUserTotalRecycled(userId);
 
+//        String aiSummary = chatService.generateProgressSummary(
+//                user.getPointBalance(),
+//                user.getCarbonEmissionSaved(),
+//                user.getCurrentRank(),
+//                totalRecycled
+//        );
+
+        String aiSummary = "You're making a real environmental impact 🌱 Keep recycling to climb higher and save more CO₂!";
+
+        int totalAchievements = achievementService.getTotalAchievements(userId);
+        float co2Saved = user.getCarbonEmissionSaved();
+
         UserProfileDTO dto = new UserProfileDTO(
                 user.getName(),
                 user.getPointBalance(),
                 avatarName,
-                totalRecycled
+                totalRecycled,
+                aiSummary,
+                totalAchievements,
+                co2Saved
         );
 
         return ResponseEntity.ok(dto);

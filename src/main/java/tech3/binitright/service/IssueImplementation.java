@@ -1,13 +1,14 @@
 package tech3.binitright.service;
 
-import jakarta.transaction.Transactional;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import tech3.binitright.interfacemethods.IssueInterface;
 import tech3.binitright.model.Admin;
 import tech3.binitright.model.Issue;
-import tech3.binitright.model.Issue.IssueStatus;
-import tech3.binitright.model.Issue.IssueCategory;
 import tech3.binitright.model.User;
 import tech3.binitright.repository.AdminRepository;
 import tech3.binitright.repository.IssueRepository;
@@ -23,42 +24,41 @@ public class IssueImplementation implements IssueInterface {
 
     @Autowired
     private IssueRepository issueRepo;
-
     @Autowired
-    private UserRepository userRepo;
-
+    private UserRepository userRepository;
     @Autowired
-    private AdminRepository adminRepo;
-
+    private AdminRepository adminRepository;
     @Autowired
     private AchievementImplementation achievementImplementation;
 
     @Override
-    public Issue createIssue(IssueCreateRequest request) {
-        User user = userRepo.findById(request.raisedByUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    @Transactional
+    public Issue createIssue(IssueCreateRequest req, Long userId) {
 
-        Issue issue = new Issue();
-        issue.setIssueCategory(IssueCategory.valueOf(request.issueCategory()));
-        issue.setDescription(request.description());
-        issue.setStatus(IssueStatus.NEW);
-        issue.setRaisedBy(user);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        Issue saved = issueRepo.save(issue);
-
+        Issue issue = new Issue(
+                Issue.IssueCategory.valueOf(req.issueCategory()),
+                req.description(),
+                Issue.IssueStatus.NEW,
+                user,
+                null
+        );
         achievementImplementation.unlockAchievement(user.getId(), 9L);
+        return issueRepo.save(issue);
+    }
 
-        return saved;
+    /** Dashboard preview */
+    @Override
+    @Transactional(readOnly = true)
+    public List<Issue> getLatestIssuesForDashboard() {
+        return issueRepo.findTop5WithRaisedBy();
     }
 
     @Override
     public List<Issue> getAllIssues() {
         return issueRepo.findAllWithRaisedBy();
-    }
-
-    @Override
-    public Issue getIssueById(Long id) {
-        return issueRepo.findByIdWithRaisedBy(id).orElseThrow(() -> new RuntimeException("Issue not found"));
     }
 
     @Override
@@ -72,35 +72,52 @@ public class IssueImplementation implements IssueInterface {
     }
 
     @Override
-    public long countByStatus(IssueStatus status) {
+    @Transactional
+    public Issue getIssueById(Long id) {
+        return issueRepo.findByIdWithRaisedBy(id)
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Issue not found"
+                        )
+                );
+    }
+
+    @Override
+    @Transactional
+    public long countByStatus(Issue.IssueStatus status) {
         return issueRepo.countByStatus(status);
     }
 
     @Override
-    public void markInProgress(Long id, Long adminId) {
-        Issue issue = getIssueById(id);
-        Admin admin = adminRepo.findById(adminId).orElseThrow();
-        issue.setStatus(IssueStatus.IN_PROGRESS);
-        issue.setResolvedBy(admin);
-        issueRepo.save(issue);
-    }
-
-    @Override
-    public void resolveIssue(Long id, Long adminId) {
-        Issue issue = getIssueById(id);
-        Admin admin = adminRepo.findById(adminId).orElseThrow();
-        issue.setStatus(IssueStatus.RESOLVED);
-        issue.setResolvedBy(admin);
-        issueRepo.save(issue);
-    }
-
-    @Override
+    @Transactional
     public long getTotalIssueCount() {
         return issueRepo.count();
     }
 
     @Override
-    public List<Issue> getLatestIssuesForDashboard() {
-        return issueRepo.findTop5WithRaisedBy();
+    @Transactional
+    public void resolveIssue(Long issueId, Long adminId) {
+        Issue issue = issueRepo.findById(issueId)
+                .orElseThrow(() -> new EntityNotFoundException("Issue not found"));
+
+        Admin admin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new EntityNotFoundException("Admin not found"));
+
+        issue.setStatus(Issue.IssueStatus.RESOLVED);
+        issue.setResolvedBy(admin);
+        issueRepo.save(issue);
+    }
+
+    @Override
+    @Transactional
+    public void markInProgress(Long issueId, Long adminId) {
+        Issue issue = issueRepo.findById(issueId).orElseThrow();
+        issue.setStatus(Issue.IssueStatus.IN_PROGRESS);
+        issue.setResolvedBy(null);
+        issueRepo.save(issue);
     }
 }
+
+
+

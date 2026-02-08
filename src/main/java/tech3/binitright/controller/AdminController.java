@@ -144,7 +144,7 @@ public class AdminController {
 
        return "sustainability-reports";
     }
-    @GetMapping("/forecast")
+    @GetMapping("/forecast")// using to check api end point in load test for python
     @ResponseBody
     public Map<String, Object> forecast() {
         return forecastService.getForecastData();
