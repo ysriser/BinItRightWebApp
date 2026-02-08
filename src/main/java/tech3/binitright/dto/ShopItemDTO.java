@@ -7,9 +7,15 @@ public final class ShopItemDTO {
     private boolean owned;
     private boolean equipped;
 
-    public ShopItemDTO() {}
+    public ShopItemDTO() {
+    }
 
-    public ShopItemDTO(final Long accessoriesId, final String name, final int requiredPoints, final boolean owned, final boolean equipped) {
+    // 修复了 LineLengthCheck 报错
+    public ShopItemDTO(final Long accessoriesId,
+                       final String name,
+                       final int requiredPoints,
+                       final boolean owned,
+                       final boolean equipped) {
         this.accessoriesId = accessoriesId;
         this.name = name;
         this.requiredPoints = requiredPoints;
@@ -20,17 +26,20 @@ public final class ShopItemDTO {
     public Long getAccessoriesId() {
         return accessoriesId;
     }
+
     public String getName() {
         return name;
     }
+
     public int getRequiredPoints() {
         return requiredPoints;
     }
+
     public boolean isOwned() {
         return owned;
     }
+
     public boolean isEquipped() {
         return equipped;
     }
 }
-

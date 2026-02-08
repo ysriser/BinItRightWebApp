@@ -3,6 +3,7 @@ package tech3.binitright.model;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,8 +14,8 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "accessories")
-public class Accessories {
-	@Id
+public final class Accessories {
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "accessoriesUid")
     private Long accessoriesId;
@@ -27,13 +28,15 @@ public class Accessories {
     @Column(name = "requiredUpoints")
     private int requiredPoints;
 
-    @OneToMany(mappedBy="accessories")
+    @OneToMany(mappedBy = "accessories")
     @JsonIgnore
     private List<UserAccessories> userAccessories;
-    
-    public Accessories() {}
-    public Accessories(Long accessoriesId, String name, String imageUrl, int requiredPoints,
-                       List<UserAccessories> userAccessories) {
+
+    public Accessories() {
+    }
+
+    public Accessories(final Long accessoriesId, final String name, final String imageUrl, 
+                       final int requiredPoints, final List<UserAccessories> userAccessories) {
         super();
         this.accessoriesId = accessoriesId;
         this.name = name;
@@ -46,7 +49,7 @@ public class Accessories {
         return accessoriesId;
     }
 
-    public void setAccessoriesId(Long accessoriesId) {
+    public void setAccessoriesId(final Long accessoriesId) {
         this.accessoriesId = accessoriesId;
     }
 
@@ -54,7 +57,7 @@ public class Accessories {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -62,7 +65,7 @@ public class Accessories {
         return imageUrl;
     }
 
-    public void setImageUrl(String imageUrl) {
+    public void setImageUrl(final String imageUrl) {
         this.imageUrl = imageUrl;
     }
 
@@ -70,7 +73,7 @@ public class Accessories {
         return requiredPoints;
     }
 
-    public void setRequiredPoints(int requiredPoints) {
+    public void setRequiredPoints(final int requiredPoints) {
         this.requiredPoints = requiredPoints;
     }
 
@@ -78,8 +81,7 @@ public class Accessories {
         return userAccessories;
     }
 
-    public void setUserAccessories(List<UserAccessories> userAccessories) {
+    public void setUserAccessories(final List<UserAccessories> userAccessories) {
         this.userAccessories = userAccessories;
     }
-
 }

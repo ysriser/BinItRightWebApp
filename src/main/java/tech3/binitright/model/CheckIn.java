@@ -17,9 +17,9 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "checkUin")
-public class CheckIn {
+public final class CheckIn {
 
-	@Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "checkinUid")
     private Long checkInId;
@@ -34,7 +34,6 @@ public class CheckIn {
 
     @ManyToOne
     private WasteCategories wasteCategories;
-
 
     @Column(name = "fileUname")
     private String fileName;
@@ -59,112 +58,105 @@ public class CheckIn {
     private Long duration;
 
     public enum Status {
-        PROCESSING,
-        APPROVED,
-        DENIED
+        PROCESSING, APPROVED, DENIED
     }
 
-    public CheckIn() {}
+    public CheckIn() {
+    }
 
-	public CheckIn(final Long checkInId, final User user, final DropOffLocation dropOffLocation,
-			final WasteCategories wasteCategories,
-			final String fileName, final LocalDateTime checkInTime, final Status status,
-			final Integer quantity, final Integer rewardPoints,
-			final Long duration) {
+    public CheckIn(final Long checkInId, final User user, final DropOffLocation dropOffLocation,
+                   final WasteCategories wasteCategories, final String fileName, 
+                   final LocalDateTime checkInTime, final Status status,
+                   final Integer quantity, final Integer rewardPoints, final Long duration) {
+        this.checkInId = checkInId;
+        this.user = user;
+        this.dropOffLocation = dropOffLocation;
+        this.wasteCategories = wasteCategories;
+        this.fileName = fileName;
+        this.checkInTime = checkInTime;
+        this.status = status;
+        this.quantity = quantity;
+        this.rewardPoints = rewardPoints;
+        this.duration = duration;
+    }
 
-		this.checkInId = checkInId;
-		this.user = user;
-		this.dropOffLocation = dropOffLocation;
-		this.wasteCategories = wasteCategories;
-		this.fileName = fileName;
-		this.checkInTime = checkInTime;
-		this.status = status;
-		this.quantity = quantity;
-		this.rewardPoints = rewardPoints;
-		this.duration = duration;
-	}
+    public Long getCheckInId() {
+        return checkInId;
+    }
 
-	public Long getCheckInId() {
-		return checkInId;
-	}
+    public void setCheckInId(final Long checkInId) {
+        this.checkInId = checkInId;
+    }
 
-	public void setCheckInId(final Long checkInId) {
-		this.checkInId = checkInId;
-	}
+    public User getUser() {
+        return user;
+    }
 
-	public User getUser() {
-		return user;
-	}
+    public void setUser(final User user) {
+        this.user = user;
+    }
 
-	public void setUser(final User user) {
-		this.user = user;
-	}
+    public DropOffLocation getDropOffLocation() {
+        return dropOffLocation;
+    }
 
-	public DropOffLocation getDropOffLocation() {
-		return dropOffLocation;
-	}
+    public void setDropOffLocation(final DropOffLocation dropOffLocation) {
+        this.dropOffLocation = dropOffLocation;
+    }
 
-	public void setDropOffLocation(final DropOffLocation dropOffLocation) {
-		this.dropOffLocation = dropOffLocation;
-	}
+    public WasteCategories getWasteCategories() {
+        return wasteCategories;
+    }
 
-	public WasteCategories getWasteCategories() {
-		return wasteCategories;
-	}
+    public void setWasteCategories(final WasteCategories wasteCategories) {
+        this.wasteCategories = wasteCategories;
+    }
 
-	public void setWasteCategories(final WasteCategories wasteCategories) {
-		this.wasteCategories = wasteCategories;
-	}
+    public String getFileName() {
+        return fileName;
+    }
 
-	public String getFileName() {
-		return fileName;
-	}
+    public void setFileName(final String fileName) {
+        this.fileName = fileName;
+    }
 
-	public void setFileName(final String fileName) {
-		this.fileName = fileName;
-	}
+    public LocalDateTime getCheckInTime() {
+        return checkInTime;
+    }
 
-	public LocalDateTime getCheckInTime() {
-		return checkInTime;
-	}
+    public void setCheckInTime(final LocalDateTime checkInTime) {
+        this.checkInTime = checkInTime;
+    }
 
-	public void setCheckInTime(final LocalDateTime checkInTime) {
-		this.checkInTime = checkInTime;
-	}
+    public Status getStatus() {
+        return status;
+    }
 
-	public Status getStatus() {
-		return status;
-	}
+    public void setStatus(final Status status) {
+        this.status = status;
+    }
 
-	public void setStatus(final Status status) {
-		this.status = status;
-	}
+    public Integer getQuantity() {
+        return quantity;
+    }
 
-	public Integer getQuantity() {
-		return quantity;
-	}
+    public void setQuantity(final Integer quantity) {
+        this.quantity = quantity;
+    }
 
-	public void setQuantity(final Integer quantity) {
-		this.quantity = quantity;
-	}
+    public Integer getRewardPoints() {
+        return rewardPoints;
+    }
 
-	public Integer getRewardPoints() {
-		return rewardPoints;
-	}
+    public void setRewardPoints(final Integer rewardPoints) {
+        this.rewardPoints = rewardPoints;
+    }
 
-	public void setRewardPoints(final Integer rewardPoints) {
-		this.rewardPoints = rewardPoints;
-	}
+    public Long getDuration() {
+        return duration;
+    }
 
-	public Long getDuration() {
-		return duration;
-	}
-
-	public void setDuration(final Long duration) {
-		this.duration = duration;
-	}
-
-
-
-
+    public void setDuration(final Long duration) {
+        this.duration = duration;
+    }
 }

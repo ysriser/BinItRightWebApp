@@ -2,17 +2,17 @@ package tech3.binitright.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class LoginRequest {
+public final class LoginRequest {
     @JsonProperty("username")
     private String username;
 
     @JsonProperty("password")
     private String password;
 
-    public LoginRequest() {}
+    public LoginRequest() {
+    }
 
-    public LoginRequest(String username, String password) {
-
+    public LoginRequest(final String username, final String password) {
         this.username = username;
         this.password = password;
     }
@@ -21,7 +21,7 @@ public class LoginRequest {
         return username;
     }
 
-    public void setUsername(String username) {
+    public void setUsername(final String username) {
         this.username = username;
     }
 
@@ -29,13 +29,7 @@ public class LoginRequest {
         return password;
     }
 
-    public void setPassword(String password) {
+    public void setPassword(final String password) {
         this.password = password;
     }
 }
-
-
-
-
-
-

@@ -13,7 +13,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "events")
-public class Event {
+public final class Event {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,11 +21,8 @@ public class Event {
     private Long eventId;
 
     private String title;
-
     private String description;
-
     private String locationName;
-
     private String postalCode;
 
     @Column(name = "startUtime")
@@ -40,28 +37,27 @@ public class Event {
     private Status status;
 
     public enum Status {
-        PROCESSING,
-        APPROVED,
-        DENIED
+        PROCESSING, APPROVED, DENIED
     }
 
-    public Event() {}
+    public Event() {
+    }
+
     public Event(final Long eventId, final String title, final String description,
-    		final String locationName, final String PostalCode, final LocalDateTime startTime,
+                 final String locationName, final String postalCode, final LocalDateTime startTime,
                  final LocalDateTime endTime, final String imageUrl, final Status status) {
+        this.eventId = eventId;
+        this.title = title;
+        this.description = description;
+        this.locationName = locationName;
+        this.postalCode = postalCode;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.imageUrl = imageUrl;
+        this.status = status;
+    }
 
-		this.eventId = eventId;
-		this.title = title;
-		this.description = description;
-		this.locationName = locationName;
-        this.postalCode = PostalCode;
-		this.startTime = startTime;
-		this.endTime = endTime;
-		this.imageUrl = imageUrl;
-		this.status = status;
-	}
-
-	public Long getEventId() {
+    public Long getEventId() {
         return eventId;
     }
 
@@ -89,7 +85,7 @@ public class Event {
         return locationName;
     }
 
-    public void setLocationName(final String location) {
+    public void setLocationName(final String locationName) {
         this.locationName = locationName;
     }
 
@@ -132,5 +128,4 @@ public class Event {
     public void setStatus(final Status status) {
         this.status = status;
     }
-
 }

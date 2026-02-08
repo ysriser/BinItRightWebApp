@@ -4,15 +4,15 @@ import java.time.LocalDateTime;
 
 public final class RecycleHistoryResponse {
 
-    private String categoryName;
-    private String categoryIcon;
-    private LocalDateTime date;
-    private int quantity;
+    private final String categoryName;
+    private final String categoryIcon;
+    private final LocalDateTime date;
+    private final int quantity;
 
-    public RecycleHistoryResponse(String categoryName,
-                                  String categoryIcon,
-                                  LocalDateTime date,
-                                  Integer quantity
+    public RecycleHistoryResponse(final String categoryName,
+                                  final String categoryIcon,
+                                  final LocalDateTime date,
+                                  final Integer quantity
     ) {
         this.categoryName = categoryName;
         this.categoryIcon = categoryIcon;
