@@ -14,6 +14,7 @@ import tech3.binitright.interfacemethods.UserInterface;
 import tech3.binitright.model.User;
 import tech3.binitright.model.UserAccessories;
 import tech3.binitright.service.CheckInImplementation;
+import tech3.binitright.service.EmissionService;
 import tech3.binitright.service.UserAccessoriesImplementation;
 import tech3.binitright.service.UserImplementation;
 
@@ -21,6 +22,8 @@ import tech3.binitright.service.UserImplementation;
 @RequestMapping("/api/summary")
 public class SummaryRestController {
 
+    @Autowired
+    private EmissionService emissionService;
     @Autowired
     private UserInterface userService;
 

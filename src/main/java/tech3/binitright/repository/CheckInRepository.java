@@ -53,4 +53,30 @@ public interface CheckInRepository extends JpaRepository<CheckIn, Long> {
 
     @Query("SELECT COALESCE(SUM(c.quantity),0) FROM CheckIn c WHERE c.user.id = :userId AND c.status = 'APPROVED'")
     Integer getTotalRecycledByUser(@Param("userId") Long userId);
+
+    @Query("""
+    SELECT ci
+    FROM CheckIn ci
+    JOIN FETCH ci.wasteCategories wc
+    WHERE ci.user.id = :userId AND ci.status = tech3.binitright.model.CheckIn.Status.APPROVED
+""")
+    List<CheckIn> findApprovedByUserIdWithCategory(@Param("userId") Long userId);
+
+    @Query("""
+    SELECT COUNT(ci)
+    FROM CheckIn ci
+    WHERE ci.user.id = :userId AND ci.status = tech3.binitright.model.CheckIn.Status.PROCESSING
+""")
+    Long countPendingByUserId(@Param("userId") Long userId);
+
+    @Query("""
+    SELECT ci
+    FROM CheckIn ci
+    JOIN FETCH ci.wasteCategories wc
+    JOIN FETCH ci.user u
+    JOIN FETCH ci.dropOffLocation d
+    WHERE ci.status = tech3.binitright.model.CheckIn.Status.PROCESSING
+    ORDER BY ci.checkInTime DESC
+""")
+    List<CheckIn> findPendingWithDetails();
 }

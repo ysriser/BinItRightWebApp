@@ -77,7 +77,7 @@ public class CheckInImplementation implements CheckInInterface{
                         "Waste category not found: " + data.getWasteCategory()
                 ));
 
-        if(data.getQuantity()<10){
+        if(data.getQuantity()<=10){
             checkIn.setRewardPoints(data.getQuantity()*10);
             checkIn.setStatus(CheckIn.Status.APPROVED);
         }
