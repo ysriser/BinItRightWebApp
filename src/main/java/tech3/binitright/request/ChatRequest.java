@@ -3,7 +3,7 @@ package tech3.binitright.request;
 import lombok.Data;
 
 @Data
-public class ChatRequest {
+public final class ChatRequest { // 修复：声明类为 final
     private String message;
     private Long userId;
 

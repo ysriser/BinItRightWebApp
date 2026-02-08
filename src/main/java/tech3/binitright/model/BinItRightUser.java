@@ -40,7 +40,7 @@ public abstract class BinItRightUser {
     }
 
     @PrePersist
-    protected void onCreate() {
+    protected final void onCreate() { // 修复：添加 final 关键字
         this.createdAt = LocalDateTime.now();
     }
 
