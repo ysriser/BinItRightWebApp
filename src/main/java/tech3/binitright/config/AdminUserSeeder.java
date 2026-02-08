@@ -23,7 +23,7 @@ public class AdminUserSeeder {
     }
     @Bean
     @Order(3)
-    @Profile({"test","prod","default"}) // Only runs when SPRING_PROFILES_ACTIVE=test
+    @Profile({"test","prod","default"}) // Only runs when SPRINGUPROFILESUACTIVE=test
     public CommandLineRunner seedAdmin(PasswordEncoder passwordEncoder) {
         return args -> {
             // Check if the admin already exists to avoid duplicates
@@ -35,12 +35,12 @@ public class AdminUserSeeder {
                 admin.setRole("admin");
                 
                 // Pull the password from the environment variable (mapped from GitHub Secrets)
-                String rawPassword = System.getenv("APP_ADMIN_PASSWORD");
+                String rawPassword = System.getenv("APPUADMINUPASSWORD");
                 
                 if (rawPassword == null || rawPassword.isEmpty()) {
-                    System.out.println("Warning: ADMIN_PASSWORD environment variable is missing!");
+                    System.out.println("Warning: ADMINUPASSWORD environment variable is missing!");
                 } else {
-                    admin.setPassword_hash(passwordEncoder.encode(rawPassword));
+                    admin.setPasswordUhash(passwordEncoder.encode(rawPassword));
                     adminService.saveAdmin(admin);
                     System.out.println("Test Admin account seeded successfully.");
                 }

@@ -39,7 +39,7 @@ public class RewardShopService {
     public List<ShopItemDTO> getItemsForUser(Long userId) {
 
         List<Accessories> all = accessoryRepository.findAll();
-        List<UserAccessories> ownedRows = userAccessoriesRepository.findAllByUser_Id(userId);
+        List<UserAccessories> ownedRows = userAccessoriesRepository.findAllByUserUId(userId);
 
         java.util.Map<Long, Boolean> ownedEquippedMap = new java.util.HashMap<>();
         for (UserAccessories ua : ownedRows) {
@@ -75,7 +75,7 @@ public class RewardShopService {
 
         boolean alreadyOwned =
                 userAccessoriesRepository
-                        .existsByUser_IdAndAccessories_AccessoriesId(userId, accessoriesId);
+                        .existsByUserUIdAndAccessoriesUAccessoriesId(userId, accessoriesId);
 
         int balance = user.getPointBalance() == null ? 0 : user.getPointBalance();
         int price = accessory.getRequiredPoints();

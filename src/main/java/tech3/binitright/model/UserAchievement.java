@@ -11,21 +11,21 @@ import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "user_achievements")
+@Table(name = "userUachievements")
 public class UserAchievement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_achievement_id")
+    @Column(name = "userUachievementUid")
     private Long userAchievementId;
 
     @ManyToOne
     
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "userUid")
     private User user;
 
     @ManyToOne
     
-    @JoinColumn(name = "achievement_id")
+    @JoinColumn(name = "achievementUid")
     private Achievement achievement;
     
     public UserAchievement() {}

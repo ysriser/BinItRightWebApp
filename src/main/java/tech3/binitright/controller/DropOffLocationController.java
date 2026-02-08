@@ -17,7 +17,7 @@ public class DropOffLocationController {
 
     private final DropOffLocationImplementation service;
 
-    public DropOffLocationController(DropOffLocationImplementation service) {
+    public DropOffLocationController(final DropOffLocationImplementation service) {
         this.service = service;
     }
 
@@ -28,9 +28,9 @@ public class DropOffLocationController {
 
     @GetMapping("/nearby")
     public List<NearByBinDto> nearbyBins(
-            @RequestParam double lat,
-            @RequestParam double lng,
-            @RequestParam(defaultValue = "30") double radius) {
+            @RequestParam final double lat,
+            @RequestParam final double lng,
+            @RequestParam(defaultValue = "30") final double radius) {
     	System.out.println("Inside dropOff controller:  "+lat);
 
         return service.getNearbyBins(lat, lng, radius);
@@ -38,11 +38,11 @@ public class DropOffLocationController {
 
     @GetMapping("/search")
     public List<NearByBinDto> FindBins(
-            @RequestParam double lat,
-            @RequestParam double lng,
-            @RequestParam(required = false) Double radius,
-            @RequestParam(required = false) String binType,
-            @RequestParam(required = false) Integer limit) {
+            @RequestParam final double lat,
+            @RequestParam final double lng,
+            @RequestParam(required = false) final Double radius,
+            @RequestParam(required = false) final String binType,
+            @RequestParam(required = false) final Integer limit) {
     	System.out.println("Inside.....");
 
         if (radius != null) {
@@ -54,7 +54,7 @@ public class DropOffLocationController {
         }
 
 
-        List<NearByBinDto> list = service.searchBins(lat, lng, binType)
+        final List<NearByBinDto> list = service.searchBins(lat, lng, binType)
                 .stream()
                 .limit(limit != null ? limit : Long.MAX_VALUE)
                 .toList();

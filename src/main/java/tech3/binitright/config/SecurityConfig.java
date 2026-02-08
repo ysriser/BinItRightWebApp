@@ -1,5 +1,9 @@
 package tech3.binitright.config;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
+import java.util.List;
+
 import org.springframework.boot.web.servlet.server.CookieSameSiteSupplier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,12 +21,9 @@ import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import tech3.binitright.JwtAuthFilter;
 
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.List;
-
-import static org.springframework.security.config.Customizer.withDefaults;
+import tech3.binitright.JwtAuthFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -156,7 +157,7 @@ public class SecurityConfig {
         return CookieSameSiteSupplier.ofLax();
     }
 
-    private void applyGlobalSecurityHeaders(HttpSecurity http) throws Exception {
+    private void applyGlobalSecurityHeaders(final HttpSecurity http) throws Exception {
         http.headers(headers -> headers
                 .frameOptions(frame -> frame.deny())
                 .contentTypeOptions(withDefaults())

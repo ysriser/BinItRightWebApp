@@ -7,23 +7,23 @@ import java.util.List;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "drop_off_location")
+@Table(name = "dropUoffUlocation")
 public class DropOffLocation {
 
     @Id
-    @Column(name = "drop_off_id", length = 32, nullable = false, updatable = false)
+    @Column(name = "dropUoffUid", length = 32, nullable = false, updatable = false)
     private String id;
 
     private String name;
     
     private String address;
     
-    @Column(name = "postal_code")
+    @Column(name = "postalUcode")
     private String postalCode;
     
     private String description;
     
-    @Column(name = "bin_type")
+    @Column(name = "binUtype")
     private String binType;
     
     @Column(precision = 10, scale = 4)

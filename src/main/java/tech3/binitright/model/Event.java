@@ -16,7 +16,7 @@ public class Event {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "event_id")
+    @Column(name = "eventUid")
     private Long eventId;
 
     private String title;
@@ -27,10 +27,10 @@ public class Event {
 
     private String postalCode;
     
-    @Column(name = "start_time")
+    @Column(name = "startUtime")
     private LocalDateTime startTime;
     
-    @Column(name = "end_time")
+    @Column(name = "endUtime")
     private LocalDateTime endTime;
     
     private String imageUrl;

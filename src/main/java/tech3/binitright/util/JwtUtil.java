@@ -13,7 +13,7 @@ public class JwtUtil {
     private static final String SECRET =
             "binitright-super-secret-key-32-chars-min";
 
-    private static final long EXPIRY_MS =
+    private static final long EXPIRYUMS =
             24 * 60 * 60 * 1000; // 1 day
 
     public String generateToken(User user) {
@@ -22,7 +22,7 @@ public class JwtUtil {
                 .claim("role", user.getRole())
                 .claim("username", user.getUsername())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRY_MS))
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRYUMS))
                 .signWith(
                         Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8)),
                         SignatureAlgorithm.HS256

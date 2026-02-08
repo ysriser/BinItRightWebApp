@@ -43,7 +43,7 @@ public class RedeemService {
                 .orElseThrow(() -> new RuntimeException("Accessory not found"));
 
         boolean alreadyOwned =
-                userAccessoryRepo.existsByUser_IdAndAccessories_AccessoriesId(userId, accessoriesId);
+                userAccessoryRepo.existsByUserUIdAndAccessoriesUAccessoriesId(userId, accessoriesId);
 
         int balance = (user.getPointBalance() == null) ? 0 : user.getPointBalance();
         int price = accessory.getRequiredPoints();

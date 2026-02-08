@@ -46,7 +46,7 @@ class ScanServiceTest {
         @SuppressWarnings("unchecked")
         final Map<String, Object> finalObj = (Map<String, Object>) data.get("final");
 
-        assertFalse((Boolean) decision.get("used_tier2"));
+        assertFalse((Boolean) decision.get("usedUtier2"));
         assertEquals("Paper", finalObj.get("category"));
         assertTrue((Boolean) finalObj.get("recyclable"));
         assertTrue(finalObj.containsKey("instruction"));
@@ -75,8 +75,8 @@ class ScanServiceTest {
         @SuppressWarnings("unchecked")
         final Map<String, Object> meta = (Map<String, Object>) data.get("meta");
 
-        assertTrue((Boolean) decision.get("used_tier2"));
-        assertEquals("mock", meta.get("tier2_provider_used"));
+        assertTrue((Boolean) decision.get("usedUtier2"));
+        assertEquals("mock", meta.get("tier2_providerUused"));
         assertEquals("Plastic container", finalObj.get("category"));
         assertTrue(finalObj.containsKey("instruction"));
         assertTrue(finalObj.containsKey("instructions"));
@@ -91,7 +91,7 @@ class ScanServiceTest {
                 new byte[]{1, 2, 3}
         );
 
-        final String tier1 = tier1Json("other_uncertain", 0.99, false, "metal", 0.01);
+        final String tier1 = tier1Json("otherUuncertain", 0.99, false, "metal", 0.01);
 
         final Map<String, Object> response = scanService.handleScan(image, tier1, null, false);
 
@@ -100,10 +100,10 @@ class ScanServiceTest {
         @SuppressWarnings("unchecked")
         final Map<String, Object> decision = (Map<String, Object>) data.get("decision");
         @SuppressWarnings("unchecked")
-        final List<String> reasons = (List<String>) decision.get("reason_codes");
+        final List<String> reasons = (List<String>) decision.get("reasonUcodes");
 
-        assertTrue((Boolean) decision.get("used_tier2"));
-        assertTrue(reasons.contains("PRED_OTHER_UNCERTAIN"));
+        assertTrue((Boolean) decision.get("usedUtier2"));
+        assertTrue(reasons.contains("PREDUOTHERUUNCERTAIN"));
     }
 
     private static String tier1Json(

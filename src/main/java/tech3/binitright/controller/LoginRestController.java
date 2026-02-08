@@ -27,8 +27,8 @@ public class LoginRestController {
         if (adminService.findAdminByUsername(admin.getUsername()).isEmpty()) {
 
             // HASH password
-            admin.setPassword_hash(
-                    passwordEncoder.encode(admin.getPassword_hash())
+            admin.setPasswordUhash(
+                    passwordEncoder.encode(admin.getPasswordUhash())
             );
 
             adminService.saveAdmin(admin);

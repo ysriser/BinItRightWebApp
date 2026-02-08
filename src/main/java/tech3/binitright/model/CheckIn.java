@@ -15,30 +15,30 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "check_in")
+@Table(name = "checkUin")
 public class CheckIn {
 
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "checkin_id")
+    @Column(name = "checkinUid")
     private Long checkInId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "userUid", nullable = false)
     private User user;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "drop_off_id", nullable = false)
+    @JoinColumn(name = "dropUoffUid", nullable = false)
     private DropOffLocation dropOffLocation;
     
     @ManyToOne
     private WasteCategories wasteCategories;
 
     
-    @Column(name = "file_name")
+    @Column(name = "fileUname")
     private String fileName;
     
-    @Column(name = "checkin_time")
+    @Column(name = "checkinUtime")
     private LocalDateTime checkInTime;
     
     @PrePersist
@@ -52,7 +52,7 @@ public class CheckIn {
     
     private Integer quantity;
     
-    @Column(name = "reward_points")
+    @Column(name = "rewardUpoints")
     private Integer rewardPoints;
     
     private Long duration;

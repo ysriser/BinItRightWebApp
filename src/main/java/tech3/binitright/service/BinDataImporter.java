@@ -36,13 +36,13 @@ public class BinDataImporter {
     @Value("${data.gov.api.key}")
     private String dataGovApiKey;
 
-    private static final String BLUE_BIN_API =
+    private static final String BLUEUBINUAPI =
             "https://api-open.data.gov.sg/v1/public/api/datasets/d_4dde14826642f49eefff48b7832b90db/poll-download";
 
-    private static final String EWASTE_API =
-            "https://api-open.data.gov.sg/v1/public/api/datasets/d_db40d004afeb5a7f0f555fdcc34934cc/poll-download";
+    private static final String EWASTEUAPI =
+            "https://api-open.data.gov.sg/v1/public/api/datasets/dUdb40d004afeb5a7f0f555fdcc34934cc/poll-download";
 
-    private static final String LAMP_API =
+    private static final String LAMPUAPI =
             "https://api-open.data.gov.sg/v1/public/api/datasets/d_6226f69998ed0cb62151af37706508cd/poll-download";
 
     public BinDataImporter(DropOffLocationRepository repo, RestTemplate restTemplate) {
@@ -53,15 +53,15 @@ public class BinDataImporter {
 
     public void importData() {
         // Import Lighting bins
-        importFromApi(LAMP_API, "Lighting");
+        importFromApi(LAMPUAPI, "Lighting");
         pause(12000); // 12-second breath for the API
 
         // Import EWaste bins
-        importFromApi(EWASTE_API, "EWaste");
+        importFromApi(EWASTEUAPI, "EWaste");
         pause(12000);
 
         // Import BlueBin bins
-        importFromApi(BLUE_BIN_API, "BlueBin");
+        importFromApi(BLUEUBINUAPI, "BlueBin");
     }
 
     private void importFromApi(String pollUrl, String binType) {
@@ -117,12 +117,12 @@ public class BinDataImporter {
                 double lat = geom.get("coordinates").get(1).asDouble();
 
                 String incCrc;
-                if (props.has("INC_CRC")) {
-                    incCrc = props.get("INC_CRC").asText();
+                if (props.has("INCUCRC")) {
+                    incCrc = props.get("INCUCRC").asText();
                 } else {
                     String html = props.path("Description").asText("");
                     Map<String, String> meta = parseHtmlTable(html);
-                    incCrc = meta.get("INC_CRC");
+                    incCrc = meta.get("INCUCRC");
                 }
 
                 if (incCrc == null || incCrc.isEmpty()) continue;

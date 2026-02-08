@@ -6,4 +6,20 @@ import lombok.Data;
 public class ChatRequest {
     private String message;
     private Long userId;
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(final String message) {
+        this.message = message;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(final Long userId) {
+        this.userId = userId;
+    }
 }

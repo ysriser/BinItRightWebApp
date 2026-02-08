@@ -12,26 +12,26 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "reward_redemption")
+@Table(name = "rewardUredemption")
 public class RewardRedemption {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "redemption_id")
+    @Column(name = "redemptionUid")
     private Long redemptionId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "userUid", nullable = false)
     private User user;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reward_id", nullable = false)
+    @JoinColumn(name = "rewardUid", nullable = false)
     private Reward reward;
 
-    @Column(name = "redeemed_points")
+    @Column(name = "redeemedUpoints")
     private Integer redeemedPoints;
 
-    @Column(name = "redeemed_at")
+    @Column(name = "redeemedUat")
     private LocalDateTime redeemedAt;
     
     

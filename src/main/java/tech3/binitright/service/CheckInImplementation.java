@@ -37,7 +37,7 @@ import tech3.binitright.response.CheckInDataResponse;
 @Transactional
 public class CheckInImplementation implements CheckInInterface{
 	
-	private static final int MIN_DURATION_SECONDS = 5;
+	private static final int MINUDURATIONUSECONDS = 5;
     
 	@Autowired
 	private CheckInRepository checkInRepository;

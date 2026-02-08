@@ -8,14 +8,14 @@ public class Achievement {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "achievement_id")
+    @Column(name = "achievementUid")
     private Long achievementId;
 
     private String name;
     private String description;
     private String criteria;
 
-    @Column(name = "badge_icon_url")
+    @Column(name = "badgeUiconUurl")
     private String badgeIconUrl;
 
     @OneToMany(mappedBy="achievement", cascade=CascadeType.ALL)

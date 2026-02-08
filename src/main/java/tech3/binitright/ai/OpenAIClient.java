@@ -21,7 +21,7 @@
 //        this.webClient = WebClient.builder()
 //                .baseUrl(baseUrl)
 //                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
-//                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+//                .defaultHeader(HttpHeaders.CONTENTUTYPE, MediaType.APPLICATIONUJSONUVALUE)
 //                .build();
 //    }
 //
@@ -61,14 +61,14 @@
 //
 package tech3.binitright.ai;
 
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import java.util.List;
-import java.util.Map;
 
 @Component
 public class OpenAIClient {
@@ -76,8 +76,8 @@ public class OpenAIClient {
     private final WebClient webClient;
 
     public OpenAIClient(
-            @Value("${openai.base-url}") String baseUrl,
-            @Value("${openai.api.key}") String apiKey
+            @Value("${openai.base-url}") final String baseUrl,
+            @Value("${openai.api.key}") final String apiKey
     ) {
         this.webClient = WebClient.builder()
                 .baseUrl(baseUrl)
@@ -87,9 +87,9 @@ public class OpenAIClient {
     }
 
     @SuppressWarnings("unchecked")
-    public String chat(String model, String systemPrompt, String userMessage) {
+    public String chat(final String model, final String systemPrompt, final String userMessage) {
 
-        Map<String, Object> body = Map.of(
+        final Map<String, Object> body = Map.of(
                 "model", model,
                 "messages", List.of(
                         Map.of("role", "system", "content", systemPrompt),
@@ -98,25 +98,29 @@ public class OpenAIClient {
         );
 
         try {
-            Map<String, Object> resp = webClient.post()
+            final Map<String, Object> resp = webClient.post()
                     .uri("/chat/completions")
                     .bodyValue(body)
                     .retrieve()
                     .bodyToMono(Map.class)
                     .block();
 
-            if (resp == null) return fallback();
+            if (resp == null) {
+				return fallback();
+			}
 
-            List<Object> choices = (List<Object>) resp.get("choices");
-            if (choices == null || choices.isEmpty()) return fallback();
+            final List<Object> choices = (List<Object>) resp.get("choices");
+            if (choices == null || choices.isEmpty()) {
+				return fallback();
+			}
 
-            Map<String, Object> choice0 = (Map<String, Object>) choices.get(0);
-            Map<String, Object> message = (Map<String, Object>) choice0.get("message");
+            final Map<String, Object> choice0 = (Map<String, Object>) choices.get(0);
+            final Map<String, Object> message = (Map<String, Object>) choice0.get("message");
 
-            Object content = (message != null) ? message.get("content") : null;
+            final Object content = (message != null) ? message.get("content") : null;
             return content != null ? content.toString() : fallback();
 
-        } catch (Exception e) {
+        } catch (final Exception e) {
             // ⭐ graceful fallback for demo / rate-limit / network failure
             return fallback();
         }

@@ -12,24 +12,24 @@ import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "user_accessories")
+@Table(name = "userUaccessories")
 public class UserAccessories {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_accessories_id")
+    @Column(name = "userUaccessoriesUid")
     private Long userAccessoriesId;
 
     @Column(name = "equipped", nullable = false)
     private boolean equipped;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "userUid")
     @JsonIgnore
     private User user;
 
     @ManyToOne
     
-    @JoinColumn(name = "accessories_id")
+    @JoinColumn(name = "accessoriesUid")
     private Accessories accessories;
    
     public UserAccessories() {}

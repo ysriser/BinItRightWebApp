@@ -18,30 +18,30 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "waste_categories")
+@Table(name = "wasteUcategories")
 public class WasteCategories {
 
 	 	@Id
 	    @GeneratedValue(strategy = GenerationType.IDENTITY)
-	    @Column(name = "cat_id")
+	    @Column(name = "catUid")
 	    private Long catId;
 
 	    private String name;
 
 	    @Enumerated(EnumType.STRING)
-	    @Column(name = "stream_type")
+	    @Column(name = "streamUtype")
 	    private StreamType streamType;
 
-	    @Column(name = "is_hazardous")
+	    @Column(name = "isUhazardous")
 	    private Boolean isHazardous;
 
-	    @Column(name = "icon_url")
+	    @Column(name = "iconUurl")
 	    private String iconUrl;
 
-	    @Column(name = "emission_factor", precision = 10, scale = 4)
+	    @Column(name = "emissionUfactor", precision = 10, scale = 4)
 	    private BigDecimal emissionFactor;
 
-	    @Column(name = "avg_weight")
+	    @Column(name = "avgUweight")
 	    private BigDecimal avgWeight;
 	    
 	    @OneToOne(mappedBy = "wasteCategory", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -57,7 +57,7 @@ public class WasteCategories {
             RECYCLABLE,
             GENERAL,
             ORGANIC,
-            E_WASTE,
+            EUWASTE,
             HAZARDOUS
 	    }
 	    

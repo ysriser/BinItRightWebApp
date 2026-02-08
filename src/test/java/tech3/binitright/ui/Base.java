@@ -35,7 +35,7 @@ public abstract class Base {
 
         this.driver = new ChromeDriver(options);
 
-        String host = System.getProperty("target_host", "localhost");
+        String host = System.getProperty("targetUhost", "localhost");
 
         if (host.equals("localhost")) {
             // Local environment uses HTTP and 8080

@@ -18,14 +18,14 @@ public class Report {
 	
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "report_id")
+    @Column(name = "reportUid")
     private Long reportId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id", nullable = false)
     private Admin admin;
    
-    @Column(name = "generated_at")
+    @Column(name = "generatedUat")
     private LocalDateTime generatedAt;
     
     public Report() {}

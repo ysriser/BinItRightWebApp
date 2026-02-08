@@ -16,7 +16,7 @@ public class Feedback {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "feedback_id")
+    @Column(name = "feedbackUid")
     private Long feedbackId;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -24,13 +24,13 @@ public class Feedback {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cat_id", nullable = false)
+    @JoinColumn(name = "catUid", nullable = false)
     private WasteCategories wasteCategory;
 
-    @Column(name = "image_url")
+    @Column(name = "imageUurl")
     private String imageUrl;
 
-    @Column(name = "feedback_content")
+    @Column(name = "feedbackUcontent")
     private String feedbackContent;
     
     

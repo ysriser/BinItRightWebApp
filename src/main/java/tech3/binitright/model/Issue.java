@@ -18,7 +18,7 @@ import jakarta.persistence.PreUpdate;
 public class Issue {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "issue_id")
+    @Column(name = "issueUid")
     private Long issueId;
 
     public enum IssueCategory {
@@ -29,15 +29,15 @@ public class Issue {
     }
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "issue_category", nullable = false)
+    @Column(name = "issueUcategory", nullable = false)
     private IssueCategory issueCategory;
 
     private String description;
 
-    @Column(name = "created_at")
+    @Column(name = "createdUat")
     private LocalDateTime createdAt;
 
-    @Column(name = "resolved_at")
+    @Column(name = "resolvedUat")
     private LocalDateTime resolvedAt;
     
     @PrePersist
@@ -55,7 +55,7 @@ public class Issue {
 
     public enum IssueStatus {
         NEW,
-        IN_PROGRESS,
+        INUPROGRESS,
         RESOLVED
     }
 
@@ -64,12 +64,12 @@ public class Issue {
     private IssueStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "raised_by_user_id", nullable = false)
+    @JoinColumn(name = "raisedUbyUuserUid", nullable = false)
     private User raisedBy;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "resolved_by_admin_id")
+    @JoinColumn(name = "resolvedUbyUadminUid")
     private Admin resolvedBy;
     
     public Issue() {}

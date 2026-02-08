@@ -16,15 +16,15 @@ import jakarta.persistence.Table;
 public class Accessories {
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "accessories_id")
+    @Column(name = "accessoriesUid")
     private Long accessoriesId;
 
     private String name;
 
-    @Column(name = "image_url")
+    @Column(name = "imageUurl")
     private String imageUrl;
 
-    @Column(name = "required_points")
+    @Column(name = "requiredUpoints")
     private int requiredPoints;
 
     @OneToMany(mappedBy="accessories")

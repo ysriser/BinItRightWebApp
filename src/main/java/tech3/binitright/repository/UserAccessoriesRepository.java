@@ -7,11 +7,11 @@ import java.util.List;
 
 public interface UserAccessoriesRepository extends JpaRepository<UserAccessories, Long>{
 
-    List<UserAccessories> findAllByUser_Id(Long id);
+    List<UserAccessories> findAllByUserUId(Long id);
 
-    List<UserAccessories> findByUser_IdAndEquippedTrue(Long userId);
+    List<UserAccessories> findByUserUIdAndEquippedTrue(Long userId);
 
-    UserAccessories findByUser_IdAndAccessories_AccessoriesId(Long userId, Long accessoriesId);
+    UserAccessories findByUserUIdAndAccessoriesUAccessoriesId(Long userId, Long accessoriesId);
     
-    boolean existsByUser_IdAndAccessories_AccessoriesId(Long userId, Long accessoriesId);
+    boolean existsByUserUIdAndAccessoriesUAccessoriesId(Long userId, Long accessoriesId);
 }

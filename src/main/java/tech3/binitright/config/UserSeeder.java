@@ -104,7 +104,7 @@ public class UserSeeder {
                 user.setEmailAddress(su.email());
                 user.setName(su.name());
                 user.setRole("USER");
-                user.setPassword_hash(passwordEncoder.encode("password"));
+                user.setPasswordUhash(passwordEncoder.encode("password"));
 
                 user.setPointBalance(1000);
                 user.setCurrentRank(1);
@@ -156,7 +156,7 @@ public class UserSeeder {
 
             WasteCategories ewaste = new WasteCategories();
             ewaste.setName("E-Waste");
-            ewaste.setStreamType(WasteCategories.StreamType.E_WASTE);
+            ewaste.setStreamType(WasteCategories.StreamType.EUWASTE);
             ewaste.setIsHazardous(true);
             ewaste.setIconUrl("e-waste");
             ewaste.setEmissionFactor(new BigDecimal("4.20"));
@@ -292,7 +292,7 @@ public class UserSeeder {
             Issue i1 = new Issue(Issue.IssueCategory.AppProblems, "App crashes immediately after tapping the login button.", Issue.IssueStatus.NEW, u1, null);
 
             // Issue 2: Overflowing bin
-            Issue i2 = new Issue(Issue.IssueCategory.BinIssues, "Recycling bin near Block 512 is overflowing and needs collection.", Issue.IssueStatus.IN_PROGRESS, u2, admin1);
+            Issue i2 = new Issue(Issue.IssueCategory.BinIssues, "Recycling bin near Block 512 is overflowing and needs collection.", Issue.IssueStatus.INUPROGRESS, u2, admin1);
 
             // Issue 3: Incorrect map location (Resolved)
             // Note: We use the constructor and then manually set dates to match your SQL '2026-02-01' requirement

@@ -9,10 +9,10 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "app_admin")
+@Table(name = "appUadmin")
 public class Admin extends BinItRightUser{
 
-	@Column(name = "permission_level")
+	@Column(name = "permissionUlevel")
     private String permissionLevel;
 
     private String department;

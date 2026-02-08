@@ -71,12 +71,12 @@ public class SummaryRestController {
             return ResponseEntity.status(404).body("User not found");
         }
 
-        String avatarName = userAccessoriesService.findAllByUser_Id(userId)
+        String avatarName = userAccessoriesService.findAllByUserUId(userId)
                 .stream()
                 .filter(UserAccessories::isEquipped)
                 .findFirst()
                 .map(ua -> ua.getAccessories().getName())
-                .orElse("default_avatar");
+                .orElse("defaultUavatar");
 
         Integer totalRecycled = checkInService.getUserTotalRecycled(userId);
 

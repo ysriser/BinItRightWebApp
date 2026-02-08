@@ -11,37 +11,37 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 
 @Entity
-@DiscriminatorValue("recycling_instructions")
+@DiscriminatorValue("recyclingUinstructions")
 public class RecyclingInstructions{
 	
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "recycling_instructions_id")
+    @Column(name = "recyclingUinstructionsUid")
     private Long recyclingInstructionsId;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cat_id", nullable = false)
+    @JoinColumn(name = "catUid", nullable = false)
     private WasteCategories wasteCategory;
 
     private String locale;
 
     private String title;
 
-    private String steps_json;
+    private String stepsUjson;
 
-    private String contamination_rules;
+    private String contaminationUrules;
     
     public RecyclingInstructions() {}
 
     public RecyclingInstructions(Long recyclingInstructionsId, WasteCategories wasteCategory, String locale,
-			String title, String steps_json, String contamination_rules) {
+			String title, String stepsUjson, String contaminationUrules) {
 		super();
 		this.recyclingInstructionsId = recyclingInstructionsId;
 		this.wasteCategory = wasteCategory;
 		this.locale = locale;
 		this.title = title;
-		this.steps_json = steps_json;
-		this.contamination_rules = contamination_rules;
+		this.stepsUjson = stepsUjson;
+		this.contaminationUrules = contaminationUrules;
 	}
 
 	public Long getRecyclingInstructionsId() {
@@ -76,20 +76,20 @@ public class RecyclingInstructions{
         this.title = title;
     }
 
-    public String getSteps_json() {
-        return steps_json;
+    public String getStepsUjson() {
+        return stepsUjson;
     }
 
-    public void setSteps_json(String steps_json) {
-        this.steps_json = steps_json;
+    public void setStepsUjson(String stepsUjson) {
+        this.stepsUjson = stepsUjson;
     }
 
-    public String getContamination_rules() {
-        return contamination_rules;
+    public String getContaminationUrules() {
+        return contaminationUrules;
     }
 
-    public void setContamination_rules(String Contamination_rules) {
-        this.contamination_rules = Contamination_rules;
+    public void setContaminationUrules(String ContaminationUrules) {
+        this.contaminationUrules = ContaminationUrules;
     }
 
 

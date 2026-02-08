@@ -19,7 +19,7 @@ public class Reward {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "reward_id")
+    @Column(name = "rewardUid")
     private Long rewardId;
 
     @Column(nullable = false)
@@ -27,7 +27,7 @@ public class Reward {
 
     private String description;
 
-    @Column(name = "points_required")
+    @Column(name = "pointsUrequired")
     private Integer pointsRequired;
 
     private Integer stock;

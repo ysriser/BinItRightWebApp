@@ -17,23 +17,23 @@ import jakarta.persistence.PrePersist;
 public abstract class BinItRightUser {
     @Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
+    @Column(name = "userUid")
 	private Long id;
 	
 	private String name;
 	private String username;	
-	private String password_hash;
+	private String passwordUhash;
 	private String locale;
 	private String emailAddress;
 	private String role;
-	private LocalDateTime created_at;
+	private LocalDateTime createdUat;
 	
 	public BinItRightUser() {}
 	
-	public BinItRightUser(String name, String username, String password_hash, String locale, String emailAddress, String role,LocalDateTime created_at) {
+	public BinItRightUser(String name, String username, String passwordUhash, String locale, String emailAddress, String role,LocalDateTime createdUat) {
 		this.name = name;
 		this.username = username;
-		this.password_hash = password_hash;
+		this.passwordUhash = passwordUhash;
 		this.locale = locale;
 		this.emailAddress = emailAddress;
 		this.role = role;
@@ -42,7 +42,7 @@ public abstract class BinItRightUser {
 	
 	@PrePersist
     protected void onCreate() {
-        this.created_at = LocalDateTime.now();
+        this.createdUat = LocalDateTime.now();
     }
 
     public Long getId() {
@@ -69,12 +69,12 @@ public abstract class BinItRightUser {
 		this.username = username;
 	}
 
-	public String getPassword_hash() {
-		return password_hash;
+	public String getPasswordUhash() {
+		return passwordUhash;
 	}
 
-	public void setPassword_hash(String password_hash) {
-		this.password_hash = password_hash;
+	public void setPasswordUhash(String passwordUhash) {
+		this.passwordUhash = passwordUhash;
 	}
 
 	public String getLocale() {
@@ -101,12 +101,12 @@ public abstract class BinItRightUser {
 		this.role = role;
 	}
 
-	public LocalDateTime getCreated_at() {
-		return created_at;
+	public LocalDateTime getCreatedUat() {
+		return createdUat;
 	}
 
-	public void setCreated_at(LocalDateTime created_at) {
-		this.created_at = created_at;
+	public void setCreatedUat(LocalDateTime createdUat) {
+		this.createdUat = createdUat;
 	}
 
 }

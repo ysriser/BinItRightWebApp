@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public class News {
 	 @Id
 	    @GeneratedValue(strategy = GenerationType.IDENTITY)
-	    @Column(name = "news_id")
+	    @Column(name = "newsUid")
 	    private Long newsId;
 
 	    private String name;
@@ -24,7 +24,7 @@ public class News {
         @Column(columnDefinition = "TEXT")
 	    private String description;
 
-	    @Column(name = "image_url")
+	    @Column(name = "imageUurl")
 	    private String imageUrl;
         
 	    public enum Status {
@@ -32,7 +32,7 @@ public class News {
 	        Upcoming
 	    }
 
-        @Column(name = "published_date")
+        @Column(name = "publishedUdate")
         private LocalDateTime publishedDate;
 
 

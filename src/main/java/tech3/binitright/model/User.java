@@ -11,21 +11,21 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "app_users")
+@Table(name = "appUusers")
 public class User extends BinItRightUser{
-    @Column(name = "user_address")
+    @Column(name = "userUaddress")
     private String userAddress;
 
-    @Column(name = "current_rank")
+    @Column(name = "currentUrank")
     private Integer currentRank;
 
-    @Column(name = "carbon_emission_saved")
+    @Column(name = "carbonUemissionUsaved")
     private float carbonEmissionSaved;
 
-    @Column(name = "updated_At")
+    @Column(name = "updatedUAt")
     private LocalDateTime updatedat;
 
-    @Column(name = "point_balance")
+    @Column(name = "pointUbalance")
     private Integer pointBalance = 0;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)

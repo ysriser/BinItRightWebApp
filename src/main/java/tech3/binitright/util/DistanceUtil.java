@@ -2,7 +2,7 @@ package tech3.binitright.util;
 
 public class DistanceUtil {
 
-    private static final double EARTH_RADIUS = 6371000; // meters
+    private static final double EARTHURADIUS = 6371000; // meters
 
     public static double distanceInMeters(
             double userlat, double userlon,
@@ -18,6 +18,6 @@ public class DistanceUtil {
 
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-        return EARTH_RADIUS * c;
+        return EARTHURADIUS * c;
     }
 }

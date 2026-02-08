@@ -29,8 +29,8 @@ public class UserAccessoriesImplementation implements UserAccessoriesInterface {
     }
 
     @Override
-    public List<UserAccessories> findAllByUser_Id(Long id) {
-        return userAccessoriesRepository.findAllByUser_Id(id);
+    public List<UserAccessories> findAllByUserUId(Long id) {
+        return userAccessoriesRepository.findAllByUserUId(id);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class UserAccessoriesImplementation implements UserAccessoriesInterface {
     public void equipItem(Long userId, Long accessoriesId) {
 
         List<UserAccessories> currentEquipped =
-                userAccessoriesRepository.findByUser_IdAndEquippedTrue(userId);
+                userAccessoriesRepository.findByUserUIdAndEquippedTrue(userId);
 
         for (UserAccessories item : currentEquipped) {
             item.setEquipped(false);
@@ -46,7 +46,7 @@ public class UserAccessoriesImplementation implements UserAccessoriesInterface {
         userAccessoriesRepository.saveAll(currentEquipped);
 
         UserAccessories itemToEquip =
-                userAccessoriesRepository.findByUser_IdAndAccessories_AccessoriesId(userId, accessoriesId);
+                userAccessoriesRepository.findByUserUIdAndAccessoriesUAccessoriesId(userId, accessoriesId);
 
         if (itemToEquip == null) {
             throw new RuntimeException("Accessory not owned");
@@ -60,7 +60,7 @@ public class UserAccessoriesImplementation implements UserAccessoriesInterface {
     @Transactional
     public void unequipItem(Long userId, Long accessoryId) {
         UserAccessories itemToUnequip =
-                userAccessoriesRepository.findByUser_IdAndAccessories_AccessoriesId(userId, accessoryId);
+                userAccessoriesRepository.findByUserUIdAndAccessoriesUAccessoriesId(userId, accessoryId);
 
         if (itemToUnequip != null) {
             itemToUnequip.setEquipped(false);

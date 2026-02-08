@@ -39,7 +39,7 @@ public class UserAccessoriesRestController {
         Long userId = Long.valueOf(authentication.getName());
 
         // 3. Use the ID to get the accessories
-        List<UserAccessories> items = userAccessoriesService.findAllByUser_Id(userId);
+        List<UserAccessories> items = userAccessoriesService.findAllByUserUId(userId);
         return ResponseEntity.ok(items);
     }
 

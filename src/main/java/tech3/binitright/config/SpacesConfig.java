@@ -45,7 +45,7 @@ public class SpacesConfig {
                 || secretKey == null || secretKey.isBlank()) {
             throw new IllegalStateException(
                     "DigitalOcean Spaces credentials are missing. " +
-                            "Set SPACES_ACCESS_KEY and SPACES_SECRET_KEY."
+                            "Set SPACESUACCESSUKEY and SPACESUSECRETUKEY."
             );
         }
         log.info("DigitalOcean Spaces configuration loaded");

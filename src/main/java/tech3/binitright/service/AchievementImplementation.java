@@ -30,7 +30,7 @@ public class AchievementImplementation {
 
         List<Achievement> allAchievements = achievementRepo.findAll();
 
-        List<UserAchievement> userUnlocked = userAchievementRepo.findByUser_Id(userId);
+        List<UserAchievement> userUnlocked = userAchievementRepo.findByUserUId(userId);
         Set<Long> unlockedIds = userUnlocked.stream()
                 .map(ua -> ua.getAchievement().getAchievementId())
                 .collect(Collectors.toSet());
@@ -50,7 +50,7 @@ public class AchievementImplementation {
     }
 
     public void unlockAchievement(Long userId, Long achievementId) {
-        boolean alreadyUnlocked = userAchievementRepo.findByUser_Id(userId).stream()
+        boolean alreadyUnlocked = userAchievementRepo.findByUserUId(userId).stream()
                 .anyMatch(ua -> ua.getAchievement().getAchievementId().equals(achievementId));
 
         if (alreadyUnlocked) {

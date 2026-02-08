@@ -10,7 +10,7 @@ public interface UserAccessoriesInterface {
 
     List<UserAccessories> findAll();
 
-    List<UserAccessories> findAllByUser_Id(Long id);
+    List<UserAccessories> findAllByUserUId(Long id);
 
     void equipItem(Long userId, Long accessoriesId);
 

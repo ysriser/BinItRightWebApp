@@ -35,7 +35,7 @@ public class UserLoginController {
             return new LoginResponse(false, "Missing credentials", null);
         }
 
-        // ✅ 2. Find APP USER (app_users table)
+        // ✅ 2. Find APP USER (appUusers table)
         List<User> users = userService.findByUsername(request.getUsername());
 
         if (users.isEmpty()) {
@@ -44,10 +44,10 @@ public class UserLoginController {
 
         User user = users.get(0);
 
-        // ✅ 3. Match BCrypt password against password_hash
+        // ✅ 3. Match BCrypt password against passwordUhash
         if (!passwordEncoder.matches(
                 request.getPassword(),
-                user.getPassword_hash()
+                user.getPasswordUhash()
         )) {
             return new LoginResponse(false, "Invalid username or password", null);
         }
@@ -69,7 +69,7 @@ public class UserLoginController {
 
         User user = new User();
         user.setUsername(req.getUsername());
-        user.setPassword_hash(passwordEncoder.encode(req.getPassword()));
+        user.setPasswordUhash(passwordEncoder.encode(req.getPassword()));
         user.setRole("USER");
         userService.saveUser(user);
 

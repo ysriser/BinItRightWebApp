@@ -37,7 +37,7 @@ public class Login extends Base {
 
         } catch (Exception | AssertionError e) {
             // Capture evidence if something goes wrong
-            captureAllArtifacts("login_logout_failure");
+            captureAllArtifacts("loginUlogoutUfailure");
             throw e;
         }
     }

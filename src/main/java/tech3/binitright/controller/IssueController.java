@@ -43,7 +43,7 @@ public class IssueController {
         model.addAttribute("newCount",
                 issueService.countByStatus(IssueStatus.NEW));
         model.addAttribute("inProgressCount",
-                issueService.countByStatus(IssueStatus.IN_PROGRESS));
+                issueService.countByStatus(IssueStatus.INUPROGRESS));
         model.addAttribute("resolvedCount",
                 issueService.countByStatus(IssueStatus.RESOLVED));
 
