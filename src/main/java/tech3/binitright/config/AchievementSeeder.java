@@ -8,15 +8,19 @@ import tech3.binitright.model.Achievement;
 import tech3.binitright.repository.AchievementRepository;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Configuration
 public class AchievementSeeder {
 
+    private static final AtomicBoolean seedingComplete = new AtomicBoolean(false);
+
     @Bean
-    @Profile({"test", "default"})
+    @Profile({"test", "default", "prod"})
     public CommandLineRunner seedAchievements(AchievementRepository repo) {
         return args -> {
             if (repo.count() > 0) {
+                seedingComplete.set(true);
                 System.out.println(">>> Achievements already seeded, skipping.");
                 return;
             }
@@ -24,8 +28,8 @@ public class AchievementSeeder {
             List<Achievement> list = List.of(
                 new Achievement("First Submission", "Submit your first recycling item.", "Recycle 1 item", "https://img.icons8.com/color/96/seed.png"),
                 new Achievement("Recycling Master", "Complete 10 recycling submissions.", "Recycle 10 times", "https://img.icons8.com/color/96/recycle-sign.png"),
-                new Achievement("Plastic Slayer", "Help keep 50 plastic bottles out of the ocean.", "Recycle 50 Plastic items", "https://img.icons8.com/color/96/plastic.png"),
-                new Achievement("The 100 Club", "A true eco-warrior legend.", "Earn 100 points in total", "https://img.icons8.com/color/96/trophy.png"),
+                new Achievement("Eco Enthusiast", "Maintain your dedication with 50 submissions.", "Recycle 50 times", "https://img.icons8.com/color/96/medal.png"),
+                new Achievement("Green Legend", "A monumental 100 recycling submissions!", "Recycle 100 times", "https://img.icons8.com/color/96/trophy.png"),
                 new Achievement("The Collector", "Save up your rewards points.", "Hold 5000 points", "https://img.icons8.com/color/96/hamster.png"),
                 new Achievement("Rising Star", "Advance your environmental impact rank.", "Reach Rank 2", "https://img.icons8.com/color/96/upgrade.png"),
                 new Achievement("Early Bird", "Complete a check-in early in the morning.", "Check-in 06:00-08:00", "https://img.icons8.com/color/96/sun.png"),
@@ -36,6 +40,13 @@ public class AchievementSeeder {
 
             repo.saveAll(list);
             System.out.println(">>> 10 Achievements seeded successfully.");
+
+            seedingComplete.set(true);
+            System.out.println(">>> ALL SEEDING OPERATIONS COMPLETE.");
         };
+    }
+
+    public boolean isSeedingComplete() {
+        return seedingComplete.get();
     }
 }

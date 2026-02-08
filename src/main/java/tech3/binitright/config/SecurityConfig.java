@@ -40,7 +40,7 @@ public class SecurityConfig {
             final JwtAuthFilter jwtAuthFilter
     ) throws Exception {
         http
-                .securityMatcher("/api/**", "/error")
+                .securityMatcher("/api/**", "/error", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -48,7 +48,20 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/auth/login",
                                 "/api/admin/create",
-                                "/error"  // CRITICAL: Permit /error
+                                "/api/bins/**",
+                                "/api/bins/nearby",
+                                "/api/bins/all",
+                                "/api/checkin",
+                                "/api/videos/presign-upload",
+                                "/api/recycle-history",
+                                "/api/auth/register",
+                                "/api/user/profile/**",
+                                "/api/chat",
+                                "/api/ready",
+                                "/error",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"// CRITICAL: Permit /error
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
@@ -99,7 +112,7 @@ public class SecurityConfig {
                         .cacheControl(withDefaults())
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/css/**", "/js/**", "/api/admin/create").permitAll()
+                        .requestMatchers("/login", "/css/**", "/js/**", "/api/admin/create", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/admin/**").hasRole("admin")
                         .anyRequest().authenticated()
                 )

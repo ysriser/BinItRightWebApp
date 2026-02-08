@@ -2,7 +2,8 @@ package tech3.binitright.service;
 
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-import tech3.binitright.dto.RedeemResponse;
+import tech3.binitright.dto.ShopItemDTO;
+import tech3.binitright.response.RedeemResponse;
 import tech3.binitright.model.Accessories;
 import tech3.binitright.model.User;
 import tech3.binitright.model.UserAccessories;
@@ -17,20 +18,51 @@ public class RewardShopService {
     private final UserRepository userRepository;
     private final AccessoriesRepository accessoryRepository;
     private final UserAccessoriesRepository userAccessoriesRepository;
+    private final AchievementImplementation achievementImplementation;
 
     public RewardShopService(
             UserRepository userRepository,
             AccessoriesRepository accessoryRepository,
-            UserAccessoriesRepository userAccessoriesRepository
+            UserAccessoriesRepository userAccessoriesRepository,
+            AchievementImplementation achievementImplementation
     ) {
         this.userRepository = userRepository;
         this.accessoryRepository = accessoryRepository;
         this.userAccessoriesRepository = userAccessoriesRepository;
+        this.achievementImplementation = achievementImplementation;
     }
 
     public List<Accessories> getItems() {
         return accessoryRepository.findAll();
     }
+
+    public List<ShopItemDTO> getItemsForUser(Long userId) {
+
+        List<Accessories> all = accessoryRepository.findAll();
+        List<UserAccessories> ownedRows = userAccessoriesRepository.findAllByUser_Id(userId);
+
+        java.util.Map<Long, Boolean> ownedEquippedMap = new java.util.HashMap<>();
+        for (UserAccessories ua : ownedRows) {
+            ownedEquippedMap.put(ua.getAccessories().getAccessoriesId(), ua.isEquipped());
+        }
+
+        List<ShopItemDTO> result = new java.util.ArrayList<>();
+        for (Accessories a : all) {
+            Long id = a.getAccessoriesId();
+            boolean owned = ownedEquippedMap.containsKey(id);
+            boolean equipped = owned && Boolean.TRUE.equals(ownedEquippedMap.get(id));
+
+            result.add(new ShopItemDTO(
+                    id,
+                    a.getName(),
+                    a.getRequiredPoints(),
+                    owned,
+                    equipped
+            ));
+        }
+        return result;
+    }
+
 
     @Transactional
     public RedeemResponse redeem(Long userId, Long accessoriesId) {
@@ -65,8 +97,10 @@ public class RewardShopService {
         ua.setEquipped(false);
         userAccessoriesRepository.save(ua);
 
+        achievementImplementation.unlockAchievement(userId, 10L);
+        achievementImplementation.checkProfileAchievements(user);
+
         return new RedeemResponse(user.getPointBalance(), "Redeemed successfully");
     }
 
 }
-

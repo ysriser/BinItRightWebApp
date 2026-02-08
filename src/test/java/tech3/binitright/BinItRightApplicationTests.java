@@ -1,14 +1,19 @@
 package tech3.binitright;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringBootTest(
-        properties = {
-                "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration"
-        }
-)
+import org.junit.jupiter.api.Test;
 
 class BinItRightApplicationTests {
+
+    @Test
+    void applicationClassConstructs() {
+        BinItRightApplication app = new BinItRightApplication();
+        assertNotNull(app);
+    }
+
+    @Test
+    void mainMethodExists() throws NoSuchMethodException {
+        assertNotNull(BinItRightApplication.class.getMethod("main", String[].class));
+    }
 }

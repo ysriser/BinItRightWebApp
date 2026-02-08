@@ -3,6 +3,7 @@ package tech3.binitright.interfacemethods;
 import tech3.binitright.model.Issue;
 import tech3.binitright.request.IssueCreateRequest;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface IssueInterface {
@@ -14,4 +15,8 @@ public interface IssueInterface {
     public void markInProgress(Long issueId, Long adminId);
     public void resolveIssue(Long issueId, Long adminId);
     Issue getIssueById(Long issueId);
+
+    Collection<Issue> findAll();
+
+    List<Issue> saveAll(List<Issue> issues);
 }

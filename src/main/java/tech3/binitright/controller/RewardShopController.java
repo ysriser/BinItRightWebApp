@@ -2,7 +2,8 @@ package tech3.binitright.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tech3.binitright.dto.RedeemResponse;
+import tech3.binitright.dto.ShopItemDTO;
+import tech3.binitright.response.RedeemResponse;
 import tech3.binitright.model.Accessories;
 import tech3.binitright.service.RewardShopService;
 import tech3.binitright.util.JwtUtil;
@@ -25,9 +26,14 @@ public class RewardShopController {
         this.jwtUtil = jwtUtil;
     }
 
+
     @GetMapping("/items")
-    public ResponseEntity<List<Accessories>> getItems() {
-        return ResponseEntity.ok(rewardShopService.getItems());
+    public ResponseEntity<List<ShopItemDTO>> getShopItems(Authentication authentication) {
+
+        String userIdStr = (String) authentication.getPrincipal(); // (or authentication.getName())
+        Long userId = Long.valueOf(userIdStr);
+
+        return ResponseEntity.ok(rewardShopService.getItemsForUser(userId));
     }
 
     @PostMapping("/redeem/{accessoriesId}")
