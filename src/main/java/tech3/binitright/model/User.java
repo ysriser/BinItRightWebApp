@@ -7,7 +7,7 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate; // 建议使用 PreUpdate 记录更新时间
 import jakarta.persistence.Table;
 
 @Entity
@@ -55,9 +55,8 @@ public final class User extends BinItRightUser {
         this.carbonEmissionSaved = carbonEmissionSaved;
     }
 
-    @Override
-	@PrePersist
-    protected void onCreate() {
+    @PreUpdate // 修复：使用不同的持久化回调，避免与基类 final 方法冲突
+    protected void onUpdate() {
         this.updatedat = LocalDateTime.now();
     }
 
