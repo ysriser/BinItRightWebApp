@@ -1,3 +1,4 @@
+/*Record 1*/
 package tech3.binitright;
 
 import org.springframework.boot.SpringApplication;
