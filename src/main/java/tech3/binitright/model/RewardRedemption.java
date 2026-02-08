@@ -1,6 +1,7 @@
 package tech3.binitright.model;
 
 import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -12,90 +13,77 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "reward_redemption")
-public class RewardRedemption {
+@Table(name = "rewardUredemption")
+public final class RewardRedemption {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "redemption_id")
+    @Column(name = "redemptionUid")
     private Long redemptionId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "userUid", nullable = false)
     private User user;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reward_id", nullable = false)
+    @JoinColumn(name = "rewardUid", nullable = false)
     private Reward reward;
 
-    @Column(name = "redeemed_points")
+    @Column(name = "redeemedUpoints")
     private Integer redeemedPoints;
 
-    @Column(name = "redeemed_at")
+    @Column(name = "redeemedUat")
     private LocalDateTime redeemedAt;
-    
-    
+
     public RewardRedemption() {}
 
+    public RewardRedemption(final Long redemptionId, final User user, final Reward reward, 
+                            final Integer redeemedPoints, final LocalDateTime redeemedAt) {
+        super();
+        this.redemptionId = redemptionId;
+        this.user = user;
+        this.reward = reward;
+        this.redeemedPoints = redeemedPoints;
+        this.redeemedAt = redeemedAt;
+    }
 
-	public RewardRedemption(Long redemptionId, User user, Reward reward, Integer redeemedPoints,
-			LocalDateTime redeemedAt) {
-		super();
-		this.redemptionId = redemptionId;
-		this.user = user;
-		this.reward = reward;
-		this.redeemedPoints = redeemedPoints;
-		this.redeemedAt = redeemedAt;
-	}
+    public Long getRedemptionId() {
+        return redemptionId;
+    }
 
+    public void setRedemptionId(final Long redemptionId) {
+        this.redemptionId = redemptionId;
+    }
 
-	public Long getRedemptionId() {
-		return redemptionId;
-	}
+    public User getUser() {
+        return user;
+    }
 
+    public void setUser(final User user) {
+        this.user = user;
+    }
 
-	public void setRedemptionId(Long redemptionId) {
-		this.redemptionId = redemptionId;
-	}
+    public Reward getReward() {
+        return reward;
+    }
 
+    public void setReward(final Reward reward) {
+        this.reward = reward;
+    }
 
-	public User getUser() {
-		return user;
-	}
+    public Integer getRedeemedPoints() {
+        return redeemedPoints;
+    }
 
+    public void setRedeemedPoints(final Integer redeemedPoints) {
+        this.redeemedPoints = redeemedPoints;
+    }
 
-	public void setUser(User user) {
-		this.user = user;
-	}
+    public LocalDateTime getRedeemedAt() {
+        return redeemedAt;
+    }
 
-
-	public Reward getReward() {
-		return reward;
-	}
-
-
-	public void setReward(Reward reward) {
-		this.reward = reward;
-	}
-
-
-	public Integer getRedeemedPoints() {
-		return redeemedPoints;
-	}
-
-
-	public void setRedeemedPoints(Integer redeemedPoints) {
-		this.redeemedPoints = redeemedPoints;
-	}
-
-
-	public LocalDateTime getRedeemedAt() {
-		return redeemedAt;
-	}
-
-
-	public void setRedeemedAt(LocalDateTime redeemedAt) {
-		this.redeemedAt = redeemedAt;
-	}
-    
+    public void setRedeemedAt(final LocalDateTime redeemedAt) {
+        this.redeemedAt = redeemedAt;
+    }
 }

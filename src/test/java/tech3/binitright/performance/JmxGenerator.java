@@ -1,15 +1,22 @@
 package tech3.binitright.performance;
-import static us.abstracta.jmeter.javadsl.JmeterDsl.*;
+import static us.abstracta.jmeter.javadsl.JmeterDsl.httpCookies;
+import static us.abstracta.jmeter.javadsl.JmeterDsl.httpSampler;
+import static us.abstracta.jmeter.javadsl.JmeterDsl.jsonExtractor;
+import static us.abstracta.jmeter.javadsl.JmeterDsl.regexExtractor;
+import static us.abstracta.jmeter.javadsl.JmeterDsl.testPlan;
+import static us.abstracta.jmeter.javadsl.JmeterDsl.threadGroup;
+
 import java.io.IOException;
 import java.time.Duration;
+
 import org.apache.http.entity.ContentType;
 
 public class JmxGenerator {
-    public static void main(String[] args) throws IOException {
+    public static void main(final String[] args) throws IOException {
 
 
-        String host = System.getProperty("target_host", "localhost");
-        String testUrl = System.getProperty("test_url");
+        final String host = System.getProperty("targetUhost", "localhost");
+        final String testUrl = System.getProperty("testUurl");
         String baseUrl;
         if (host.equals("localhost")) {
             // Local environment uses HTTP and 8080
@@ -19,41 +26,41 @@ public class JmxGenerator {
             // We use port 443 (standard for HTTPS)
             baseUrl = "https://" + testUrl;
         }
-        String defaultUser = System.getProperty("perf_user", "admin");
-        String defaultPass = System.getProperty("perf_pass", "none");
-        String defaultAppUser = System.getProperty("perf_app_user", "user");
-        String defaultAppPass = System.getProperty("perf_app_pass", "none");
+        final String defaultUser = System.getProperty("perfUuser", "admin");
+        final String defaultPass = System.getProperty("perfUpass", "none");
+        final String defaultAppUser = System.getProperty("perfUappUuser", "user");
+        final String defaultAppPass = System.getProperty("perfUappUpass", "none");
         
         
         testPlan(
-            threadGroup("Admin_Load_Test")
+            threadGroup("AdminULoadUTest")
                 .rampTo(5, Duration.ofSeconds(10))
                 .holdIterating(10)
                 .children(
                     httpCookies(), // Necessary to maintain the session
                     
                     // 1. LOGIN (Required to access /admin/**)
-                    httpSampler("1_GET_Login", baseUrl + "/login")
+                    httpSampler("1_GETULogin", baseUrl + "/login")
                         .children(
-                            regexExtractor("csrf_token", "name=\"_csrf\" value=\"(.+?)\"")
+                            regexExtractor("csrfUtoken", "name=\"_csrf\" value=\"(.+?)\"")
                         ),
                         
-                    httpSampler("2_POST_Login", baseUrl + "/login")
+                    httpSampler("2_POSTULogin", baseUrl + "/login")
                         .method("POST")
                         .contentType(ContentType.APPLICATION_FORM_URLENCODED)
                         .param("username", defaultUser)
                         .param("password", defaultPass)
-                        .param("_csrf", "${csrf_token}"),
+                        .param("_csrf", "${csrfUtoken}"),
                         
-                    httpSampler("GET_Admin_Forecast", baseUrl + "/admin/forecast"),
-                    httpSampler("4_GET_Checkin_List", baseUrl + "/admin/checkin"),
-                    httpSampler("5_GET_Reports", baseUrl + "/admin/sustainability-reports")),
-                threadGroup("ANDROID_API_Load_Test")
+                    httpSampler("GETUAdminUForecast", baseUrl + "/admin/forecast"),
+                    httpSampler("4_GETUCheckinUList", baseUrl + "/admin/checkin"),
+                    httpSampler("5_GETUReports", baseUrl + "/admin/sustainability-reports")),
+                threadGroup("ANDROIDUAPIULoadUTest")
                         .rampTo(10, Duration.ofSeconds(15))
                         .holdIterating(20)
                         .children(
 
-                                httpSampler("API_Login", baseUrl + "/api/auth/login")
+                                httpSampler("APIULogin", baseUrl + "/api/auth/login")
                                         .method("POST")
                                         .contentType(ContentType.APPLICATION_JSON)
                                         .body(String.format(
@@ -61,26 +68,26 @@ public class JmxGenerator {
                                                 defaultAppUser, defaultAppPass
                                         ))
                                         .children(
-                                                jsonExtractor("extracted_token", "token")
+                                                jsonExtractor("extractedUtoken", "token")
                                         ),
 
                                 httpSampler("Access Summary Profile API", baseUrl + "/api/summary/profile")
-                                        .header("Authorization", "Bearer ${extracted_token}"),
+                                        .header("Authorization", "Bearer ${extractedUtoken}"),
 
                                 httpSampler("Access User Accessories API", baseUrl + "/api/user-accessories/my-items")
-                                        .header("Authorization", "Bearer ${extracted_token}"),
+                                        .header("Authorization", "Bearer ${extractedUtoken}"),
 
                                 httpSampler("Access News API", baseUrl + "/api/news")
-                                        .header("Authorization", "Bearer ${extracted_token}"),
+                                        .header("Authorization", "Bearer ${extractedUtoken}"),
 
                                 httpSampler("Access Event API", baseUrl + "/api/events")
-                                        .header("Authorization", "Bearer ${extracted_token}"),
+                                        .header("Authorization", "Bearer ${extractedUtoken}"),
 
                                 httpSampler("Access Recycle History API", baseUrl + "/api/recycle-history")
-                                        .header("Authorization", "Bearer ${extracted_token}")
+                                        .header("Authorization", "Bearer ${extractedUtoken}")
                         )
 
-        ).saveAsJmx("tests/load_test.jmx");
+        ).saveAsJmx("tests/loadUtest.jmx");
     }
 }
 

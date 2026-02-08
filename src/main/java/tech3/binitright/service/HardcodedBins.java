@@ -1,8 +1,6 @@
 package tech3.binitright.service;
-import java.util.List;
 
-
-public class HardcodedBins {
+public final class HardcodedBins {
 
 	/*
 	 * public static final List<RecyclingBin> bins = List.of( new RecyclingBin( 1L,

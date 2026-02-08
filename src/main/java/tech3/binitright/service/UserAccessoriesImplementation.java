@@ -1,25 +1,23 @@
 package tech3.binitright.service;
 
-import jakarta.transaction.Transactional;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+
+import jakarta.transaction.Transactional;
 import tech3.binitright.interfacemethods.UserAccessoriesInterface;
 import tech3.binitright.model.UserAccessories;
 import tech3.binitright.repository.UserAccessoriesRepository;
-import tech3.binitright.request.RedeemRequest;
-
-import java.util.List;
 
 @Service
-public class UserAccessoriesImplementation implements UserAccessoriesInterface {
+public final class UserAccessoriesImplementation implements UserAccessoriesInterface {
 
     @Autowired
     private UserAccessoriesRepository userAccessoriesRepository;
 
     @Override
-    public void save(UserAccessories userAccessories) {
+    public void save(final UserAccessories userAccessories) {
         userAccessoriesRepository.save(userAccessories);
     }
 
@@ -29,24 +27,24 @@ public class UserAccessoriesImplementation implements UserAccessoriesInterface {
     }
 
     @Override
-    public List<UserAccessories> findAllByUser_Id(Long id) {
-        return userAccessoriesRepository.findAllByUser_Id(id);
+    public List<UserAccessories> findAllByUserUId(final Long id) {
+        return userAccessoriesRepository.findAllByUserUId(id);
     }
 
     @Override
     @Transactional
-    public void equipItem(Long userId, Long accessoriesId) {
+    public void equipItem(final Long userId, final Long accessoriesId) {
 
-        List<UserAccessories> currentEquipped =
-                userAccessoriesRepository.findByUser_IdAndEquippedTrue(userId);
+        final List<UserAccessories> currentEquipped =
+                userAccessoriesRepository.findByUserUIdAndEquippedTrue(userId);
 
-        for (UserAccessories item : currentEquipped) {
+        for (final UserAccessories item : currentEquipped) {
             item.setEquipped(false);
         }
         userAccessoriesRepository.saveAll(currentEquipped);
 
-        UserAccessories itemToEquip =
-                userAccessoriesRepository.findByUser_IdAndAccessories_AccessoriesId(userId, accessoriesId);
+        final UserAccessories itemToEquip =
+                userAccessoriesRepository.findByUserUIdAndAccessoriesUAccessoriesId(userId, accessoriesId);
 
         if (itemToEquip == null) {
             throw new RuntimeException("Accessory not owned");
@@ -58,9 +56,9 @@ public class UserAccessoriesImplementation implements UserAccessoriesInterface {
 
     @Override
     @Transactional
-    public void unequipItem(Long userId, Long accessoryId) {
-        UserAccessories itemToUnequip =
-                userAccessoriesRepository.findByUser_IdAndAccessories_AccessoriesId(userId, accessoryId);
+    public void unequipItem(final Long userId, final Long accessoryId) {
+        final UserAccessories itemToUnequip =
+                userAccessoriesRepository.findByUserUIdAndAccessoriesUAccessoriesId(userId, accessoryId);
 
         if (itemToUnequip != null) {
             itemToUnequip.setEquipped(false);

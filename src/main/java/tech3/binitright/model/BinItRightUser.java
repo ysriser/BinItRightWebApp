@@ -1,113 +1,110 @@
 package tech3.binitright.model;
 
 import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorColumn;
-import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
-
 
 @MappedSuperclass
 public abstract class BinItRightUser {
     @Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
-	private Long id;
-	
-	private String name;
-	private String username;	
-	private String password_hash;
-	private String locale;
-	private String emailAddress;
-	private String role;
-	private LocalDateTime created_at;
-	
-	public BinItRightUser() {}
-	
-	public BinItRightUser(String name, String username, String password_hash, String locale, String emailAddress, String role,LocalDateTime created_at) {
-		this.name = name;
-		this.username = username;
-		this.password_hash = password_hash;
-		this.locale = locale;
-		this.emailAddress = emailAddress;
-		this.role = role;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "userUid")
+    private Long id;
 
-    }
-	
-	@PrePersist
-    protected void onCreate() {
-        this.created_at = LocalDateTime.now();
+    private String name;
+    private String username;
+    private String passwordHash;
+    private String locale;
+    private String emailAddress;
+    private String role;
+    private LocalDateTime createdAt;
+
+    public BinItRightUser() {
     }
 
-    public Long getId() {
+    public BinItRightUser(final String name, final String username, final String passwordHash,
+                          final String locale, final String emailAddress, final String role, 
+                          final LocalDateTime createdAt) {
+        this.name = name;
+        this.username = username;
+        this.passwordHash = passwordHash;
+        this.locale = locale;
+        this.emailAddress = emailAddress;
+        this.role = role;
+        this.createdAt = createdAt;
+    }
+
+    @PrePersist
+    protected final void onCreate() { // 修复：添加 final，防止子类非法重写
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public final Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public final void setId(final Long id) {
         this.id = id;
     }
 
-	public String getName() {
-		return name;
-	}
+    public final String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public final void setName(final String name) {
+        this.name = name;
+    }
 
-	public String getUsername() {
-		return username;
-	}
+    public final String getUsername() {
+        return username;
+    }
 
-	public void setUsername(String username) {
-		this.username = username;
-	}
+    public final void setUsername(final String username) {
+        this.username = username;
+    }
 
-	public String getPassword_hash() {
-		return password_hash;
-	}
+    public final String getPasswordHash() {
+        return passwordHash;
+    }
 
-	public void setPassword_hash(String password_hash) {
-		this.password_hash = password_hash;
-	}
+    public final void setPasswordHash(final String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
 
-	public String getLocale() {
-		return locale;
-	}
+    public final String getLocale() {
+        return locale;
+    }
 
-	public void setLocale(String locale) {
-		this.locale = locale;
-	}
+    public final void setLocale(final String locale) {
+        this.locale = locale;
+    }
 
-	public String getEmailAddress() {
-		return emailAddress;
-	}
+    public final String getEmailAddress() {
+        return emailAddress;
+    }
 
-	public void setEmailAddress(String emailAddress) {
-		this.emailAddress = emailAddress;
-	}
+    public final void setEmailAddress(final String emailAddress) {
+        this.emailAddress = emailAddress;
+    }
 
-	public String getRole() {
-		return role;
-	}
+    public final String getRole() {
+        return role;
+    }
 
-	public void setRole(String role) {
-		this.role = role;
-	}
+    public final void setRole(final String role) {
+        this.role = role;
+    }
 
-	public LocalDateTime getCreated_at() {
-		return created_at;
-	}
+    public final LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
-	public void setCreated_at(LocalDateTime created_at) {
-		this.created_at = created_at;
-	}
-
+    public final void setCreatedAt(final LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }
-	

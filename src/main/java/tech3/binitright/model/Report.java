@@ -14,53 +14,51 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "report")
-public class Report {
-	
-	@Id
+public final class Report {
+
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "report_id")
+    @Column(name = "reportUid")
     private Long reportId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id", nullable = false)
     private Admin admin;
-   
-    @Column(name = "generated_at")
+
+    @Column(name = "generatedUat")
     private LocalDateTime generatedAt;
-    
-    public Report() {}
 
-	public Report(Long reportId, Admin admin, LocalDateTime generatedAt) {
-		super();
-		this.reportId = reportId;
-		this.admin = admin;
-		this.generatedAt = generatedAt;
-	}
+    public Report() {
+    }
 
-	public Long getReportId() {
-		return reportId;
-	}
+    public Report(final Long reportId, final Admin admin, final LocalDateTime generatedAt) {
+        super();
+        this.reportId = reportId;
+        this.admin = admin;
+        this.generatedAt = generatedAt;
+    }
 
-	public void setReportId(Long reportIdId) {
-		this.reportId = reportId;
-	}
+    public Long getReportId() {
+        return reportId;
+    }
 
-	public Admin getAdmin() {
-		return admin;
-	}
+    public void setReportId(final Long reportIdId) {
+        this.reportId = reportIdId;
+    }
 
-	public void setAdmin(Admin admin) {
-		this.admin = admin;
-	}
+    public Admin getAdmin() {
+        return admin;
+    }
 
-	public LocalDateTime getGeneratedAt() {
-		return generatedAt;
-	}
+    public void setAdmin(final Admin admin) {
+        this.admin = admin;
+    }
 
-	public void setGeneratedAt(LocalDateTime generatedAt) {
-		this.generatedAt = generatedAt;
-	}
+    public LocalDateTime getGeneratedAt() {
+        return generatedAt;
+    }
 
-
-
+    public void setGeneratedAt(final LocalDateTime generatedAt) {
+        this.generatedAt = generatedAt;
+    }
 }

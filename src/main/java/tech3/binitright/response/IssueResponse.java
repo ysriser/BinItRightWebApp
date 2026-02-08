@@ -1,11 +1,12 @@
 package tech3.binitright.response;
 
-public class IssueResponse {
+public final class IssueResponse {
     private Long issueId;
 
-    public IssueResponse() {}
+    public IssueResponse() {
+    }
 
-    public IssueResponse(Long issueId) {
+    public IssueResponse(final Long issueId) {
         this.issueId = issueId;
     }
 
@@ -13,7 +14,7 @@ public class IssueResponse {
         return issueId;
     }
 
-    public void setIssueId(Long issueId) {
+    public void setIssueId(final Long issueId) {
         this.issueId = issueId;
     }
 }

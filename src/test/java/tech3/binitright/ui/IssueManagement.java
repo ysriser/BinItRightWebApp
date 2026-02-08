@@ -31,9 +31,9 @@ public class IssueManagement extends Base {
 
         driver.get(baseUrl + "/admin/issues/" + targetId);
         wait.until(ExpectedConditions.textToBePresentInElementLocated(
-                By.cssSelector(".review-card .status-badge"), "IN_PROGRESS"));
+                By.cssSelector(".review-card .status-badge"), "INUPROGRESS"));
 
-        assertTrue(mainPage.issueManagementPage.getDetailPageStatus().contains("IN_PROGRESS"));
+        assertTrue(mainPage.issueManagementPage.getDetailPageStatus().contains("INUPROGRESS"));
     }
 
     @Test
@@ -61,9 +61,9 @@ public class IssueManagement extends Base {
         // NAVIGATION GUARD: Wait for the review card to exist
         wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".review-card")));
 
-        // STATE GUARD: Wait for the badge to show IN_PROGRESS
+        // STATE GUARD: Wait for the badge to show INUPROGRESS
         wait.until(ExpectedConditions.textToBePresentInElementLocated(
-                By.cssSelector(".status-badge"), "IN_PROGRESS"));
+                By.cssSelector(".status-badge"), "INUPROGRESS"));
 
         // Action & Final Verify
         mainPage.issueManagementPage.clickResolveIssue();

@@ -1,23 +1,29 @@
 package tech3.binitright.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
-import tech3.binitright.request.RegisterRequest;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import tech3.binitright.interfacemethods.UserInterface;
 import tech3.binitright.model.User;
 import tech3.binitright.request.LoginRequest;
+import tech3.binitright.request.RegisterRequest;
 import tech3.binitright.response.LoginResponse;
 import tech3.binitright.response.RegisterResponse;
 import tech3.binitright.util.JwtUtil;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "*")
-public class UserLoginController {
+public final class UserLoginController {
+
     @Autowired
     private UserInterface userService;
 
@@ -28,54 +34,38 @@ public class UserLoginController {
     private JwtUtil jwtUtil;
 
     @PostMapping("/login")
-    public LoginResponse login(@RequestBody LoginRequest request) {
-
-        // ✅ 1. Validate request body
+    public LoginResponse login(@RequestBody final LoginRequest request) {
         if (request.getUsername() == null || request.getPassword() == null) {
             return new LoginResponse(false, "Missing credentials", null);
         }
 
-        // ✅ 2. Find APP USER (app_users table)
-        List<User> users = userService.findByUsername(request.getUsername());
-
+        final List<User> users = userService.findByUsername(request.getUsername());
         if (users.isEmpty()) {
             return new LoginResponse(false, "Invalid username or password", null);
         }
 
-        User user = users.get(0);
-
-        // ✅ 3. Match BCrypt password against password_hash
-        if (!passwordEncoder.matches(
-                request.getPassword(),
-                user.getPassword_hash()
-        )) {
+        final User user = users.get(0);
+        if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
             return new LoginResponse(false, "Invalid username or password", null);
         }
 
-        // ✅ 4. Generate JWT token
-        String token = jwtUtil.generateToken(user);
-        System.out.println("User: " +  user.getId());
-
-        // ✅ 5. Return success
+        final String token = jwtUtil.generateToken(user);
         return new LoginResponse(true, "Login success", token);
     }
-    @PostMapping("/register")
-    public ResponseEntity<RegisterResponse> register(@RequestBody RegisterRequest req) {
 
+    @PostMapping("/register")
+    public ResponseEntity<RegisterResponse> register(@RequestBody final RegisterRequest req) {
         if (userService.existsByUsername(req.getUsername())) {
             return ResponseEntity.badRequest()
                     .body(new RegisterResponse(false, "Username already exists"));
         }
 
-        User user = new User();
+        final User user = new User();
         user.setUsername(req.getUsername());
-        user.setPassword_hash(passwordEncoder.encode(req.getPassword()));
+        user.setPasswordHash(passwordEncoder.encode(req.getPassword()));
         user.setRole("USER");
         userService.saveUser(user);
 
         return ResponseEntity.ok(new RegisterResponse(true, "Account created"));
     }
-
 }
-
-

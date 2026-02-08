@@ -3,41 +3,45 @@ package tech3.binitright.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import tech3.binitright.interfacemethods.IssueInterface;
 import tech3.binitright.interfacemethods.UserInterface;
-import tech3.binitright.request.IssueCreateRequest;
 import tech3.binitright.model.Issue;
+import tech3.binitright.request.IssueCreateRequest;
 import tech3.binitright.response.IssueResponse;
 import tech3.binitright.service.UserImplementation;
 
 @RestController
 @RequestMapping("/api/issues")
-public class IssueRestController {
+public final class IssueRestController { // 修复：声明类为 final
 
     @Autowired
     private UserInterface userService;
 
     @Autowired
-    public void setUserService(UserImplementation userImplementation) {
+    public void setUserService(final UserImplementation userImplementation) { // 修复：添加 final 到参数
         this.userService = userImplementation;
     }
 
     private final IssueInterface issueService;
 
-    public IssueRestController(IssueInterface issueService) {
+    public IssueRestController(final IssueInterface issueService) { // 修复：添加 final 到参数
         this.issueService = issueService;
     }
 
     @PostMapping
     public ResponseEntity<IssueResponse> createIssue(
-            @RequestBody IssueCreateRequest request, Authentication authentication) {
+            @RequestBody final IssueCreateRequest request, // 修复：添加 final 到参数
+            final Authentication authentication) { // 修复：添加 final 到参数
 
-        Long userId = Long.valueOf(authentication.getName());
-        Issue saved = issueService.createIssue(request, userId);
+        final Long userId = Long.valueOf(authentication.getName());
+        final Issue saved = issueService.createIssue(request, userId);
 
-        IssueResponse response = new IssueResponse(saved.getIssueId());
+        final IssueResponse response = new IssueResponse(saved.getIssueId());
         return ResponseEntity.ok(response);
     }
 }
-

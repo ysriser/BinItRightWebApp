@@ -2,7 +2,7 @@ package tech3.binitright.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class PresignedUploadResponse {
+public final class PresignedUploadResponse {
 
     @JsonProperty("uploadUrl")
     private String uploadUrl;
@@ -10,9 +10,10 @@ public class PresignedUploadResponse {
     @JsonProperty("objectKey")
     private String objectKey;
 
-    public PresignedUploadResponse() {}
+    public PresignedUploadResponse() {
+    }
 
-    public PresignedUploadResponse(String uploadUrl, String objectKey) {
+    public PresignedUploadResponse(final String uploadUrl, final String objectKey) {
         this.uploadUrl = uploadUrl;
         this.objectKey = objectKey;
     }
@@ -21,7 +22,7 @@ public class PresignedUploadResponse {
         return uploadUrl;
     }
 
-    public void setUploadUrl(String uploadUrl) {
+    public void setUploadUrl(final String uploadUrl) {
         this.uploadUrl = uploadUrl;
     }
 
@@ -29,7 +30,7 @@ public class PresignedUploadResponse {
         return objectKey;
     }
 
-    public void setObjectKey(String objectKey) {
+    public void setObjectKey(final String objectKey) {
         this.objectKey = objectKey;
     }
 }

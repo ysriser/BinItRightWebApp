@@ -1,7 +1,5 @@
 package tech3.binitright.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -11,6 +9,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -24,8 +23,11 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @Service
-public class ScanService {
+public final class ScanService {
 
     private final ObjectMapper objectMapper;
 
@@ -84,20 +86,20 @@ public class ScanService {
         final double categoryThreshold = getCategoryThreshold(category);
         final boolean lowConfidence = confidence < categoryThreshold;
         final boolean lowMargin = margin < marginThreshold;
-        final boolean otherUncertain = "other_uncertain".equalsIgnoreCase(category);
+        final boolean otherUncertain = "otherUuncertain".equalsIgnoreCase(category);
 
         final List<String> reasonCodes = new ArrayList<>();
         if (forceCloud) {
-            reasonCodes.add("FORCE_CLOUD");
+            reasonCodes.add("FORCEUCLOUD");
         }
         if (lowConfidence) {
-            reasonCodes.add("LOW_CONFIDENCE");
+            reasonCodes.add("LOWUCONFIDENCE");
         }
         if (lowMargin) {
-            reasonCodes.add("LOW_MARGIN");
+            reasonCodes.add("LOWUMARGIN");
         }
         if (otherUncertain) {
-            reasonCodes.add("PRED_OTHER_UNCERTAIN");
+            reasonCodes.add("PREDUOTHERUUNCERTAIN");
         }
         if (tier1Escalate) {
             reasonCodes.add("TIER1_ESCALATE");
@@ -107,15 +109,15 @@ public class ScanService {
 
         final Map<String, Object> finalResult;
         final Map<String, Object> meta = new HashMap<>();
-        meta.put("schema_version", "0.1");
-        meta.put("force_cloud", forceCloud);
+        meta.put("schemaUversion", "0.1");
+        meta.put("forceUcloud", forceCloud);
         if (timestamp != null) {
-            meta.put("request_timestamp", timestamp);
+            meta.put("requestUtimestamp", timestamp);
         }
 
         if (usedTier2) {
             final String providerAttempted = normalizeProvider(tier2Provider);
-            meta.put("tier2_provider_attempted", providerAttempted);
+            meta.put("tier2_providerUattempted", providerAttempted);
 
             if ("openai".equals(providerAttempted)) {
                 Map<String, Object> openAiFinal = null;
@@ -125,44 +127,44 @@ public class ScanService {
                     try {
                         openAiFinal = callOpenAiForFinal(image, tier1);
                         break;
-                    } catch (OpenAiCallException ex) {
+                    } catch (final OpenAiCallException ex) {
                         openAiError = ex;
                     }
                 }
 
                 if (openAiFinal != null) {
                     finalResult = openAiFinal;
-                    meta.put("tier2_provider_used", "openai");
+                    meta.put("tier2_providerUused", "openai");
                 } else {
                     finalResult = buildMockTier2Final(tier1);
-                    reasonCodes.add("TIER2_FALLBACK_MOCK");
-                    meta.put("tier2_provider_used", "mock");
+                    reasonCodes.add("TIER2_FALLBACKUMOCK");
+                    meta.put("tier2_providerUused", "mock");
                     if (openAiError != null) {
                         meta.put("tier2_error", openAiError.getError());
                     }
                 }
             } else {
                 finalResult = buildMockTier2Final(tier1);
-                meta.put("tier2_provider_used", "mock");
+                meta.put("tier2_providerUused", "mock");
             }
         } else {
             finalResult = buildTier1Final(tier1);
-            meta.put("tier2_provider_attempted", "mock");
-            meta.put("tier2_provider_used", "mock");
+            meta.put("tier2_providerUattempted", "mock");
+            meta.put("tier2_providerUused", "mock");
         }
 
         final Map<String, Object> decision = new HashMap<>();
-        decision.put("used_tier2", usedTier2);
-        decision.put("reason_codes", reasonCodes);
+        decision.put("usedUtier2", usedTier2);
+        decision.put("reasonUcodes", reasonCodes);
 
         final Map<String, Object> thresholds = new HashMap<>();
-        thresholds.put("conf_threshold", confThreshold);
-        thresholds.put("margin_threshold", marginThreshold);
+        thresholds.put("confUthreshold", confThreshold);
+        thresholds.put("marginUthreshold", marginThreshold);
         decision.put("thresholds", thresholds);
 
         final Map<String, Object> latency = new HashMap<>();
         latency.put("total", System.currentTimeMillis() - startMs);
-        meta.put("latency_ms", latency);
+        meta.put("latencyUms", latency);
 
         final Map<String, Object> data = new HashMap<>();
         data.put("tier1", tier1);
@@ -172,7 +174,7 @@ public class ScanService {
 
         final Map<String, Object> response = new HashMap<>();
         response.put("status", "success");
-        response.put("request_id", requestId);
+        response.put("requestUid", requestId);
         response.put("data", data);
         return response;
     }
@@ -185,27 +187,27 @@ public class ScanService {
         try {
             final JsonNode root = objectMapper.readTree(tier1Json);
             final Map<String, Object> parsed = new HashMap<>();
-            parsed.put("category", root.path("category").asText("other_uncertain"));
+            parsed.put("category", root.path("category").asText("otherUuncertain"));
             parsed.put("confidence", root.path("confidence").asDouble(0.0));
             parsed.put("escalate", root.path("escalate").asBoolean(true));
 
             final List<Map<String, Object>> top3 = new ArrayList<>();
-            for (JsonNode item : root.path("top3")) {
+            for (final JsonNode item : root.path("top3")) {
                 final Map<String, Object> one = new HashMap<>();
-                one.put("label", item.path("label").asText("other_uncertain"));
+                one.put("label", item.path("label").asText("otherUuncertain"));
                 one.put("p", item.path("p").asDouble(0.0));
                 top3.add(one);
             }
             parsed.put("top3", top3);
             return parsed;
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             return createFallbackTier1();
         }
     }
 
     private Map<String, Object> createFallbackTier1() {
         final Map<String, Object> tier1 = new HashMap<>();
-        tier1.put("category", "other_uncertain");
+        tier1.put("category", "otherUuncertain");
         tier1.put("confidence", 0.0);
         tier1.put("escalate", true);
         tier1.put("top3", new ArrayList<>());
@@ -214,7 +216,7 @@ public class ScanService {
 
     private double computeMargin(final Map<String, Object> tier1) {
         final Object rawTop3 = tier1.get("top3");
-        if (rawTop3 instanceof List<?> top3List && top3List.size() >= 2) {
+        if (rawTop3 instanceof final List<?> top3List && top3List.size() >= 2) {
             final double p1 = extractProbability(top3List.get(0));
             final double p2 = extractProbability(top3List.get(1));
             return p1 - p2;
@@ -223,14 +225,14 @@ public class ScanService {
     }
 
     private double extractProbability(final Object topItem) {
-        if (topItem instanceof Map<?, ?> map) {
+        if (topItem instanceof final Map<?, ?> map) {
             return toDouble(map.get("p"));
         }
         return 0.0;
     }
 
     private double toDouble(final Object raw) {
-        if (raw instanceof Number number) {
+        if (raw instanceof final Number number) {
             return number.doubleValue();
         }
         if (raw == null) {
@@ -238,7 +240,7 @@ public class ScanService {
         }
         try {
             return Double.parseDouble(String.valueOf(raw));
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             return 0.0;
         }
     }
@@ -429,8 +431,8 @@ public class ScanService {
         if (apiKey == null || apiKey.isBlank()) {
             final Map<String, Object> error = new HashMap<>();
             error.put("type", "auth");
-            error.put("code", "missing_api_key");
-            error.put("message", "OPENAI_API_KEY or LLM_API_KEY is not set");
+            error.put("code", "missingUapiUkey");
+            error.put("message", "OPENAIUAPIUKEY or LLMUAPIUKEY is not set");
             throw new OpenAiCallException(error);
         }
 
@@ -461,19 +463,19 @@ public class ScanService {
             }
 
             return parseOpenAiFinal(body);
-        } catch (HttpStatusCodeException ex) {
+        } catch (final HttpStatusCodeException ex) {
             throw new OpenAiCallException(parseOpenAiError(ex));
-        } catch (ResourceAccessException ex) {
+        } catch (final ResourceAccessException ex) {
             final Map<String, Object> error = new HashMap<>();
             error.put("type", "timeout");
             error.put("code", "timeout");
             error.put("message", "OpenAI request timeout or network error");
             throw new OpenAiCallException(error);
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             throw unknownOpenAiError("Failed to read image bytes");
-        } catch (OpenAiCallException ex) {
+        } catch (final OpenAiCallException ex) {
             throw ex;
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             throw unknownOpenAiError(ex.getMessage() == null ? "unknown" : ex.getMessage());
         }
     }
@@ -508,7 +510,7 @@ public class ScanService {
         schema.put("properties", properties);
 
         final Map<String, Object> textFormat = new HashMap<>();
-        textFormat.put("type", "json_schema");
+        textFormat.put("type", "jsonUschema");
         textFormat.put("name", "ScanFinal");
         textFormat.put("strict", true);
         textFormat.put("schema", schema);
@@ -518,12 +520,13 @@ public class ScanService {
 
         final String model = openAiModel == null || openAiModel.isBlank() ? "gpt-4o-mini" : openAiModel;
         if (model.startsWith("gpt-5")) {
-            text.put("verbosity", openAiVerbosity == null || openAiVerbosity.isBlank() ? "low" : openAiVerbosity);
+            final String verbosity = openAiVerbosity == null || openAiVerbosity.isBlank() ? "low" : openAiVerbosity;
+            text.put("verbosity", verbosity);
         }
 
         final String tier1Category = String.valueOf(tier1.get("category")).trim().toLowerCase(Locale.ROOT);
         final double tier1Confidence = toDouble(tier1.get("confidence"));
-        final boolean tier1HighlyUncertain = "other_uncertain".equals(tier1Category)
+        final boolean tier1HighlyUncertain = "otherUuncertain".equals(tier1Category)
                 || "uncertain".equals(tier1Category)
                 || "unknown".equals(tier1Category)
                 || tier1Confidence < confThreshold;
@@ -542,63 +545,67 @@ public class ScanService {
                 + "Rules:\n"
                 + "1) Do NOT ask user questions. Do NOT output quiz or follow-up questions.\n"
                 + "2) category:\n"
-                + "   - If item is e-waste (electronics, battery, cable, charger, small device), category MUST start with 'E-waste - '.\n"
+                + "   - If item is e-waste (electronics, battery, cable, charger, small device), "
+                + "category MUST start with 'E-waste - '.\n"
                 + "   - If item is textile/fabric/clothing, category MUST start with 'Textile - '.\n"
-                + "   - For any clearly visible main object, category MUST be a concrete short noun phrase (for example: 'Ceramic mug', 'Plastic takeaway box', 'A Heytea cup with lid').\n"
+                + "   - For any clearly visible main object, category MUST be a concrete short noun phrase "
+                + "(for example: 'Ceramic mug', 'Plastic takeaway box', 'A Heytea cup with lid').\n"
                 + "   - Do NOT output uncertain just because the object is outside Tier-1 labels.\n"
-                + "   - Use category='Not sure' ONLY when the image is truly unreadable (severe blur/out-of-focus/fully occluded) or no clear single main item exists.\n"
+                + "   - Use category='Not sure' ONLY when the image is truly unreadable (severe blur/out-of-focus/"
+                + "fully occluded) or no clear single main item exists.\n"
                 + "3) recyclable:\n"
                 + "   - true ONLY for normal blue-bin flow (clean, dry, mostly single-material recyclable).\n"
                 + "   - false for e-waste, textile, contaminated paper, heavily food-stained items, unknown items.\n"
                 + "4) instructions:\n"
                 + "   - Provide disposal-only steps (2-5), imperative style.\n"
-                + "   - For composite items, explain each part clearly (for example: empty/rinse first, then where each part goes).\n"
+                + "   - For composite items, explain each part clearly (for example: empty/rinse first, "
+                + "then where each part goes).\n"
                 + "   - If special drop-off is needed, say generic 'bring to an e-waste recycling point'.\n"
                 + "   - Do not include store names or exact addresses.\n"
                 + "5) confidence:\n"
                 + "   - 0.85-0.99 when very clear.\n"
                 + "   - 0.55-0.80 when somewhat clear.\n"
                 + "   - If category='Not sure', confidence MUST be <=0.54.\n"
-                + "6) If the photo is clearly unusable, you may include ONE short rescan hint, but still provide safe disposal guidance in instructions.\n"
-                + "If they're pranks (like just taking pictures of people or airplanes), you can be appropriately humorous, but don't be offensive.\n"
-                ;
+                + "6) If the photo is clearly unusable, you may include ONE short rescan hint, "
+                + "but still provide safe disposal guidance in instructions.\n"
+                + "If they're pranks (like just taking pictures of people or airplanes), "
+                + "you can be appropriately humorous, but don't be offensive.\n";
 
         final List<Map<String, Object>> input = new ArrayList<>();
         input.add(Map.of(
                 "role", "system",
-                "content", List.of(Map.of("type", "input_text", "text", systemPrompt))
+                "content", List.of(Map.of("type", "inputUtext", "text", systemPrompt))
         ));
         input.add(Map.of(
                 "role", "user",
                 "content", List.of(
-                        Map.of("type", "input_text", "text", tier1Hint),
-                        Map.of("type", "input_image", "image_url", dataUrl)
+                        Map.of("type", "inputUtext", "text", tier1Hint),
+                        Map.of("type", "inputUimage", "imageUurl", dataUrl)
                 )
         ));
 
-        final Map<String, Object> payload = new HashMap<>();
-        payload.put("model", model);
-        payload.put("input", input);
-        payload.put("text", text);
+        final Map<String, Object> finalPayload = new HashMap<>();
+        finalPayload.put("model", model);
+        finalPayload.put("input", input);
+        finalPayload.put("text", text);
 
         if (model.startsWith("gpt-5")) {
-            payload.put("reasoning", Map.of(
-                    "effort", openAiReasoningEffort == null || openAiReasoningEffort.isBlank()
-                            ? "minimal"
-                            : openAiReasoningEffort
-            ));
+            final String reasoningEffort = openAiReasoningEffort == null || openAiReasoningEffort.isBlank()
+                    ? "minimal"
+                    : openAiReasoningEffort;
+            finalPayload.put("reasoning", Map.of("effort", reasoningEffort));
         }
 
-        return payload;
+        return finalPayload;
     }
 
     private Map<String, Object> parseOpenAiFinal(final String body) throws IOException {
         final JsonNode root = objectMapper.readTree(body);
-        String outputJson = root.path("output_text").asText(null);
+        String outputJson = root.path("outputUtext").asText(null);
 
         if (outputJson == null || outputJson.isBlank()) {
-            for (JsonNode outputNode : root.path("output")) {
-                for (JsonNode contentNode : outputNode.path("content")) {
+            for (final JsonNode outputNode : root.path("output")) {
+                for (final JsonNode contentNode : outputNode.path("content")) {
                     if (contentNode.has("text")) {
                         outputJson = contentNode.path("text").asText("");
                         if (!outputJson.isBlank()) {
@@ -613,12 +620,12 @@ public class ScanService {
         }
 
         if (outputJson == null || outputJson.isBlank()) {
-            throw unknownOpenAiError("OpenAI response does not contain output_text");
+            throw unknownOpenAiError("OpenAI response does not contain outputUtext");
         }
 
         final JsonNode finalNode = objectMapper.readTree(outputJson);
         String category = finalNode.path("category").asText("").trim();
-        if ("other_uncertain".equalsIgnoreCase(category)
+        if ("otherUuncertain".equalsIgnoreCase(category)
                 || "uncertain".equalsIgnoreCase(category)
                 || "not sure".equalsIgnoreCase(category)
                 || "unknown".equalsIgnoreCase(category)) {
@@ -629,7 +636,7 @@ public class ScanService {
         final double confidence = clampConfidence(finalNode.path("confidence").asDouble(0.0));
 
         final List<String> instructions = new ArrayList<>();
-        for (JsonNode step : finalNode.path("instructions")) {
+        for (final JsonNode step : finalNode.path("instructions")) {
             final String text = step.asText("").trim();
             if (!text.isBlank()) {
                 instructions.add(text);
@@ -656,7 +663,7 @@ public class ScanService {
 
     private Map<String, Object> parseOpenAiError(final HttpStatusCodeException ex) {
         final Map<String, Object> error = new HashMap<>();
-        error.put("http_status", String.valueOf(ex.getStatusCode().value()));
+        error.put("httpUstatus", String.valueOf(ex.getStatusCode().value()));
 
         final String body = ex.getResponseBodyAsString(StandardCharsets.UTF_8);
         if (body == null || body.isBlank()) {
@@ -672,7 +679,7 @@ public class ScanService {
             error.put("type", err.path("type").asText("unknown"));
             error.put("code", err.path("code").asText("unknown"));
             error.put("message", err.path("message").asText("OpenAI request failed"));
-        } catch (Exception parseEx) {
+        } catch (final Exception parseEx) {
             error.put("type", "unknown");
             error.put("code", "unknown");
             error.put("message", "OpenAI request failed");
@@ -682,11 +689,11 @@ public class ScanService {
     }
 
     private String resolveOpenAiKey() {
-        final String primary = System.getenv("OPENAI_API_KEY");
+        final String primary = System.getenv("OPENAIUAPIUKEY");
         if (primary != null && !primary.isBlank()) {
             return primary;
         }
-        final String fallback = System.getenv("LLM_API_KEY");
+        final String fallback = System.getenv("LLMUAPIUKEY");
         if (fallback != null && !fallback.isBlank()) {
             return fallback;
         }
@@ -705,6 +712,3 @@ public class ScanService {
         }
     }
 }
-
-
-

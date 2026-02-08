@@ -1,33 +1,33 @@
 package tech3.binitright.service;
 
-import com.amazonaws.HttpMethod;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import com.amazonaws.HttpMethod;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
+
 @Service
-public class DigitalOceanStorageService {
+public final class DigitalOceanStorageService {
 
     private final AmazonS3 s3;
 
     @Value("${storage.spaces.bucket}")
     private String bucket;
 
-    public DigitalOceanStorageService(AmazonS3 s3) {
+    public DigitalOceanStorageService(final AmazonS3 s3) {
         this.s3 = s3;
     }
-    public String generateSignedVideoUrl(String objectKey) {
+    public String generateSignedVideoUrl(final String objectKey) {
 
-        Date expiry =
+        final Date expiry =
                 Date.from(Instant.now().plus(10, ChronoUnit.MINUTES));
 
-        GeneratePresignedUrlRequest request =
+        final GeneratePresignedUrlRequest request =
                 new GeneratePresignedUrlRequest(bucket, objectKey)
                         .withMethod(HttpMethod.GET)
                         .withExpiration(expiry);

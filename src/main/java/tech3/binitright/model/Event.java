@@ -1,6 +1,7 @@
 package tech3.binitright.model;
 
 import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -12,58 +13,55 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "events")
-public class Event {
+public final class Event {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "event_id")
+    @Column(name = "eventUid")
     private Long eventId;
 
     private String title;
-    
     private String description;
-    
     private String locationName;
-
     private String postalCode;
-    
-    @Column(name = "start_time")
+
+    @Column(name = "startUtime")
     private LocalDateTime startTime;
-    
-    @Column(name = "end_time")
+
+    @Column(name = "endUtime")
     private LocalDateTime endTime;
-    
+
     private String imageUrl;
-    
+
     @Enumerated(EnumType.STRING)
     private Status status;
-    
-    public enum Status {
-        PROCESSING,
-        APPROVED,
-        DENIED
-    }
-    
-    public Event() {}
-    public Event(Long eventId, String title, String description, String locationName, String PostalCode, LocalDateTime startTime,
-                 LocalDateTime endTime, String imageUrl, Status status) {
-		
-		this.eventId = eventId;
-		this.title = title;
-		this.description = description;
-		this.locationName = locationName;
-        this.postalCode = PostalCode;
-		this.startTime = startTime;
-		this.endTime = endTime;
-		this.imageUrl = imageUrl;
-		this.status = status;
-	}
 
-	public Long getEventId() {
+    public enum Status {
+        PROCESSING, APPROVED, DENIED
+    }
+
+    public Event() {
+    }
+
+    public Event(final Long eventId, final String title, final String description,
+                 final String locationName, final String postalCode, final LocalDateTime startTime,
+                 final LocalDateTime endTime, final String imageUrl, final Status status) {
+        this.eventId = eventId;
+        this.title = title;
+        this.description = description;
+        this.locationName = locationName;
+        this.postalCode = postalCode;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.imageUrl = imageUrl;
+        this.status = status;
+    }
+
+    public Long getEventId() {
         return eventId;
     }
 
-    public void setEventId(Long eventId) {
+    public void setEventId(final Long eventId) {
         this.eventId = eventId;
     }
 
@@ -71,7 +69,7 @@ public class Event {
         return title;
     }
 
-    public void setTitle(String title) {
+    public void setTitle(final String title) {
         this.title = title;
     }
 
@@ -79,7 +77,7 @@ public class Event {
         return description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(final String description) {
         this.description = description;
     }
 
@@ -87,7 +85,7 @@ public class Event {
         return locationName;
     }
 
-    public void setLocationName(String location) {
+    public void setLocationName(final String locationName) {
         this.locationName = locationName;
     }
 
@@ -95,7 +93,7 @@ public class Event {
         return postalCode;
     }
 
-    public void setPostalCode(String postalCode) {
+    public void setPostalCode(final String postalCode) {
         this.postalCode = postalCode;
     }
 
@@ -103,7 +101,7 @@ public class Event {
         return startTime;
     }
 
-    public void setStartTime(LocalDateTime startTime) {
+    public void setStartTime(final LocalDateTime startTime) {
         this.startTime = startTime;
     }
 
@@ -111,7 +109,7 @@ public class Event {
         return endTime;
     }
 
-    public void setEndTime(LocalDateTime endTime) {
+    public void setEndTime(final LocalDateTime endTime) {
         this.endTime = endTime;
     }
 
@@ -119,7 +117,7 @@ public class Event {
         return imageUrl;
     }
 
-    public void setImageUrl(String imageUrl) {
+    public void setImageUrl(final String imageUrl) {
         this.imageUrl = imageUrl;
     }
 
@@ -127,8 +125,7 @@ public class Event {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(final Status status) {
         this.status = status;
     }
-
 }

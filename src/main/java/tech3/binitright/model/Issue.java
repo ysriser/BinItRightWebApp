@@ -1,6 +1,7 @@
 package tech3.binitright.model;
 
 import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,31 +16,28 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 
 @Entity
-public class Issue {
+public final class Issue {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "issue_id")
+    @Column(name = "issueUid")
     private Long issueId;
 
     public enum IssueCategory {
-        BinIssues,
-        AppProblems,
-        LocationErrors,
-        Others
+        BinIssues, AppProblems, LocationErrors, Others
     }
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "issue_category", nullable = false)
+    @Column(name = "issueUcategory", nullable = false)
     private IssueCategory issueCategory;
 
     private String description;
 
-    @Column(name = "created_at")
+    @Column(name = "createdUat")
     private LocalDateTime createdAt;
 
-    @Column(name = "resolved_at")
+    @Column(name = "resolvedUat")
     private LocalDateTime resolvedAt;
-    
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
@@ -52,11 +50,8 @@ public class Issue {
         }
     }
 
-
     public enum IssueStatus {
-        NEW,
-        IN_PROGRESS,
-        RESOLVED
+        NEW, INUPROGRESS, RESOLVED
     }
 
     @Enumerated(EnumType.STRING)
@@ -64,90 +59,86 @@ public class Issue {
     private IssueStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "raised_by_user_id", nullable = false)
+    @JoinColumn(name = "raisedUbyUuserUid", nullable = false)
     private User raisedBy;
 
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "resolved_by_admin_id")
+    @JoinColumn(name = "resolvedUbyUadminUid")
     private Admin resolvedBy;
-    
+
     public Issue() {}
-	public Issue( IssueCategory issueCategory, String description, 
-			 IssueStatus status, User raisedBy, Admin resolvedBy) {
-		super();
-		
-		this.issueCategory = issueCategory;
-		this.description = description;
-		this.status = status;
-		this.raisedBy = raisedBy;
-		this.resolvedBy = resolvedBy;
-	}
 
-	public Long getIssueId() {
-		return issueId;
-	}
+    public Issue(final IssueCategory issueCategory, final String description, 
+                 final IssueStatus status, final User raisedBy, final Admin resolvedBy) {
+        super();
+        this.issueCategory = issueCategory;
+        this.description = description;
+        this.status = status;
+        this.raisedBy = raisedBy;
+        this.resolvedBy = resolvedBy;
+    }
 
-	public void setIssueId(Long issueId) {
-		this.issueId = issueId;
-	}
+    public Long getIssueId() {
+        return issueId;
+    }
 
-	public IssueCategory getIssueCategory() {
-		return issueCategory;
-	}
+    public void setIssueId(final Long issueId) {
+        this.issueId = issueId;
+    }
 
-	public void setIssueCategory(IssueCategory issueCategory) {
-		this.issueCategory = issueCategory;
-	}
+    public IssueCategory getIssueCategory() {
+        return issueCategory;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public void setIssueCategory(final IssueCategory issueCategory) {
+        this.issueCategory = issueCategory;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
+    public void setDescription(final String description) {
+        this.description = description;
+    }
 
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
-	public LocalDateTime getResolvedAt() {
-		return resolvedAt;
-	}
+    public void setCreatedAt(final LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 
-	public void setResolvedAt(LocalDateTime resolvedAt) {
-		this.resolvedAt = resolvedAt;
-	}
+    public LocalDateTime getResolvedAt() {
+        return resolvedAt;
+    }
 
-	public IssueStatus getStatus() {
-		return status;
-	}
+    public void setResolvedAt(final LocalDateTime resolvedAt) {
+        this.resolvedAt = resolvedAt;
+    }
 
-	public void setStatus(IssueStatus status) {
-		this.status = status;
-	}
+    public IssueStatus getStatus() {
+        return status;
+    }
 
-	public User getRaisedBy() {
-		return raisedBy;
-	}
+    public void setStatus(final IssueStatus status) {
+        this.status = status;
+    }
 
-	public void setRaisedBy(User raisedBy) {
-		this.raisedBy = raisedBy;
-	}
+    public User getRaisedBy() {
+        return raisedBy;
+    }
 
-	public Admin getResolvedBy() {
-		return resolvedBy;
-	}
+    public void setRaisedBy(final User raisedBy) {
+        this.raisedBy = raisedBy;
+    }
 
-	public void setResolvedBy(Admin resolvedBy) {
-		this.resolvedBy = resolvedBy;
-	}
+    public Admin getResolvedBy() {
+        return resolvedBy;
+    }
 
-
-    
+    public void setResolvedBy(final Admin resolvedBy) {
+        this.resolvedBy = resolvedBy;
+    }
 }

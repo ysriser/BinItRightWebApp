@@ -13,11 +13,11 @@ import tech3.binitright.service.DropOffLocationImplementation;
 
 @RestController
 @RequestMapping("/api/bins")
-public class DropOffLocationController {
+public final class DropOffLocationController {
 
     private final DropOffLocationImplementation service;
 
-    public DropOffLocationController(DropOffLocationImplementation service) {
+    public DropOffLocationController(final DropOffLocationImplementation service) {
         this.service = service;
     }
 
@@ -28,23 +28,19 @@ public class DropOffLocationController {
 
     @GetMapping("/nearby")
     public List<NearByBinDto> nearbyBins(
-            @RequestParam double lat,
-            @RequestParam double lng,
-            @RequestParam(defaultValue = "30") double radius) {
-    	System.out.println("Inside dropOff controller:  "+lat);
-
+            @RequestParam final double lat,
+            @RequestParam final double lng,
+            @RequestParam(defaultValue = "30") final double radius) {
         return service.getNearbyBins(lat, lng, radius);
     }
 
     @GetMapping("/search")
-    public List<NearByBinDto> FindBins(
-            @RequestParam double lat,
-            @RequestParam double lng,
-            @RequestParam(required = false) Double radius,
-            @RequestParam(required = false) String binType,
-            @RequestParam(required = false) Integer limit) {
-    	System.out.println("Inside.....");
-
+    public List<NearByBinDto> findBins(
+            @RequestParam final double lat,
+            @RequestParam final double lng,
+            @RequestParam(required = false) final Double radius,
+            @RequestParam(required = false) final String binType,
+            @RequestParam(required = false) final Integer limit) {
         if (radius != null) {
             return service.getNearbyBins(lat, lng, radius)
                     .stream()
@@ -52,15 +48,9 @@ public class DropOffLocationController {
                     .limit(limit != null ? limit : Long.MAX_VALUE)
                     .toList();
         }
-
-
-        List<NearByBinDto> list = service.searchBins(lat, lng, binType)
+        return service.searchBins(lat, lng, binType)
                 .stream()
                 .limit(limit != null ? limit : Long.MAX_VALUE)
                 .toList();
-        
-       System.out.println("list size:"+list.size());
-       return list;
     }
-    
 }

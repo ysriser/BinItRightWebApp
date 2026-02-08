@@ -1,7 +1,16 @@
 package tech3.binitright.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.util.List;
 import java.util.Map;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -10,16 +19,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
+
 import tech3.binitright.service.ScanService;
 import tech3.binitright.util.JwtUtil;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ScanRestController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -36,7 +38,7 @@ class TestControllerTest {
 
     @Test
     void scanReturnsV01EnvelopeAndFinalFiveFields() throws Exception {
-        Map<String, Object> finalObj = Map.of(
+        final Map<String, Object> finalObj = Map.of(
                 "category", "Plastic container",
                 "recyclable", true,
                 "confidence", 0.92,
@@ -48,20 +50,20 @@ class TestControllerTest {
                 )
         );
 
-        Map<String, Object> response = Map.of(
+        final Map<String, Object> response = Map.of(
                 "status", "success",
-                "request_id", "req-1",
+                "requestUid", "req-1",
                 "data", Map.of(
                         "tier1", Map.of("category", "plastic", "confidence", 0.92, "escalate", false),
-                        "decision", Map.of("used_tier2", false, "reason_codes", List.of()),
+                        "decision", Map.of("usedUtier2", false, "reasonUcodes", List.of()),
                         "final", finalObj,
-                        "meta", Map.of("schema_version", "0.1")
+                        "meta", Map.of("schemaUversion", "0.1")
                 )
         );
 
         when(scanService.handleScan(any(), any(), any(), eq(false))).thenReturn(response);
 
-        MockMultipartFile image = new MockMultipartFile(
+        final MockMultipartFile image = new MockMultipartFile(
                 "image",
                 "sample.jpg",
                 MediaType.IMAGE_JPEG_VALUE,
@@ -83,17 +85,17 @@ class TestControllerTest {
     @Test
     void scanParsesForceCloudAsTrue() throws Exception {
         when(scanService.handleScan(any(), any(), any(), eq(true))).thenReturn(
-                Map.of("status", "success", "request_id", "req-2", "data", Map.of())
+                Map.of("status", "success", "requestUid", "req-2", "data", Map.of())
         );
 
-        MockMultipartFile image = new MockMultipartFile(
+        final MockMultipartFile image = new MockMultipartFile(
                 "image",
                 "sample.jpg",
                 MediaType.IMAGE_JPEG_VALUE,
                 new byte[]{1, 2, 3}
         );
-        MockMultipartFile forceCloud = new MockMultipartFile(
-                "force_cloud",
+        final MockMultipartFile forceCloud = new MockMultipartFile(
+                "forceUcloud",
                 "",
                 MediaType.TEXT_PLAIN_VALUE,
                 "true".getBytes()
