@@ -39,6 +39,7 @@ public class SecurityConfig {
             final HttpSecurity http,
             final JwtAuthFilter jwtAuthFilter
     ) throws Exception {
+        applyGlobalSecurityHeaders(http); // Apply shared headers
         http
                 .securityMatcher("/api/**", "/error", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
                 .csrf(csrf -> csrf.disable())
@@ -85,6 +86,7 @@ public class SecurityConfig {
     @Bean
     @Order(2)
     public SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
+        applyGlobalSecurityHeaders(http); // Apply shared headers
         http
                 .securityMatcher(new NegatedRequestMatcher(new AntPathRequestMatcher("/api/**")))
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
@@ -151,6 +153,37 @@ public class SecurityConfig {
     @Bean
     public CookieSameSiteSupplier applicationCookieSameSiteSupplier() {
         return CookieSameSiteSupplier.ofLax();
+    }
+
+    private void applyGlobalSecurityHeaders(HttpSecurity http) throws Exception {
+        http.headers(headers -> headers
+                // FIX: Medium - Missing Anti-clickjacking (X-Frame-Options)
+                .frameOptions(frame -> frame.deny())
+
+                // FIX: Low - X-Content-Type-Options Header Missing
+                .contentTypeOptions(withDefaults())
+
+                // FIX: Medium - Content Security Policy (CSP)
+                .contentSecurityPolicy(csp -> csp.policyDirectives(
+                        "default-src 'self'; " +
+                                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; " +
+                                "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; " +
+                                "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; " +
+                                "img-src 'self' data: https:; " +
+                                "media-src 'self' https://*.digitaloceanspaces.com; " +
+                                "connect-src 'self' https://*.digitaloceanspaces.com; " +
+                                "frame-ancestors 'none'; form-action 'self';")
+                )
+
+                // FIX: Low - Permissions Policy Header Not Set
+                .addHeaderWriter(new StaticHeadersWriter("Permissions-Policy",
+                        "camera=(), microphone=(), geolocation=(), payment=()"))
+
+                // FIX: Low - Insufficient Site Isolation (Spectre)
+                .addHeaderWriter(new StaticHeadersWriter("Cross-Origin-Resource-Policy", "same-origin"))
+                .addHeaderWriter(new StaticHeadersWriter("Cross-Origin-Embedder-Policy", "require-corp"))
+                .addHeaderWriter(new StaticHeadersWriter("Cross-Origin-Opener-Policy", "same-origin"))
+        );
     }
 }
 
