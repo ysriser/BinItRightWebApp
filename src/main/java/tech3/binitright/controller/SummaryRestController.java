@@ -22,7 +22,7 @@ import tech3.binitright.service.UserImplementation;
 
 @RestController
 @RequestMapping("/api/summary")
-public class SummaryRestController {
+public final class SummaryRestController {
 
     @Autowired
     private UserInterface userService;
@@ -60,12 +60,10 @@ public class SummaryRestController {
 
     @GetMapping("/profile")
     public ResponseEntity<?> getProfileSummary(final Authentication authentication) {
-        // 1. Safety check for the "User1" string issue we saw earlier
         Long userId;
         try {
             userId = Long.valueOf(authentication.getName());
         } catch (final NumberFormatException e) {
-            // Fallback logic if token has username instead of ID
             final User u = userService.findByUsername(authentication.getName()).get(0);
             userId = u.getId();
         }
@@ -83,16 +81,8 @@ public class SummaryRestController {
                 .orElse("defaultUavatar");
 
         final Integer totalRecycled = checkInService.getUserTotalRecycled(userId);
-
-//        String aiSummary = chatService.generateProgressSummary(
-//                user.getPointBalance(),
-//                user.getCarbonEmissionSaved(),
-//                user.getCurrentRank(),
-//                totalRecycled
-//        );
-
         final String aiSummary = "You're making a real environmental impact 🌱"
-        		+ " Keep recycling to climb higher and save more CO₂!";
+                + " Keep recycling to climb higher and save more CO₂!";
 
         final int totalAchievements = achievementService.getTotalAchievements(userId);
         final float co2Saved = user.getCarbonEmissionSaved();

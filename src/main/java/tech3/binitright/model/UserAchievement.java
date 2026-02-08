@@ -7,29 +7,28 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapsId;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "userUachievements")
-public class UserAchievement {
+public final class UserAchievement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "userUachievementUid")
     private Long userAchievementId;
 
     @ManyToOne
-    
     @JoinColumn(name = "userUid")
     private User user;
 
     @ManyToOne
-    
     @JoinColumn(name = "achievementUid")
     private Achievement achievement;
-    
-    public UserAchievement() {}
-    public UserAchievement(Long userAchievementId, User user, Achievement achievement) {
+
+    public UserAchievement() {
+    }
+
+    public UserAchievement(final Long userAchievementId, final User user, final Achievement achievement) {
         super();
         this.userAchievementId = userAchievementId;
         this.user = user;
@@ -40,7 +39,7 @@ public class UserAchievement {
         return userAchievementId;
     }
 
-    public void setUserAchievementId(Long userAchievementId) {
+    public void setUserAchievementId(final Long userAchievementId) {
         this.userAchievementId = userAchievementId;
     }
 
@@ -48,7 +47,7 @@ public class UserAchievement {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(final User user) {
         this.user = user;
     }
 
@@ -56,9 +55,7 @@ public class UserAchievement {
         return achievement;
     }
 
-    public void setAchievement(Achievement achievement) {
+    public void setAchievement(final Achievement achievement) {
         this.achievement = achievement;
     }
-
-
 }

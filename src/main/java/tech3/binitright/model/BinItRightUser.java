@@ -9,103 +9,102 @@ import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
 
-
 @MappedSuperclass
 public abstract class BinItRightUser {
     @Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "userUid")
-	private Long id;
+    private Long id;
 
-	private String name;
-	private String username;
-	private String passwordUhash;
-	private String locale;
-	private String emailAddress;
-	private String role;
-	private LocalDateTime createdUat;
+    private String name;
+    private String username;
+    private String passwordHash;
+    private String locale;
+    private String emailAddress;
+    private String role;
+    private LocalDateTime createdAt;
 
-	public BinItRightUser() {}
-
-	public BinItRightUser(final String name, final String username, final String passwordUhash,
-			final String locale, final String emailAddress, final String role,final LocalDateTime createdUat) {
-		this.name = name;
-		this.username = username;
-		this.passwordUhash = passwordUhash;
-		this.locale = locale;
-		this.emailAddress = emailAddress;
-		this.role = role;
-
+    public BinItRightUser() {
     }
 
-	@PrePersist
+    public BinItRightUser(final String name, final String username, final String passwordHash,
+                          final String locale, final String emailAddress, final String role, 
+                          final LocalDateTime createdAt) {
+        this.name = name;
+        this.username = username;
+        this.passwordHash = passwordHash;
+        this.locale = locale;
+        this.emailAddress = emailAddress;
+        this.role = role;
+        this.createdAt = createdAt;
+    }
+
+    @PrePersist
     protected void onCreate() {
-        this.createdUat = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
     }
 
-    public Long getId() {
+    public final Long getId() {
         return id;
     }
 
-    public void setId(final Long id) {
+    public final void setId(final Long id) {
         this.id = id;
     }
 
-	public String getName() {
-		return name;
-	}
+    public final String getName() {
+        return name;
+    }
 
-	public void setName(final String name) {
-		this.name = name;
-	}
+    public final void setName(final String name) {
+        this.name = name;
+    }
 
-	public String getUsername() {
-		return username;
-	}
+    public final String getUsername() {
+        return username;
+    }
 
-	public void setUsername(final String username) {
-		this.username = username;
-	}
+    public final void setUsername(final String username) {
+        this.username = username;
+    }
 
-	public String getPasswordUhash() {
-		return passwordUhash;
-	}
+    public final String getPasswordHash() {
+        return passwordHash;
+    }
 
-	public void setPasswordUhash(final String passwordUhash) {
-		this.passwordUhash = passwordUhash;
-	}
+    public final void setPasswordHash(final String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
 
-	public String getLocale() {
-		return locale;
-	}
+    public final String getLocale() {
+        return locale;
+    }
 
-	public void setLocale(final String locale) {
-		this.locale = locale;
-	}
+    public final void setLocale(final String locale) {
+        this.locale = locale;
+    }
 
-	public String getEmailAddress() {
-		return emailAddress;
-	}
+    public final String getEmailAddress() {
+        return emailAddress;
+    }
 
-	public void setEmailAddress(final String emailAddress) {
-		this.emailAddress = emailAddress;
-	}
+    public final void setEmailAddress(final String emailAddress) {
+        this.emailAddress = emailAddress;
+    }
 
-	public String getRole() {
-		return role;
-	}
+    public final String getRole() {
+        return role;
+    }
 
-	public void setRole(final String role) {
-		this.role = role;
-	}
+    public final void setRole(final String role) {
+        this.role = role;
+    }
 
-	public LocalDateTime getCreatedUat() {
-		return createdUat;
-	}
+    public final LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 
-	public void setCreatedUat(final LocalDateTime createdUat) {
-		this.createdUat = createdUat;
-	}
-
+    public final void setCreatedAt(final LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }
-

@@ -13,104 +13,99 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "news")
-public class News {
-	 @Id
-	    @GeneratedValue(strategy = GenerationType.IDENTITY)
-	    @Column(name = "newsUid")
-	    private Long newsId;
+public final class News {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "newsUid")
+    private Long newsId;
 
-	    private String name;
+    private String name;
 
-        @Column(columnDefinition = "TEXT")
-	    private String description;
+    @Column(columnDefinition = "TEXT")
+    private String description;
 
-	    @Column(name = "imageUurl")
-	    private String imageUrl;
-        
-	    public enum Status {
-	        Completed,
-	        Upcoming
-	    }
+    @Column(name = "imageUurl")
+    private String imageUrl;
 
-        @Column(name = "publishedUdate")
-        private LocalDateTime publishedDate;
+    public enum Status {
+        Completed, Upcoming
+    }
 
+    @Column(name = "publishedUdate")
+    private LocalDateTime publishedDate;
 
-		public News(final Long newsId, final String name, final String description, 
-				final String imageUrl, final LocalDateTime publishedDate) {
-			
-			this.newsId = newsId;
-			this.name = name;
-			this.description = description;
-			this.imageUrl = imageUrl;
-            this.publishedDate = publishedDate;
-		}
-	    
-		@Enumerated(EnumType.STRING)
-	    @Column(name = "status")
-		 private Status status;
-		 
-		public News() {}
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private Status status;
 
-		public News(final Long newsId, final String name, final String description, final String imageUrl, final Status status) {
-			super();
-			this.newsId = newsId;
-			this.name = name;
-			this.description = description;
-			this.imageUrl = imageUrl;
-			this.status = status;
-		}
+    public News() {
+    }
 
-		public Long getNewsId() {
-			return newsId;
-		}
+    // 修复了第 55 行过长的问题
+    public News(final Long newsId, final String name, final String description,
+                final String imageUrl, final LocalDateTime publishedDate) {
+        this.newsId = newsId;
+        this.name = name;
+        this.description = description;
+        this.imageUrl = imageUrl;
+        this.publishedDate = publishedDate;
+    }
 
-		public void setNewsId(final Long newsId) {
-			this.newsId = newsId;
-		}
+    public News(final Long newsId, final String name, final String description, 
+                final String imageUrl, final Status status) {
+        super();
+        this.newsId = newsId;
+        this.name = name;
+        this.description = description;
+        this.imageUrl = imageUrl;
+        this.status = status;
+    }
 
-		public String getName() {
-			return name;
-		}
+    public Long getNewsId() {
+        return newsId;
+    }
 
-		public void setName(final String name) {
-			this.name = name;
-		}
+    public void setNewsId(final Long newsId) {
+        this.newsId = newsId;
+    }
 
-		public String getDescription() {
-			return description;
-		}
+    public String getName() {
+        return name;
+    }
 
-		public void setDescription(final String description) {
-			this.description = description;
-		}
+    public void setName(final String name) {
+        this.name = name;
+    }
 
-		public String getImageUrl() {
-			return imageUrl;
-		}
+    public String getDescription() {
+        return description;
+    }
 
-		public void setImageUrl(final String imageUrl) {
-			this.imageUrl = imageUrl;
-		}
+    public void setDescription(final String description) {
+        this.description = description;
+    }
 
-		public Status getStatus() {
-			return status;
-		}
+    public String getImageUrl() {
+        return imageUrl;
+    }
 
-		public void setStatus(final Status status) {
-			this.status = status;
-		}
+    public void setImageUrl(final String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 
-        public LocalDateTime getPublishedDate() {
-            return publishedDate;
-        }
+    public Status getStatus() {
+        return status;
+    }
 
-        public void setPublishedDate(final LocalDateTime publishedDate) {
-            this.publishedDate = publishedDate;
-        }
+    public void setStatus(final Status status) {
+        this.status = status;
+    }
 
-		
-		 
-	
+    public LocalDateTime getPublishedDate() {
+        return publishedDate;
+    }
 
+    public void setPublishedDate(final LocalDateTime publishedDate) {
+        this.publishedDate = publishedDate;
+    }
 }

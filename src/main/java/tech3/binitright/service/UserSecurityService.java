@@ -30,7 +30,7 @@ public final class UserSecurityService {
 		}
 
         final User user = users.get(0);
-        return passwordEncoder.matches(rawPassword, user.getPasswordUhash());
+        return passwordEncoder.matches(rawPassword, user.getPasswordHash());
     }
 
     public String generateToken() {
@@ -41,8 +41,8 @@ public final class UserSecurityService {
 
     // Save user with hashed password
     public void saveUser(final User user) {
-        final String hash = passwordEncoder.encode(user.getPasswordUhash());
-        user.setPasswordUhash(hash);
+        final String hash = passwordEncoder.encode(user.getPasswordHash());
+        user.setPasswordHash(hash);
         userService.saveUser(user);
     }
 }

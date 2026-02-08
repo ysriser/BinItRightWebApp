@@ -14,7 +14,7 @@ import tech3.binitright.service.ScanService;
 
 @RestController
 @RequestMapping("/api/v1")
-public class ScanRestController {
+public final class ScanRestController {
 
     private final ScanService scanService;
 

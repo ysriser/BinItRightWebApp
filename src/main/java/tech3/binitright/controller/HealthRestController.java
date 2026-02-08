@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RestController;
 import tech3.binitright.config.AchievementSeeder;
 
 @RestController
-public class HealthRestController {
+public final class HealthRestController {
 
     @Autowired
-    private AchievementSeeder achievementSeeder; // The class that runs your API-based seeding
+    private AchievementSeeder achievementSeeder;
 
     @GetMapping("/api/ready")
     public ResponseEntity<String> checkReadiness() {

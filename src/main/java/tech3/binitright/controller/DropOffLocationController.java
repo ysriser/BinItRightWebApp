@@ -13,7 +13,7 @@ import tech3.binitright.service.DropOffLocationImplementation;
 
 @RestController
 @RequestMapping("/api/bins")
-public class DropOffLocationController {
+public final class DropOffLocationController {
 
     private final DropOffLocationImplementation service;
 
@@ -31,8 +31,6 @@ public class DropOffLocationController {
             @RequestParam final double lat,
             @RequestParam final double lng,
             @RequestParam(defaultValue = "30") final double radius) {
-    	System.out.println("Inside dropOff controller:  "+lat);
-
         return service.getNearbyBins(lat, lng, radius);
     }
 
@@ -43,8 +41,6 @@ public class DropOffLocationController {
             @RequestParam(required = false) final Double radius,
             @RequestParam(required = false) final String binType,
             @RequestParam(required = false) final Integer limit) {
-    	System.out.println("Inside.....");
-
         if (radius != null) {
             return service.getNearbyBins(lat, lng, radius)
                     .stream()
@@ -52,15 +48,9 @@ public class DropOffLocationController {
                     .limit(limit != null ? limit : Long.MAX_VALUE)
                     .toList();
         }
-
-
-        final List<NearByBinDto> list = service.searchBins(lat, lng, binType)
+        return service.searchBins(lat, lng, binType)
                 .stream()
                 .limit(limit != null ? limit : Long.MAX_VALUE)
                 .toList();
-        
-       System.out.println("list size:"+list.size());
-       return list;
     }
-    
 }

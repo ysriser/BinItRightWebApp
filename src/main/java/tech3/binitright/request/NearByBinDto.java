@@ -4,120 +4,115 @@ import java.math.BigDecimal;
 
 import tech3.binitright.model.DropOffLocation.Status;
 
-public class NearByBinDto {
+public final class NearByBinDto {
 
-        private String id;
-        private String name;
-        private String address;
-        private String description;
-        private String postalCode;
-        private String binType;
-        private Double latitude;
-        private Double longitude;
-        private Double distanceMeters;
-        private Status status;
+    private String id;
+    private String name;
+    private String address;
+    private String description;
+    private String postalCode;
+    private String binType;
+    private Double latitude;
+    private Double longitude;
+    private Double distanceMeters;
+    private Status status;
 
-	    public NearByBinDto() {
+    public NearByBinDto() {
+    }
 
-		}
+    public NearByBinDto(final String dropOffId, final String name,
+                        final String address, final String description, final String postalCode,
+                        final String binType, final Status status, final BigDecimal latitude,
+                        final BigDecimal longitude, final double distance) {
+        this.id = dropOffId;
+        this.name = name;
+        this.address = address;
+        this.description = description;
+        this.postalCode = postalCode;
+        this.binType = binType;
+        this.status = status;
+        this.latitude = latitude.doubleValue();
+        this.longitude = longitude.doubleValue();
+        this.distanceMeters = distance;
+    }
 
-		public NearByBinDto(final String dropOffId, final String name,
-				final String address, final String description, final String postalCode,
-					final String binType, final Status status, final BigDecimal latitude,
-					final BigDecimal longitude, final double distance) {
-	    	 this.id = dropOffId;
-	         this.name = name;
-	         this.address = address;
-	         this.description = description;
-	         this.postalCode = postalCode;
-	         this.binType = binType;
-	         this.status = status;
-	         this.latitude = latitude.doubleValue();
-	         this.longitude = longitude.doubleValue();
-	         this.distanceMeters = distance;
+    public String getId() {
+        return id;
+    }
 
-			}
+    public String getName() {
+        return name;
+    }
 
-			public String getId() {
-		        return id;
-		    }
+    public String getAddress() {
+        return address;
+    }
 
-		    public String getName() {
-		        return name;
-		    }
+    public String getDescription() {
+        return description;
+    }
 
-		    public String getAddress() {
-		        return address;
-		    }
+    public String getPostalCode() {
+        return postalCode;
+    }
 
-		    public String getDescription() {
-		        return description;
-		    }
+    public String getBinType() {
+        return binType;
+    }
 
-		    public String getPostalCode() {
-		        return postalCode;
-		    }
+    public Double getLatitude() {
+        return latitude;
+    }
 
-		    public String getBinType() {
-		        return binType;
-		    }
+    public Double getLongitude() {
+        return longitude;
+    }
 
-		    public Double getLatitude() {
-		        return latitude;
-		    }
+    public Double getDistanceMeters() {
+        return distanceMeters;
+    }
 
-		    public Double getLongitude() {
-		        return longitude;
-		    }
+    public Status getStatus() {
+        return status;
+    }
 
-		    public Double getDistanceMeters() {
-		        return distanceMeters;
-		    }
+    public void setStatus(final Status status) {
+        this.status = status;
+    }
 
-			public Status getStatus() {
-				return status;
-			}
+    public void setId(final String id) {
+        this.id = id;
+    }
 
-			public void setStatus(final Status status) {
-				this.status = status;
-			}
+    public void setName(final String name) {
+        this.name = name;
+    }
 
-			public void setId(final String id) {
-				this.id = id;
-			}
+    public void setAddress(final String address) {
+        this.address = address;
+    }
 
-			public void setName(final String name) {
-				this.name = name;
-			}
+    public void setDescription(final String description) {
+        this.description = description;
+    }
 
-			public void setAddress(final String address) {
-				this.address = address;
-			}
+    public void setPostalCode(final String postalCode) {
+        this.postalCode = postalCode;
+    }
 
-			public void setDescription(final String description) {
-				this.description = description;
-			}
+    public void setBinType(final String binType) {
+        this.binType = binType;
+    }
 
-			public void setPostalCode(final String postalCode) {
-				this.postalCode = postalCode;
-			}
+    public void setLatitude(final Double latitude) {
+        this.latitude = latitude;
+    }
 
-			public void setBinType(final String binType) {
-				this.binType = binType;
-			}
+    public void setLongitude(final Double longitude) {
+        this.longitude = longitude;
+    }
 
-			public void setLatitude(final Double latitude) {
-				this.latitude = latitude;
-			}
-
-			public void setLongitude(final Double longitude) {
-				this.longitude = longitude;
-			}
-
-			public void setDistanceMeters(final Double distanceMeters) {
-				this.distanceMeters = distanceMeters;
-			}
-
-
-
+    public void setDistanceMeters(final Double distanceMeters) {
+        this.distanceMeters = distanceMeters;
+    }
 }

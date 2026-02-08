@@ -34,15 +34,14 @@ public final class BinDataImporter {
     private final DropOffLocationRepository repo;
     private final ObjectMapper mapper;
     private final RestTemplate restTemplate;
+    
     @Value("${data.gov.api.key}")
     private String dataGovApiKey;
 
     private static final String BLUEUBINUAPI =
             "https://api-open.data.gov.sg/v1/public/api/datasets/d_4dde14826642f49eefff48b7832b90db/poll-download";
-
     private static final String EWASTEUAPI =
             "https://api-open.data.gov.sg/v1/public/api/datasets/dUdb40d004afeb5a7f0f555fdcc34934cc/poll-download";
-
     private static final String LAMPUAPI =
             "https://api-open.data.gov.sg/v1/public/api/datasets/d_6226f69998ed0cb62151af37706508cd/poll-download";
 
@@ -53,15 +52,10 @@ public final class BinDataImporter {
     }
 
     public void importData() {
-        // Import Lighting bins
         importFromApi(LAMPUAPI, "Lighting");
-        pause(12000); // 12-second breath for the API
-
-        // Import EWaste bins
+        pause(12000);
         importFromApi(EWASTEUAPI, "EWaste");
         pause(12000);
-
-        // Import BlueBin bins
         importFromApi(BLUEUBINUAPI, "BlueBin");
     }
 
@@ -69,17 +63,10 @@ public final class BinDataImporter {
         try {
             final HttpHeaders headers = new HttpHeaders();
             headers.set("X-API-KEY", dataGovApiKey);
-
-            System.out.println("Using API key header: " + dataGovApiKey.substring(0, 10));
             final HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-            final ResponseEntity<JsonNode> response =
-                    restTemplate.exchange(
-                            pollUrl,
-                            HttpMethod.GET,
-                            entity,
-                            JsonNode.class
-                    );
+            final ResponseEntity<JsonNode> response = restTemplate.exchange(
+                            pollUrl, HttpMethod.GET, entity, JsonNode.class);
 
             final JsonNode pollResp = response.getBody();
             final String s3Url = pollResp.path("data").path("url").asText();
@@ -90,14 +77,11 @@ public final class BinDataImporter {
 
             final URI signed = new URI(s3Url);
             final String geoJson = restTemplate.getForObject(signed, String.class);
-
             parseAndSaveBins(geoJson, binType);
-            System.out.println(">>> Successfully Imported: " + binType);
 
         } catch (final HttpClientErrorException.TooManyRequests e) {
-            System.err.println("!!! Rate Limit Hit (429) for " + binType + ". Waiting 30s to retry...");
             pause(30000);
-            importFromApi(pollUrl, binType); // Recursive retry once
+            importFromApi(pollUrl, binType);
         } catch (final Exception e) {
             System.err.println("!!! Failed to import " + binType + ": " + e.getMessage());
         }
@@ -108,12 +92,10 @@ public final class BinDataImporter {
         try {
             final JsonNode root = mapper.readTree(geoJson);
             final JsonNode features = root.get("features");
-
             int count = 0;
             for (final JsonNode feature : features) {
                 final JsonNode geom = feature.get("geometry");
                 final JsonNode props = feature.get("properties");
-
                 final double lng = geom.get("coordinates").get(0).asDouble();
                 final double lat = geom.get("coordinates").get(1).asDouble();
 
@@ -125,15 +107,11 @@ public final class BinDataImporter {
                     final Map<String, String> meta = parseHtmlTable(html);
                     incCrc = meta.get("INCUCRC");
                 }
-
-                if (incCrc == null || incCrc.isEmpty()) {
-					continue;
-				}
+                if (incCrc == null || incCrc.isEmpty()) { continue; }
 
                 final DropOffLocation bin = binType.equals("EWaste")
                         ? parseEWasteBin(props, lat, lng, binType)
                         : parseHtmlBasedBin(props, lat, lng, binType);
-
                 bin.setId(incCrc);
 
                 final Optional<DropOffLocation> existing = repo.findById(incCrc);
@@ -149,13 +127,13 @@ public final class BinDataImporter {
                     count++;
                 }
             }
-            System.out.println(">>> Saved " + count + " " + binType + " bins");
         } catch (final Exception e) {
             System.err.println("!!! Error parsing " + binType + ": " + e.getMessage());
         }
     }
 
-    private DropOffLocation parseEWasteBin(final JsonNode props, final double lat, final double lng, final String binType) {
+    private DropOffLocation parseEWasteBin(final JsonNode props, final double lat, 
+                                           final double lng, final String binType) {
         final String block = props.path("ADDRESSBLOCKHOUSENUMBER").asText("");
         final String street = props.path("ADDRESSSTREETNAME").asText("");
         final String postal = props.path("ADDRESSPOSTALCODE").asText("");
@@ -173,7 +151,8 @@ public final class BinDataImporter {
         return bin;
     }
 
-    private DropOffLocation parseHtmlBasedBin(final JsonNode props, final double lat, final double lng, final String binType) {
+    private DropOffLocation parseHtmlBasedBin(final JsonNode props, final double lat, 
+                                              final double lng, final String binType) {
         final String html = props.path("Description").asText("");
         final Map<String, String> meta = parseHtmlTable(html);
 
@@ -181,8 +160,10 @@ public final class BinDataImporter {
         final String street = meta.getOrDefault("ADDRESSSTREETNAME", "");
         final String building = meta.getOrDefault("ADDRESSBUILDINGNAME", "");
 
-        final String fullAddress = (!block.isEmpty() && !street.isEmpty()) ? block + " " + street :
-                (!building.isEmpty() ? building : street);
+        // 修复了第 158 行超长行
+        final String fullAddress = (!block.isEmpty() && !street.isEmpty()) 
+                ? block + " " + street 
+                : (!building.isEmpty() ? building : street);
 
         final DropOffLocation bin = new DropOffLocation();
         bin.setName(props.has("Name") ? props.get("Name").asText() : binType);
@@ -204,9 +185,7 @@ public final class BinDataImporter {
             for (final Element row : rows) {
                 final Elements th = row.select("th");
                 final Elements td = row.select("td");
-                if (!th.isEmpty() && !td.isEmpty()) {
-					map.put(th.text(), td.text());
-				}
+                if (!th.isEmpty() && !td.isEmpty()) { map.put(th.text(), td.text()); }
             }
         } catch (final Exception e) { e.printStackTrace(); }
         return map;

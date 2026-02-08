@@ -18,148 +18,142 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "wasteUcategories")
-public class WasteCategories {
+public final class WasteCategories {
 
-	 	@Id
-	    @GeneratedValue(strategy = GenerationType.IDENTITY)
-	    @Column(name = "catUid")
-	    private Long catId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "catUid")
+    private Long catId;
 
-	    private String name;
+    private String name;
 
-	    @Enumerated(EnumType.STRING)
-	    @Column(name = "streamUtype")
-	    private StreamType streamType;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "streamUtype")
+    private StreamType streamType;
 
-	    @Column(name = "isUhazardous")
-	    private Boolean isHazardous;
+    @Column(name = "isUhazardous")
+    private Boolean isHazardous;
 
-	    @Column(name = "iconUurl")
-	    private String iconUrl;
+    @Column(name = "iconUurl")
+    private String iconUrl;
 
-	    @Column(name = "emissionUfactor", precision = 10, scale = 4)
-	    private BigDecimal emissionFactor;
+    @Column(name = "emissionUfactor", precision = 10, scale = 4)
+    private BigDecimal emissionFactor;
 
-	    @Column(name = "avgUweight")
-	    private BigDecimal avgWeight;
-	    
-	    @OneToOne(mappedBy = "wasteCategory", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	    private RecyclingInstructions recyclingInstructions;
-	    
-	    @OneToMany(mappedBy = "wasteCategory", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	    private List<Feedback> feedback;
-	    
-	    @OneToMany(mappedBy = "wasteCategories", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	    private List<CheckIn> checkIns;
+    @Column(name = "avgUweight")
+    private BigDecimal avgWeight;
 
-	    public enum StreamType {
-            RECYCLABLE,
-            GENERAL,
-            ORGANIC,
-            EUWASTE,
-            HAZARDOUS
-	    }
-	    
-	    public WasteCategories() {}
+    @OneToOne(mappedBy = "wasteCategory", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private RecyclingInstructions recyclingInstructions;
 
-		public WasteCategories(final Long catId, final String name, final StreamType streamType,
-				final Boolean isHazardous, final String iconUrl,
-				final BigDecimal emissionFactor, final BigDecimal avgWeight, 
-				final RecyclingInstructions recyclingInstructions,
-				final List<Feedback> feedback, final List<CheckIn> checkIns) {
-			super();
-			this.catId = catId;
-			this.name = name;
-			this.streamType = streamType;
-			this.isHazardous = isHazardous;
-			this.iconUrl = iconUrl;
-			this.emissionFactor = emissionFactor;
-			this.avgWeight = avgWeight;
-			this.recyclingInstructions = recyclingInstructions;
-			this.feedback = feedback;
-			this.checkIns = checkIns;
-		}
+    @OneToMany(mappedBy = "wasteCategory", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Feedback> feedback;
 
-		public Long getCatId() {
-			return catId;
-		}
+    @OneToMany(mappedBy = "wasteCategories", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<CheckIn> checkIns;
 
-		public void setCatId(final Long catId) {
-			this.catId = catId;
-		}
+    public enum StreamType {
+        RECYCLABLE, GENERAL, ORGANIC, EUWASTE, HAZARDOUS
+    }
 
-		public String getName() {
-			return name;
-		}
+    public WasteCategories() {
+    }
 
-		public void setName(final String name) {
-			this.name = name;
-		}
+    public WasteCategories(final Long catId, final String name, final StreamType streamType,
+                           final Boolean isHazardous, final String iconUrl,
+                           final BigDecimal emissionFactor, final BigDecimal avgWeight, 
+                           final RecyclingInstructions recyclingInstructions,
+                           final List<Feedback> feedback, final List<CheckIn> checkIns) {
+        super();
+        this.catId = catId;
+        this.name = name;
+        this.streamType = streamType;
+        this.isHazardous = isHazardous;
+        this.iconUrl = iconUrl;
+        this.emissionFactor = emissionFactor;
+        this.avgWeight = avgWeight;
+        this.recyclingInstructions = recyclingInstructions;
+        this.feedback = feedback;
+        this.checkIns = checkIns;
+    }
 
-		public StreamType getStreamType() {
-			return streamType;
-		}
+    public Long getCatId() {
+        return catId;
+    }
 
-		public void setStreamType(final StreamType streamType) {
-			this.streamType = streamType;
-		}
+    public void setCatId(final Long catId) {
+        this.catId = catId;
+    }
 
-		public Boolean getIsHazardous() {
-			return isHazardous;
-		}
+    public String getName() {
+        return name;
+    }
 
-		public void setIsHazardous(final Boolean isHazardous) {
-			this.isHazardous = isHazardous;
-		}
+    public void setName(final String name) {
+        this.name = name;
+    }
 
-		public String getIconUrl() {
-			return iconUrl;
-		}
+    public StreamType getStreamType() {
+        return streamType;
+    }
 
-		public void setIconUrl(final String iconUrl) {
-			this.iconUrl = iconUrl;
-		}
+    public void setStreamType(final StreamType streamType) {
+        this.streamType = streamType;
+    }
 
-		public BigDecimal getEmissionFactor() {
-			return emissionFactor;
-		}
+    public Boolean getIsHazardous() {
+        return isHazardous;
+    }
 
-		public void setEmissionFactor(final BigDecimal emissionFactor) {
-			this.emissionFactor = emissionFactor;
-		}
+    public void setIsHazardous(final Boolean isHazardous) {
+        this.isHazardous = isHazardous;
+    }
 
-		public BigDecimal getAvgWeight() {
-			return avgWeight;
-		}
+    public String getIconUrl() {
+        return iconUrl;
+    }
 
-		public void setAvgWeight(final BigDecimal avgWeight) {
-			this.avgWeight = avgWeight;
-		}
+    public void setIconUrl(final String iconUrl) {
+        this.iconUrl = iconUrl;
+    }
 
-		public RecyclingInstructions getRecyclingInstructions() {
-			return recyclingInstructions;
-		}
+    public BigDecimal getEmissionFactor() {
+        return emissionFactor;
+    }
 
-		public void setRecyclingInstructions(final RecyclingInstructions recyclingInstructions) {
-			this.recyclingInstructions = recyclingInstructions;
-		}
+    public void setEmissionFactor(final BigDecimal emissionFactor) {
+        this.emissionFactor = emissionFactor;
+    }
 
-		public List<Feedback> getFeedback() {
-			return feedback;
-		}
+    public BigDecimal getAvgWeight() {
+        return avgWeight;
+    }
 
-		public void setFeedback(final List<Feedback> feedback) {
-			this.feedback = feedback;
-		}
+    public void setAvgWeight(final BigDecimal avgWeight) {
+        this.avgWeight = avgWeight;
+    }
 
-		public List<CheckIn> getCheckIns() {
-			return checkIns;
-		}
+    public RecyclingInstructions getRecyclingInstructions() {
+        return recyclingInstructions;
+    }
 
-		public void setCheckIns(final List<CheckIn> checkIns) {
-			this.checkIns = checkIns;
-		}
-	    
-	    
+    public void setRecyclingInstructions(final RecyclingInstructions recyclingInstructions) {
+        this.recyclingInstructions = recyclingInstructions;
+    }
 
+    public List<Feedback> getFeedback() {
+        return feedback;
+    }
+
+    public void setFeedback(final List<Feedback> feedback) {
+        this.feedback = feedback;
+    }
+
+    public List<CheckIn> getCheckIns() {
+        return checkIns;
+    }
+
+    public void setCheckIns(final List<CheckIn> checkIns) {
+        this.checkIns = checkIns;
+    }
 }

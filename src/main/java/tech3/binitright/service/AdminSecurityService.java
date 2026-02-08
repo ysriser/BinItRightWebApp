@@ -30,7 +30,7 @@ public final class AdminSecurityService implements UserDetailsService {
         // Map to Spring Security User
         return org.springframework.security.core.userdetails.User.builder()
                 .username(admin.getUsername())
-                .password(admin.getPasswordUhash()) // The encrypted hash from DB
+                .password(admin.getPasswordHash()) // The encrypted hash from DB
                 .roles("admin")
                 .build();
     }
