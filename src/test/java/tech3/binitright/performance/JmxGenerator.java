@@ -75,6 +75,21 @@ public class JmxGenerator {
                                         .header("Authorization", "Bearer ${extracted_token}"),
                                 httpSampler("Access Recycle history API", baseUrl+ "/api/recycle-history")
                                         .header("Authorization", "Bearer ${extracted_token}"),
+                                httpSampler("API_POST_CheckIn", baseUrl + "/api/checkin")
+                                        .method("POST")
+                                        .contentType(ContentType.APPLICATION_JSON)
+                                        .body("{"
+                                                + "\"binId\": \"BIN-${__UUID}\"," 
+                                                + "\"wasteCategoryId\": 1,"          
+                                                + "\"fileName\": \"load_test_${__UUID}.jpg\"," 
+                                                + "\"quantity\": 2,"
+                                                + "\"rewardPoints\": 20,"
+                                                + "\"duration\": 15"
+                                                + "}")
+                                       .children(
+                                               httpHeaders()
+                                                  .header("Authorization", "Bearer ${extracted_token}")
+                                                        )
                               
                         )
               
