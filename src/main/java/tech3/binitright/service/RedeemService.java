@@ -1,27 +1,28 @@
 package tech3.binitright.service;
 
-import jakarta.transaction.Transactional;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
-import tech3.binitright.response.RedeemResponse;
+
+import jakarta.transaction.Transactional;
 import tech3.binitright.model.Accessories;
 import tech3.binitright.model.User;
 import tech3.binitright.model.UserAccessories;
 import tech3.binitright.repository.AccessoriesRepository;
 import tech3.binitright.repository.UserAccessoriesRepository;
 import tech3.binitright.repository.UserRepository;
-
-import java.util.List;
+import tech3.binitright.response.RedeemResponse;
 
 @Service
-public class RedeemService {
+public final class RedeemService {
 
     private final UserRepository userRepo;
     private final AccessoriesRepository accessoryRepo;
     private final UserAccessoriesRepository userAccessoryRepo;
 
-    public RedeemService(UserRepository userRepo,
-                         AccessoriesRepository accessoryRepo,
-                         UserAccessoriesRepository userAccessoryRepo) {
+    public RedeemService(final UserRepository userRepo,
+                         final AccessoriesRepository accessoryRepo,
+                         final UserAccessoriesRepository userAccessoryRepo) {
         this.userRepo = userRepo;
         this.accessoryRepo = accessoryRepo;
         this.userAccessoryRepo = userAccessoryRepo;
@@ -34,19 +35,19 @@ public class RedeemService {
 
     // Redeem an accessory (deduct points + add to userAccessories)
     @Transactional
-    public RedeemResponse redeem(Long userId, Long accessoriesId) {
+    public RedeemResponse redeem(final Long userId, final Long accessoriesId) {
 
-        User user = userRepo.findById(userId)
+        final User user = userRepo.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Accessories accessory = accessoryRepo.findById(accessoriesId)
+        final Accessories accessory = accessoryRepo.findById(accessoriesId)
                 .orElseThrow(() -> new RuntimeException("Accessory not found"));
 
-        boolean alreadyOwned =
+        final boolean alreadyOwned =
                 userAccessoryRepo.existsByUserUIdAndAccessoriesUAccessoriesId(userId, accessoriesId);
 
-        int balance = (user.getPointBalance() == null) ? 0 : user.getPointBalance();
-        int price = accessory.getRequiredPoints();
+        final int balance = (user.getPointBalance() == null) ? 0 : user.getPointBalance();
+        final int price = accessory.getRequiredPoints();
 
         if (alreadyOwned) {
             return new RedeemResponse(balance, "Already owned");
@@ -61,7 +62,7 @@ public class RedeemService {
         userRepo.save(user);
 
         // Save ownership
-        UserAccessories ua = new UserAccessories();
+        final UserAccessories ua = new UserAccessories();
         ua.setUser(user);
         ua.setAccessories(accessory);
         ua.setEquipped(false);

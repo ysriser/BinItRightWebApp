@@ -1,6 +1,7 @@
 package tech3.binitright.model;
 
 import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -26,49 +27,51 @@ public class CheckIn {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userUid", nullable = false)
     private User user;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dropUoffUid", nullable = false)
     private DropOffLocation dropOffLocation;
-    
+
     @ManyToOne
     private WasteCategories wasteCategories;
 
-    
+
     @Column(name = "fileUname")
     private String fileName;
-    
+
     @Column(name = "checkinUtime")
     private LocalDateTime checkInTime;
-    
+
     @PrePersist
     protected void onCreate() {
         this.checkInTime = LocalDateTime.now();
     }
-    
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private Status status;
-    
+
     private Integer quantity;
-    
+
     @Column(name = "rewardUpoints")
     private Integer rewardPoints;
-    
+
     private Long duration;
-    
+
     public enum Status {
         PROCESSING,
         APPROVED,
         DENIED
     }
-    
+
     public CheckIn() {}
 
-	public CheckIn(Long checkInId, User user, DropOffLocation dropOffLocation, WasteCategories wasteCategories,
-			String fileName, LocalDateTime checkInTime, Status status, Integer quantity, Integer rewardPoints,
-			Long duration) {
-		
+	public CheckIn(final Long checkInId, final User user, final DropOffLocation dropOffLocation,
+			final WasteCategories wasteCategories,
+			final String fileName, final LocalDateTime checkInTime, final Status status,
+			final Integer quantity, final Integer rewardPoints,
+			final Long duration) {
+
 		this.checkInId = checkInId;
 		this.user = user;
 		this.dropOffLocation = dropOffLocation;
@@ -85,7 +88,7 @@ public class CheckIn {
 		return checkInId;
 	}
 
-	public void setCheckInId(Long checkInId) {
+	public void setCheckInId(final Long checkInId) {
 		this.checkInId = checkInId;
 	}
 
@@ -93,7 +96,7 @@ public class CheckIn {
 		return user;
 	}
 
-	public void setUser(User user) {
+	public void setUser(final User user) {
 		this.user = user;
 	}
 
@@ -101,7 +104,7 @@ public class CheckIn {
 		return dropOffLocation;
 	}
 
-	public void setDropOffLocation(DropOffLocation dropOffLocation) {
+	public void setDropOffLocation(final DropOffLocation dropOffLocation) {
 		this.dropOffLocation = dropOffLocation;
 	}
 
@@ -109,7 +112,7 @@ public class CheckIn {
 		return wasteCategories;
 	}
 
-	public void setWasteCategories(WasteCategories wasteCategories) {
+	public void setWasteCategories(final WasteCategories wasteCategories) {
 		this.wasteCategories = wasteCategories;
 	}
 
@@ -117,7 +120,7 @@ public class CheckIn {
 		return fileName;
 	}
 
-	public void setFileName(String fileName) {
+	public void setFileName(final String fileName) {
 		this.fileName = fileName;
 	}
 
@@ -125,7 +128,7 @@ public class CheckIn {
 		return checkInTime;
 	}
 
-	public void setCheckInTime(LocalDateTime checkInTime) {
+	public void setCheckInTime(final LocalDateTime checkInTime) {
 		this.checkInTime = checkInTime;
 	}
 
@@ -133,7 +136,7 @@ public class CheckIn {
 		return status;
 	}
 
-	public void setStatus(Status status) {
+	public void setStatus(final Status status) {
 		this.status = status;
 	}
 
@@ -141,7 +144,7 @@ public class CheckIn {
 		return quantity;
 	}
 
-	public void setQuantity(Integer quantity) {
+	public void setQuantity(final Integer quantity) {
 		this.quantity = quantity;
 	}
 
@@ -149,7 +152,7 @@ public class CheckIn {
 		return rewardPoints;
 	}
 
-	public void setRewardPoints(Integer rewardPoints) {
+	public void setRewardPoints(final Integer rewardPoints) {
 		this.rewardPoints = rewardPoints;
 	}
 
@@ -157,11 +160,11 @@ public class CheckIn {
 		return duration;
 	}
 
-	public void setDuration(Long duration) {
+	public void setDuration(final Long duration) {
 		this.duration = duration;
 	}
 
-    
-	
+
+
 
 }

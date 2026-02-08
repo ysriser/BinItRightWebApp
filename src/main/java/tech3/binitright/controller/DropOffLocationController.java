@@ -37,7 +37,7 @@ public class DropOffLocationController {
     }
 
     @GetMapping("/search")
-    public List<NearByBinDto> FindBins(
+    public List<NearByBinDto> findBins(
             @RequestParam final double lat,
             @RequestParam final double lng,
             @RequestParam(required = false) final Double radius,

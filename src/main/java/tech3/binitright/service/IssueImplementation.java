@@ -21,7 +21,7 @@ import tech3.binitright.request.IssueCreateRequest;
 
 @Service
 @Transactional
-public class IssueImplementation implements IssueInterface {
+public final class IssueImplementation implements IssueInterface {
 
     @Autowired
     private IssueRepository issueRepo;

@@ -1,14 +1,11 @@
 package tech3.binitright.model;
 
 import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorColumn;
-import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
 
@@ -19,18 +16,19 @@ public abstract class BinItRightUser {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "userUid")
 	private Long id;
-	
+
 	private String name;
-	private String username;	
+	private String username;
 	private String passwordUhash;
 	private String locale;
 	private String emailAddress;
 	private String role;
 	private LocalDateTime createdUat;
-	
+
 	public BinItRightUser() {}
-	
-	public BinItRightUser(String name, String username, String passwordUhash, String locale, String emailAddress, String role,LocalDateTime createdUat) {
+
+	public BinItRightUser(final String name, final String username, final String passwordUhash,
+			final String locale, final String emailAddress, final String role,final LocalDateTime createdUat) {
 		this.name = name;
 		this.username = username;
 		this.passwordUhash = passwordUhash;
@@ -39,7 +37,7 @@ public abstract class BinItRightUser {
 		this.role = role;
 
     }
-	
+
 	@PrePersist
     protected void onCreate() {
         this.createdUat = LocalDateTime.now();
@@ -49,7 +47,7 @@ public abstract class BinItRightUser {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(final Long id) {
         this.id = id;
     }
 
@@ -57,7 +55,7 @@ public abstract class BinItRightUser {
 		return name;
 	}
 
-	public void setName(String name) {
+	public void setName(final String name) {
 		this.name = name;
 	}
 
@@ -65,7 +63,7 @@ public abstract class BinItRightUser {
 		return username;
 	}
 
-	public void setUsername(String username) {
+	public void setUsername(final String username) {
 		this.username = username;
 	}
 
@@ -73,7 +71,7 @@ public abstract class BinItRightUser {
 		return passwordUhash;
 	}
 
-	public void setPasswordUhash(String passwordUhash) {
+	public void setPasswordUhash(final String passwordUhash) {
 		this.passwordUhash = passwordUhash;
 	}
 
@@ -81,7 +79,7 @@ public abstract class BinItRightUser {
 		return locale;
 	}
 
-	public void setLocale(String locale) {
+	public void setLocale(final String locale) {
 		this.locale = locale;
 	}
 
@@ -89,7 +87,7 @@ public abstract class BinItRightUser {
 		return emailAddress;
 	}
 
-	public void setEmailAddress(String emailAddress) {
+	public void setEmailAddress(final String emailAddress) {
 		this.emailAddress = emailAddress;
 	}
 
@@ -97,7 +95,7 @@ public abstract class BinItRightUser {
 		return role;
 	}
 
-	public void setRole(String role) {
+	public void setRole(final String role) {
 		this.role = role;
 	}
 
@@ -105,9 +103,9 @@ public abstract class BinItRightUser {
 		return createdUat;
 	}
 
-	public void setCreatedUat(LocalDateTime createdUat) {
+	public void setCreatedUat(final LocalDateTime createdUat) {
 		this.createdUat = createdUat;
 	}
 
 }
-	
+

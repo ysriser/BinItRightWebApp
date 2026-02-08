@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
-public class ScanService {
+public final class ScanService {
 
     private final ObjectMapper objectMapper;
 
@@ -520,7 +520,8 @@ public class ScanService {
 
         final String model = openAiModel == null || openAiModel.isBlank() ? "gpt-4o-mini" : openAiModel;
         if (model.startsWith("gpt-5")) {
-            text.put("verbosity", openAiVerbosity == null || openAiVerbosity.isBlank() ? "low" : openAiVerbosity);
+            final String verbosity = openAiVerbosity == null || openAiVerbosity.isBlank() ? "low" : openAiVerbosity;
+            text.put("verbosity", verbosity);
         }
 
         final String tier1Category = String.valueOf(tier1.get("category")).trim().toLowerCase(Locale.ROOT);
@@ -544,26 +545,31 @@ public class ScanService {
                 + "Rules:\n"
                 + "1) Do NOT ask user questions. Do NOT output quiz or follow-up questions.\n"
                 + "2) category:\n"
-                + "   - If item is e-waste (electronics, battery, cable, charger, small device), category MUST start with 'E-waste - '.\n"
+                + "   - If item is e-waste (electronics, battery, cable, charger, small device), "
+                + "category MUST start with 'E-waste - '.\n"
                 + "   - If item is textile/fabric/clothing, category MUST start with 'Textile - '.\n"
-                + "   - For any clearly visible main object, category MUST be a concrete short noun phrase (for example: 'Ceramic mug', 'Plastic takeaway box', 'A Heytea cup with lid').\n"
+                + "   - For any clearly visible main object, category MUST be a concrete short noun phrase "
+                + "(for example: 'Ceramic mug', 'Plastic takeaway box', 'A Heytea cup with lid').\n"
                 + "   - Do NOT output uncertain just because the object is outside Tier-1 labels.\n"
-                + "   - Use category='Not sure' ONLY when the image is truly unreadable (severe blur/out-of-focus/fully occluded) or no clear single main item exists.\n"
+                + "   - Use category='Not sure' ONLY when the image is truly unreadable (severe blur/out-of-focus/"
+                + "fully occluded) or no clear single main item exists.\n"
                 + "3) recyclable:\n"
                 + "   - true ONLY for normal blue-bin flow (clean, dry, mostly single-material recyclable).\n"
                 + "   - false for e-waste, textile, contaminated paper, heavily food-stained items, unknown items.\n"
                 + "4) instructions:\n"
                 + "   - Provide disposal-only steps (2-5), imperative style.\n"
-                + "   - For composite items, explain each part clearly (for example: empty/rinse first, then where each part goes).\n"
+                + "   - For composite items, explain each part clearly (for example: empty/rinse first, "
+                + "then where each part goes).\n"
                 + "   - If special drop-off is needed, say generic 'bring to an e-waste recycling point'.\n"
                 + "   - Do not include store names or exact addresses.\n"
                 + "5) confidence:\n"
                 + "   - 0.85-0.99 when very clear.\n"
                 + "   - 0.55-0.80 when somewhat clear.\n"
                 + "   - If category='Not sure', confidence MUST be <=0.54.\n"
-                + "6) If the photo is clearly unusable, you may include ONE short rescan hint, but still provide safe disposal guidance in instructions.\n"
-                + "If they're pranks (like just taking pictures of people or airplanes), you can be appropriately humorous, but don't be offensive.\n"
-                ;
+                + "6) If the photo is clearly unusable, you may include ONE short rescan hint, "
+                + "but still provide safe disposal guidance in instructions.\n"
+                + "If they're pranks (like just taking pictures of people or airplanes), "
+                + "you can be appropriately humorous, but don't be offensive.\n";
 
         final List<Map<String, Object>> input = new ArrayList<>();
         input.add(Map.of(
@@ -578,20 +584,19 @@ public class ScanService {
                 )
         ));
 
-        final Map<String, Object> payload = new HashMap<>();
-        payload.put("model", model);
-        payload.put("input", input);
-        payload.put("text", text);
+        final Map<String, Object> finalPayload = new HashMap<>();
+        finalPayload.put("model", model);
+        finalPayload.put("input", input);
+        finalPayload.put("text", text);
 
         if (model.startsWith("gpt-5")) {
-            payload.put("reasoning", Map.of(
-                    "effort", openAiReasoningEffort == null || openAiReasoningEffort.isBlank()
-                            ? "minimal"
-                            : openAiReasoningEffort
-            ));
+            final String reasoningEffort = openAiReasoningEffort == null || openAiReasoningEffort.isBlank()
+                    ? "minimal"
+                    : openAiReasoningEffort;
+            finalPayload.put("reasoning", Map.of("effort", reasoningEffort));
         }
 
-        return payload;
+        return finalPayload;
     }
 
     private Map<String, Object> parseOpenAiFinal(final String body) throws IOException {
@@ -707,6 +712,3 @@ public class ScanService {
         }
     }
 }
-
-
-
