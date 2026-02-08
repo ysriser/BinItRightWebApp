@@ -10,7 +10,7 @@ import tech3.binitright.response.CheckInDataResponse;
 public interface CheckInInterface {
     List<CheckIn> getAllCheckIns();
 
-    public CheckIn processCheckIn(CheckInDataReq data) throws IOException;
+    public CheckIn processCheckIn(CheckInDataReq data, Long userId) throws IOException;
 
     public List<CheckIn> getPendingCheckIns();
 

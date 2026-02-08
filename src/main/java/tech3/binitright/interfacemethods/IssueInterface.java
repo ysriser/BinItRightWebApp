@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.List;
 
 public interface IssueInterface {
-    public Issue createIssue(IssueCreateRequest req);
+    public Issue createIssue(IssueCreateRequest req, Long userId);
     public List<Issue> getAllIssues();
     public List<Issue> getLatestIssuesForDashboard();
     public long getTotalIssueCount();

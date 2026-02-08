@@ -61,11 +61,11 @@ public class CheckInImplementation implements CheckInInterface{
     }
 
 	@Override
-	public CheckIn processCheckIn(CheckInDataReq data) throws IOException{
+	public CheckIn processCheckIn(CheckInDataReq data, Long userId) throws IOException{
 		
 		//Save request to DB
 		CheckIn checkIn = new CheckIn();
-		User user = userRepository.findById(data.getUserId())
+		User user = userRepository.findById(userId)
 		        .orElseThrow(() -> new RuntimeException("User not found"));
 		    
 		DropOffLocation location = locationRepository.findById(data.getBinId())
