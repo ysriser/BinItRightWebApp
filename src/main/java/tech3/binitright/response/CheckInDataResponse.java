@@ -1,6 +1,6 @@
 package tech3.binitright.response;
 
-public class CheckInDataResponse {
+public final class CheckInDataResponse {
 	private Long checkInId;
 	private String responseCode;
 	private String responseDesc;

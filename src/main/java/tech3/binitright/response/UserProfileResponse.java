@@ -2,7 +2,7 @@ package tech3.binitright.response;
 
 import tech3.binitright.model.User;
 
-public class UserProfileResponse {
+public final class UserProfileResponse {
     private Long id;
     private Integer pointBalance;
 

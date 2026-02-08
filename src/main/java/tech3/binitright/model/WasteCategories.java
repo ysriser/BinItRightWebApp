@@ -2,6 +2,7 @@ package tech3.binitright.model;
 
 import java.math.BigDecimal;
 import java.util.List;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,8 +12,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -63,9 +62,11 @@ public class WasteCategories {
 	    
 	    public WasteCategories() {}
 
-		public WasteCategories(Long catId, String name, StreamType streamType, Boolean isHazardous, String iconUrl,
-				BigDecimal emissionFactor, BigDecimal avgWeight, RecyclingInstructions recyclingInstructions,
-				List<Feedback> feedback, List<CheckIn> checkIns) {
+		public WasteCategories(final Long catId, final String name, final StreamType streamType,
+				final Boolean isHazardous, final String iconUrl,
+				final BigDecimal emissionFactor, final BigDecimal avgWeight, 
+				final RecyclingInstructions recyclingInstructions,
+				final List<Feedback> feedback, final List<CheckIn> checkIns) {
 			super();
 			this.catId = catId;
 			this.name = name;
@@ -83,7 +84,7 @@ public class WasteCategories {
 			return catId;
 		}
 
-		public void setCatId(Long catId) {
+		public void setCatId(final Long catId) {
 			this.catId = catId;
 		}
 
@@ -91,7 +92,7 @@ public class WasteCategories {
 			return name;
 		}
 
-		public void setName(String name) {
+		public void setName(final String name) {
 			this.name = name;
 		}
 
@@ -99,7 +100,7 @@ public class WasteCategories {
 			return streamType;
 		}
 
-		public void setStreamType(StreamType streamType) {
+		public void setStreamType(final StreamType streamType) {
 			this.streamType = streamType;
 		}
 
@@ -107,7 +108,7 @@ public class WasteCategories {
 			return isHazardous;
 		}
 
-		public void setIsHazardous(Boolean isHazardous) {
+		public void setIsHazardous(final Boolean isHazardous) {
 			this.isHazardous = isHazardous;
 		}
 
@@ -115,7 +116,7 @@ public class WasteCategories {
 			return iconUrl;
 		}
 
-		public void setIconUrl(String iconUrl) {
+		public void setIconUrl(final String iconUrl) {
 			this.iconUrl = iconUrl;
 		}
 
@@ -123,7 +124,7 @@ public class WasteCategories {
 			return emissionFactor;
 		}
 
-		public void setEmissionFactor(BigDecimal emissionFactor) {
+		public void setEmissionFactor(final BigDecimal emissionFactor) {
 			this.emissionFactor = emissionFactor;
 		}
 
@@ -131,7 +132,7 @@ public class WasteCategories {
 			return avgWeight;
 		}
 
-		public void setAvgWeight(BigDecimal avgWeight) {
+		public void setAvgWeight(final BigDecimal avgWeight) {
 			this.avgWeight = avgWeight;
 		}
 
@@ -139,7 +140,7 @@ public class WasteCategories {
 			return recyclingInstructions;
 		}
 
-		public void setRecyclingInstructions(RecyclingInstructions recyclingInstructions) {
+		public void setRecyclingInstructions(final RecyclingInstructions recyclingInstructions) {
 			this.recyclingInstructions = recyclingInstructions;
 		}
 
@@ -147,7 +148,7 @@ public class WasteCategories {
 			return feedback;
 		}
 
-		public void setFeedback(List<Feedback> feedback) {
+		public void setFeedback(final List<Feedback> feedback) {
 			this.feedback = feedback;
 		}
 
@@ -155,7 +156,7 @@ public class WasteCategories {
 			return checkIns;
 		}
 
-		public void setCheckIns(List<CheckIn> checkIns) {
+		public void setCheckIns(final List<CheckIn> checkIns) {
 			this.checkIns = checkIns;
 		}
 	    

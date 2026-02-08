@@ -4,7 +4,14 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "dropUoffUlocation")
@@ -48,8 +55,10 @@ public class DropOffLocation {
     
     public DropOffLocation() {}
 
-	public DropOffLocation(String id, String name, String address, String postalCode, String description,
-			String binType, BigDecimal latitude, BigDecimal longitude, Status status, List<CheckIn> checkIn, String incCrc) {
+	public DropOffLocation(final String id, final String name, final String address, 
+			final String postalCode, final String description,
+			final String binType, final BigDecimal latitude, final BigDecimal longitude, 
+			final Status status, final List<CheckIn> checkIn, final String incCrc) {
 		super();
         this.id = id;
 		this.name = name;
@@ -67,7 +76,7 @@ public class DropOffLocation {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(final String id) {
         this.id = id;
     }
 
@@ -75,7 +84,7 @@ public class DropOffLocation {
 		return name;
 	}
 
-	public void setName(String name) {
+	public void setName(final String name) {
 		this.name = name;
 	}
 
@@ -83,7 +92,7 @@ public class DropOffLocation {
 		return address;
 	}
 
-	public void setAddress(String address) {
+	public void setAddress(final String address) {
 		this.address = address;
 	}
 
@@ -91,7 +100,7 @@ public class DropOffLocation {
 		return postalCode;
 	}
 
-	public void setPostalCode(String postalCode) {
+	public void setPostalCode(final String postalCode) {
 		this.postalCode = postalCode;
 	}
 
@@ -99,7 +108,7 @@ public class DropOffLocation {
 		return description;
 	}
 
-	public void setDescription(String description) {
+	public void setDescription(final String description) {
 		this.description = description;
 	}
 
@@ -107,7 +116,7 @@ public class DropOffLocation {
 		return binType;
 	}
 
-	public void setBinType(String binType) {
+	public void setBinType(final String binType) {
 		this.binType = binType;
 	}
 
@@ -115,7 +124,7 @@ public class DropOffLocation {
 		return latitude;
 	}
 
-	public void setLatitude(BigDecimal latitude) {
+	public void setLatitude(final BigDecimal latitude) {
 		this.latitude = latitude;
 	}
 
@@ -123,7 +132,7 @@ public class DropOffLocation {
 		return longitude;
 	}
 
-	public void setLongitude(BigDecimal longitude) {
+	public void setLongitude(final BigDecimal longitude) {
 		this.longitude = longitude;
 	}
 
@@ -131,7 +140,7 @@ public class DropOffLocation {
 		return status;
 	}
 
-	public void setStatus(Status status) {
+	public void setStatus(final Status status) {
 		this.status = status;
 	}
 
@@ -139,7 +148,7 @@ public class DropOffLocation {
 		return checkIn;
 	}
 
-	public void setCheckIn(List<CheckIn> checkIn) {
+	public void setCheckIn(final List<CheckIn> checkIn) {
 		this.checkIn = checkIn;
 	}
 

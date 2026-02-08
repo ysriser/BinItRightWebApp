@@ -1,6 +1,6 @@
 package tech3.binitright.response;
 
-public class IssueResponse {
+public final class IssueResponse {
     private Long issueId;
 
     public IssueResponse() {}

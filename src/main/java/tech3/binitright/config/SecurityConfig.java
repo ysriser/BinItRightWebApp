@@ -103,7 +103,8 @@ public class SecurityConfig {
                                         + "img-src 'self' data: https:; "
                                         + "media-src 'self' https://*.digitaloceanspaces.com; "
                                         + "connect-src 'self' https://*.digitaloceanspaces.com; "
-                                        + "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com;"
+                                        + "style-src 'self' 'unsafe-inline' "
+                                        + "https://fonts.googleapis.com https://cdnjs.cloudflare.com;"
                                         + "frame-ancestors 'none'; form-action 'self';")
                         )
                         .addHeaderWriter(new StaticHeadersWriter(
@@ -116,7 +117,8 @@ public class SecurityConfig {
                         .cacheControl(withDefaults())
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/css/**", "/js/**", "/api/admin/create", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/login", "/css/**", "/js/**", "/api/admin/create", 
+                        		"/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/admin/**").hasRole("admin")
                         .anyRequest().authenticated()
                 )
@@ -164,7 +166,8 @@ public class SecurityConfig {
                 .contentSecurityPolicy(csp -> csp.policyDirectives(
                         "default-src 'self'; " +
                                 // Combined style-src to fix "Duplicate directive" Low risk
-                                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; " +
+                                "style-src 'self' 'unsafe-inline'"
+                                + " https://fonts.googleapis.com https://cdnjs.cloudflare.com; " +
                                 "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; " +
                                 // Removed 'unsafe-inline' to fix Medium risk
                                 "script-src 'self' https://cdnjs.cloudflare.com; " +

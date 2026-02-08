@@ -1,5 +1,7 @@
 package tech3.binitright.model;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -8,8 +10,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "news")
@@ -36,7 +36,8 @@ public class News {
         private LocalDateTime publishedDate;
 
 
-		public News(Long newsId, String name, String description, String imageUrl, LocalDateTime publishedDate) {
+		public News(final Long newsId, final String name, final String description, 
+				final String imageUrl, final LocalDateTime publishedDate) {
 			
 			this.newsId = newsId;
 			this.name = name;
@@ -51,7 +52,7 @@ public class News {
 		 
 		public News() {}
 
-		public News(Long newsId, String name, String description, String imageUrl, Status status) {
+		public News(final Long newsId, final String name, final String description, final String imageUrl, final Status status) {
 			super();
 			this.newsId = newsId;
 			this.name = name;
@@ -64,7 +65,7 @@ public class News {
 			return newsId;
 		}
 
-		public void setNewsId(Long newsId) {
+		public void setNewsId(final Long newsId) {
 			this.newsId = newsId;
 		}
 
@@ -72,7 +73,7 @@ public class News {
 			return name;
 		}
 
-		public void setName(String name) {
+		public void setName(final String name) {
 			this.name = name;
 		}
 
@@ -80,7 +81,7 @@ public class News {
 			return description;
 		}
 
-		public void setDescription(String description) {
+		public void setDescription(final String description) {
 			this.description = description;
 		}
 
@@ -88,7 +89,7 @@ public class News {
 			return imageUrl;
 		}
 
-		public void setImageUrl(String imageUrl) {
+		public void setImageUrl(final String imageUrl) {
 			this.imageUrl = imageUrl;
 		}
 
@@ -96,7 +97,7 @@ public class News {
 			return status;
 		}
 
-		public void setStatus(Status status) {
+		public void setStatus(final Status status) {
 			this.status = status;
 		}
 
@@ -104,7 +105,7 @@ public class News {
             return publishedDate;
         }
 
-        public void setPublishedDate(LocalDateTime publishedDate) {
+        public void setPublishedDate(final LocalDateTime publishedDate) {
             this.publishedDate = publishedDate;
         }
 

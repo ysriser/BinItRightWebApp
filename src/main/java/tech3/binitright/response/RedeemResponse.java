@@ -1,6 +1,6 @@
 package tech3.binitright.response;
 
-public class RedeemResponse {
+public final class RedeemResponse {
     private int newTotalPoints;
     private String message;
 

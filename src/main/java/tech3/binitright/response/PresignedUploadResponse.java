@@ -2,7 +2,7 @@ package tech3.binitright.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class PresignedUploadResponse {
+public final class PresignedUploadResponse {
 
     @JsonProperty("uploadUrl")
     private String uploadUrl;

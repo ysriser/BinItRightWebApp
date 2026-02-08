@@ -1,6 +1,6 @@
 package tech3.binitright.response;
 
-public class RegisterResponse {
+public final class RegisterResponse {
     private boolean success;
     private String message;
 

@@ -1,6 +1,6 @@
 package tech3.binitright.response;
 
-public class LoginResponse {
+public final class LoginResponse {
     private boolean success;
     private String message;
     private String token; // simple token for mobile

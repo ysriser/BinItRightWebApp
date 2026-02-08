@@ -2,7 +2,7 @@ package tech3.binitright.response;
 
 import java.time.LocalDateTime;
 
-public class RecycleHistoryResponse {
+public final class RecycleHistoryResponse {
 
     private String categoryName;
     private String categoryIcon;
