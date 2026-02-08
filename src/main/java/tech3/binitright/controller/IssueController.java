@@ -1,12 +1,16 @@
 package tech3.binitright.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
-import java.util.List;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
 import tech3.binitright.interfacemethods.AdminInterface;
 import tech3.binitright.interfacemethods.IssueInterface;
 import tech3.binitright.model.Admin;
@@ -22,21 +26,21 @@ public class IssueController {
     @Autowired
     private IssueInterface issueService;
 
-    public void setIssueService(IssueImplementation issueserviceImp) {
+    public void setIssueService(final IssueImplementation issueserviceImp) {
         this.issueService = issueserviceImp;
     }
 
     @Autowired
     private AdminInterface adminService;
 
-    public void setAdminService(AdminImplementation adminserviceImp) {
+    public void setAdminService(final AdminImplementation adminserviceImp) {
         this.adminService = adminserviceImp;
     }
 
     @GetMapping
-    public String viewIssues(Model model) {
+    public String viewIssues(final Model model) {
 
-        List<Issue> issues = issueService.getAllIssues();
+        final List<Issue> issues = issueService.getAllIssues();
 
         model.addAttribute("issues", issues);
         model.addAttribute("totalCount", issues.size());
@@ -54,9 +58,9 @@ public class IssueController {
 
     /* VIEW SINGLE ISSUE */
     @GetMapping("/{id}")
-    public String viewIssue(@PathVariable Long id, Model model) {
+    public String viewIssue(@PathVariable final Long id, final Model model) {
 
-        Issue issue = issueService.getIssueById(id);
+        final Issue issue = issueService.getIssueById(id);
 
         model.addAttribute("issue", issue);
         model.addAttribute("currentPath", "/admin/issues");
@@ -66,11 +70,11 @@ public class IssueController {
 
     /* MARK IN PROGRESS */
     @PostMapping("/{id}/in-progress")
-    public String markInProgress(@PathVariable Long id,
-                                 Authentication authentication) {
+    public String markInProgress(@PathVariable final Long id,
+                                 final Authentication authentication) {
 
-        String username = authentication.getName(); // from JWT
-        Admin admin = adminService.getSingleAdminByUsername(username);
+        final String username = authentication.getName(); // from JWT
+        final Admin admin = adminService.getSingleAdminByUsername(username);
 
         issueService.markInProgress(id, admin.getId());
         return "redirect:/admin/issues";
@@ -78,11 +82,11 @@ public class IssueController {
 
     /* RESOLVE ISSUE */
     @PostMapping("/{id}/resolve")
-    public String resolveIssue(@PathVariable Long id,
-                               Authentication authentication) {
+    public String resolveIssue(@PathVariable final Long id,
+                               final Authentication authentication) {
 
-        String username = authentication.getName();
-        Admin admin = adminService.getSingleAdminByUsername(username);
+        final String username = authentication.getName();
+        final Admin admin = adminService.getSingleAdminByUsername(username);
 
         issueService.resolveIssue(id, admin.getId());
         return "redirect:/admin/issues";

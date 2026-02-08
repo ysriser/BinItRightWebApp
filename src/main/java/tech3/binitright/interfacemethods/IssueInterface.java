@@ -1,10 +1,10 @@
 package tech3.binitright.interfacemethods;
 
-import tech3.binitright.model.Issue;
-import tech3.binitright.request.IssueCreateRequest;
-
 import java.util.Collection;
 import java.util.List;
+
+import tech3.binitright.model.Issue;
+import tech3.binitright.request.IssueCreateRequest;
 
 public interface IssueInterface {
     public Issue createIssue(IssueCreateRequest req, Long userId);

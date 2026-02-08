@@ -1,24 +1,30 @@
 package tech3.binitright.controller;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.util.List;
+import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import jakarta.servlet.http.HttpServletResponse;
 import tech3.binitright.interfacemethods.ReportInterface;
 import tech3.binitright.model.Admin;
 import tech3.binitright.model.Report;
 import tech3.binitright.repository.AdminRepository;
 import tech3.binitright.repository.ReportRepository;
-import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Map;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 
 
@@ -32,11 +38,11 @@ public class ReportController {
 
 
     @PostMapping("/generate")
-    public String generateNewReport(@RequestParam("month") int month,
-                                    @RequestParam("year") int year) {
-        Report log = new Report();
+    public String generateNewReport(@RequestParam("month") final int month,
+                                    @RequestParam("year") final int year) {
+        final Report log = new Report();
         log.setGeneratedAt(LocalDateTime.now());
-        Admin admin = adminRepository.findById(1L).orElse(null);
+        final Admin admin = adminRepository.findById(1L).orElse(null);
         log.setAdmin(admin);
         reportRepository.save(log);
         return "redirect:/admin/sustainability-reports";
@@ -44,15 +50,15 @@ public class ReportController {
 
 
     @GetMapping("/view/{id}")
-    public String viewSpecificReport(@PathVariable("id") Long id, Model model) {
-        Report reportLog = reportRepository.findById(id).orElseThrow();
-        int month = reportLog.getGeneratedAt().getMonthValue();
-        int year = reportLog.getGeneratedAt().getYear();
+    public String viewSpecificReport(@PathVariable("id") final Long id, final Model model) {
+        final Report reportLog = reportRepository.findById(id).orElseThrow();
+        final int month = reportLog.getGeneratedAt().getMonthValue();
+        final int year = reportLog.getGeneratedAt().getYear();
         return populateReportView(month, year, reportLog.getReportId(), model);
     }
-    private String populateReportView(int month, int year, Long reportId, Model model) {
-        Map<String, Object> stats = reportService.getSustainabilityStats(month, year);
-        String monthName = Month.of(month).name();
+    private String populateReportView(final int month, final int year, final Long reportId, final Model model) {
+        final Map<String, Object> stats = reportService.getSustainabilityStats(month, year);
+        final String monthName = Month.of(month).name();
 
         model.addAttribute("stats", stats);
         model.addAttribute("reportMonth", monthName.charAt(0) + monthName.substring(1).toLowerCase());
@@ -63,15 +69,15 @@ public class ReportController {
     }
     @GetMapping("/download/csv/{id}")
     public void downloadReportCsv(
-            @PathVariable Long id,
-            HttpServletResponse response) throws IOException {
+            @PathVariable final Long id,
+            final HttpServletResponse response) throws IOException {
 
-        Report report = reportRepository.findById(id).orElseThrow();
+        final Report report = reportRepository.findById(id).orElseThrow();
 
-        int month = report.getGeneratedAt().getMonthValue();
-        int year = report.getGeneratedAt().getYear();
+        final int month = report.getGeneratedAt().getMonthValue();
+        final int year = report.getGeneratedAt().getYear();
 
-        Map<String, Object> stats =
+        final Map<String, Object> stats =
                 reportService.getSustainabilityStats(month, year);
 
         response.setContentType("text/csv");
@@ -80,7 +86,7 @@ public class ReportController {
                 "attachment; filename=RPT-" + id + ".csv"
         );
 
-        PrintWriter writer = response.getWriter();
+        final PrintWriter writer = response.getWriter();
 
         // CSV Header
         writer.println("Metric,Value");
@@ -98,8 +104,8 @@ public class ReportController {
     }
     @GetMapping("/download/zip")
     public void downloadReportsZip(
-            @RequestParam("ids") List<Long> ids,
-            HttpServletResponse response) throws IOException {
+            @RequestParam("ids") final List<Long> ids,
+            final HttpServletResponse response) throws IOException {
 
         response.setContentType("application/zip");
         response.setHeader(
@@ -107,24 +113,26 @@ public class ReportController {
                 "attachment; filename=sustainability-reports.zip"
         );
 
-        ZipOutputStream zipOut =
+        final ZipOutputStream zipOut =
                 new ZipOutputStream(response.getOutputStream());
 
-        for (Long id : ids) {
-            Report report = reportRepository.findById(id).orElse(null);
-            if (report == null) continue;
+        for (final Long id : ids) {
+            final Report report = reportRepository.findById(id).orElse(null);
+            if (report == null) {
+				continue;
+			}
 
-            int month = report.getGeneratedAt().getMonthValue();
-            int year = report.getGeneratedAt().getYear();
+            final int month = report.getGeneratedAt().getMonthValue();
+            final int year = report.getGeneratedAt().getYear();
 
-            Map<String, Object> stats =
+            final Map<String, Object> stats =
                     reportService.getSustainabilityStats(month, year);
 
-            String fileName = "RPT-" + id + ".csv";
+            final String fileName = "RPT-" + id + ".csv";
 
             zipOut.putNextEntry(new ZipEntry(fileName));
 
-            StringBuilder csv = new StringBuilder();
+            final StringBuilder csv = new StringBuilder();
             csv.append("Metric,Value\n");
             csv.append("Report ID,RPT-").append(id).append("\n");
             csv.append("Month,").append(month).append("\n");

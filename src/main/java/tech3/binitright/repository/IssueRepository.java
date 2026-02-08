@@ -1,18 +1,20 @@
 package tech3.binitright.repository;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import tech3.binitright.model.Issue;
 
-import java.util.List;
-import java.util.Optional;
+import tech3.binitright.model.Issue;
 
 public interface IssueRepository extends JpaRepository<Issue, Long> {
 
     List<Issue> findByStatus(Issue.IssueStatus status);
     long countByStatus(Issue.IssueStatus status);
-    long count();
+    @Override
+	long count();
 
     @Query("""
     SELECT i FROM Issue i
@@ -21,9 +23,9 @@ public interface IssueRepository extends JpaRepository<Issue, Long> {
     List<Issue> findAllWithRaisedBy();
 
     @Query("""
-            SELECT i FROM Issue i 
-            JOIN FETCH i.raisedBy 
-            ORDER BY i.createdAt DESC 
+            SELECT i FROM Issue i
+            JOIN FETCH i.raisedBy
+            ORDER BY i.createdAt DESC
             LIMIT 5""")
     List<Issue> findTop5WithRaisedBy();
 

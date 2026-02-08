@@ -27,7 +27,7 @@ public class CheckInController {
 
 	@Autowired
 	private CheckInInterface checkInService;
-	
+
 	public void setcheckInService(final CheckInImplementation checkInserviceImp) {
 		this.checkInService = checkInserviceImp;
 	}
@@ -52,7 +52,7 @@ public class CheckInController {
             final User u = userService.findByUsername(authentication.getName()).get(0);
             userId = u.getId();
         }
-		
+
         final CheckIn saved = checkInService.processCheckIn(data, userId);
 
         String msg = "";

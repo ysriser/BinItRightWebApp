@@ -13,7 +13,7 @@ import tech3.binitright.response.RecycleHistoryResponse;
 
 public interface CheckInRepository extends JpaRepository<CheckIn, Long> {
 	//List<CheckIn> findByStatus(Status status);
-	
+
 	@Query("SELECT ci " +
 		   "FROM CheckIn ci " +
 		   "JOIN FETCH ci.wasteCategories wc " +

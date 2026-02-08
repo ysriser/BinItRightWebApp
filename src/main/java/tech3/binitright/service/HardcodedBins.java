@@ -1,6 +1,4 @@
 package tech3.binitright.service;
-import java.util.List;
-
 
 public class HardcodedBins {
 
@@ -12,6 +10,6 @@ public class HardcodedBins {
 	 * RecyclingBin( 3L, "Jurong East Central Recycling Bin", 1.33252, 103.74212,
 	 * "Jurong East Central" ), new RecyclingBin( 4L,
 	 * "Tampines Hub Recycling Point", 1.35365, 103.94009, "Our Tampines Hub" ) );
-	 * 
+	 *
 	 * private HardcodedBins() {}
 	 */}

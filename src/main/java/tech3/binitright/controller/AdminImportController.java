@@ -12,7 +12,7 @@ public class AdminImportController {
 
     private final BinDataImporter importer;
 
-    public AdminImportController(BinDataImporter importer) {
+    public AdminImportController(final BinDataImporter importer) {
         this.importer = importer;
     }
 
@@ -23,6 +23,6 @@ public class AdminImportController {
         System.out.println("=== Import completed ===");
         return "Bin data import completed successfully!";
     }
-    
-    
+
+
 }

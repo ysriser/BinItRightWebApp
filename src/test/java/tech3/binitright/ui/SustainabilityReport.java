@@ -1,18 +1,21 @@
 package tech3.binitright.ui;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.time.Duration;
+
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
 import tech3.binitright.pages.MainPage;
-import java.time.Duration;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SustainabilityReport extends Base {
 
     @Test
     void adminShouldBeAbleToManageSustainabilityReports() {
-        MainPage mainPage = new MainPage(driver);
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        final MainPage mainPage = new MainPage(driver);
+        final WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
         // Login and Navigate
         driver.get(baseUrl + "/login");
@@ -41,8 +44,8 @@ public class SustainabilityReport extends Base {
         mainPage.sustainabilityReportPage.clickLastReportDownload();
 
         // Final Health Check Assertion
-        String currentUrl = driver.getCurrentUrl();
-        String pageSource = driver.getPageSource().toLowerCase();
+        final String currentUrl = driver.getCurrentUrl();
+        final String pageSource = driver.getPageSource().toLowerCase();
 
         assertTrue(currentUrl.contains("/admin/sustainability-reports"),
                 "Unexpected navigation after download click: " + currentUrl);

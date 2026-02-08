@@ -5,7 +5,7 @@ public class PresignedUploadRequest {
 
     public PresignedUploadRequest() {}
 
-    public PresignedUploadRequest(Long userId) {
+    public PresignedUploadRequest(final Long userId) {
         this.userId = userId;
     }
 
@@ -13,7 +13,7 @@ public class PresignedUploadRequest {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(final Long userId) {
         this.userId = userId;
     }
 }

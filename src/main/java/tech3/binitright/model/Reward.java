@@ -1,6 +1,7 @@
 package tech3.binitright.model;
 
 import java.util.List;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -35,10 +36,10 @@ public class Reward {
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private RewardStatus status;
-    
+
     public Reward() {}
-    public Reward(Long rewardId, String name, String description, Integer pointsRequired, Integer stock,
-			RewardStatus status, List<RewardRedemption> rewardRedemption) {
+    public Reward(final Long rewardId, final String name, final String description, final Integer pointsRequired, final Integer stock,
+			final RewardStatus status, final List<RewardRedemption> rewardRedemption) {
 		super();
 		this.rewardId = rewardId;
 		this.name = name;
@@ -59,49 +60,49 @@ public class Reward {
     public Long getRewardId() {
         return rewardId;
     }
-    public void setRewardId(Long rewardId) {
+    public void setRewardId(final Long rewardId) {
         this.rewardId = rewardId;
     }
 
     public String getName() {
         return name;
     }
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
     public String getDescription() {
         return description;
     }
-    public void setDescription(String description) {
+    public void setDescription(final String description) {
         this.description = description;
     }
 
     public Integer getPointsRequired() {
         return pointsRequired;
     }
-    public void setPointsRequired(Integer pointsRequired) {
+    public void setPointsRequired(final Integer pointsRequired) {
         this.pointsRequired = pointsRequired;
     }
 
     public Integer getStock() {
         return stock;
     }
-    public void setStock(Integer stock) {
+    public void setStock(final Integer stock) {
         this.stock = stock;
     }
 
     public RewardStatus getStatus() {
         return status;
     }
-    public void setStatus(RewardStatus status) {
+    public void setStatus(final RewardStatus status) {
         this.status = status;
     }
 
     public List<RewardRedemption> getRewardRedemption() {
         return rewardRedemption;
     }
-    public void setRewardRedemption(List<RewardRedemption> rewardRedemption) {
+    public void setRewardRedemption(final List<RewardRedemption> rewardRedemption) {
         this.rewardRedemption = rewardRedemption;
     }
 }

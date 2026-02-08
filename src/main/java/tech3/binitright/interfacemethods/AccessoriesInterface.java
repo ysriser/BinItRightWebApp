@@ -1,7 +1,8 @@
 package tech3.binitright.interfacemethods;
 
-import tech3.binitright.model.Accessories;
 import java.util.List;
+
+import tech3.binitright.model.Accessories;
 
 public interface AccessoriesInterface {
 

@@ -30,28 +30,28 @@ public class JmxGenerator {
         final String defaultPass = System.getProperty("perfUpass", "none");
         final String defaultAppUser = System.getProperty("perfUappUuser", "user");
         final String defaultAppPass = System.getProperty("perfUappUpass", "none");
-        
-        
+
+
         testPlan(
             threadGroup("AdminULoadUTest")
                 .rampTo(5, Duration.ofSeconds(10))
                 .holdIterating(10)
                 .children(
                     httpCookies(), // Necessary to maintain the session
-                    
+
                     // 1. LOGIN (Required to access /admin/**)
                     httpSampler("1_GETULogin", baseUrl + "/login")
                         .children(
                             regexExtractor("csrfUtoken", "name=\"_csrf\" value=\"(.+?)\"")
                         ),
-                        
+
                     httpSampler("2_POSTULogin", baseUrl + "/login")
                         .method("POST")
                         .contentType(ContentType.APPLICATION_FORM_URLENCODED)
                         .param("username", defaultUser)
                         .param("password", defaultPass)
                         .param("_csrf", "${csrfUtoken}"),
-                        
+
                     httpSampler("GETUAdminUForecast", baseUrl + "/admin/forecast"),
                     httpSampler("4_GETUCheckinUList", baseUrl + "/admin/checkin"),
                     httpSampler("5_GETUReports", baseUrl + "/admin/sustainability-reports")),

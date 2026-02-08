@@ -22,42 +22,42 @@ public class DropOffLocation {
     private String id;
 
     private String name;
-    
+
     private String address;
-    
+
     @Column(name = "postalUcode")
     private String postalCode;
-    
+
     private String description;
-    
+
     @Column(name = "binUtype")
     private String binType;
-    
+
     @Column(precision = 10, scale = 4)
     private BigDecimal latitude;
-    
+
     @Column(precision = 10, scale = 4)
     private BigDecimal longitude;
-    
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private Status status;
-    
+
     @OneToMany(mappedBy = "dropOffLocation", cascade = CascadeType.ALL)
     private List<CheckIn> checkIn = new ArrayList<>();
-    
+
     public enum Status {
         OPEN,
         CLOSED,
         MAINTENANCE,
-        ACTIVE  
+        ACTIVE
     }
-    
+
     public DropOffLocation() {}
 
-	public DropOffLocation(final String id, final String name, final String address, 
+	public DropOffLocation(final String id, final String name, final String address,
 			final String postalCode, final String description,
-			final String binType, final BigDecimal latitude, final BigDecimal longitude, 
+			final String binType, final BigDecimal latitude, final BigDecimal longitude,
 			final Status status, final List<CheckIn> checkIn, final String incCrc) {
 		super();
         this.id = id;

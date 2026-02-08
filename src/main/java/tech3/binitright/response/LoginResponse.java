@@ -7,7 +7,7 @@ public final class LoginResponse {
 
     public LoginResponse() {}
 
-    public LoginResponse(boolean success, String message, String token) {
+    public LoginResponse(final boolean success, final String message, final String token) {
         this.success = success;
         this.message = message;
         this.token = token;
@@ -19,7 +19,7 @@ public final class LoginResponse {
         return success;
     }
 
-    public void setSuccess(boolean success) {
+    public void setSuccess(final boolean success) {
         this.success = success;
     }
 
@@ -27,7 +27,7 @@ public final class LoginResponse {
         return message;
     }
 
-    public void setMessage(String message) {
+    public void setMessage(final String message) {
         this.message = message;
     }
 
@@ -35,7 +35,7 @@ public final class LoginResponse {
         return token;
     }
 
-    public void setToken(String token) {
+    public void setToken(final String token) {
         this.token = token;
     }
 }

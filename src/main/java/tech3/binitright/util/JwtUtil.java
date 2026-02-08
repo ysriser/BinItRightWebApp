@@ -1,12 +1,14 @@
 package tech3.binitright.util;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+
+import org.springframework.stereotype.Component;
+
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.stereotype.Component;
 import tech3.binitright.model.User;
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
 
 @Component
 public class JwtUtil {
@@ -16,7 +18,7 @@ public class JwtUtil {
     private static final long EXPIRYUMS =
             24 * 60 * 60 * 1000; // 1 day
 
-    public String generateToken(User user) {
+    public String generateToken(final User user) {
         return Jwts.builder()
                 .setSubject(user.getId().toString())
                 .claim("role", user.getRole())
@@ -30,7 +32,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    public String extractUsername(String token) {
+    public String extractUsername(final String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(SECRET.getBytes(StandardCharsets.UTF_8))
                 .build()

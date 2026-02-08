@@ -1,6 +1,7 @@
 package tech3.binitright.model;
 
 import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -23,7 +24,7 @@ public class RewardRedemption {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userUid", nullable = false)
     private User user;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rewardUid", nullable = false)
     private Reward reward;
@@ -33,13 +34,13 @@ public class RewardRedemption {
 
     @Column(name = "redeemedUat")
     private LocalDateTime redeemedAt;
-    
-    
+
+
     public RewardRedemption() {}
 
 
-	public RewardRedemption(Long redemptionId, User user, Reward reward, Integer redeemedPoints,
-			LocalDateTime redeemedAt) {
+	public RewardRedemption(final Long redemptionId, final User user, final Reward reward, final Integer redeemedPoints,
+			final LocalDateTime redeemedAt) {
 		super();
 		this.redemptionId = redemptionId;
 		this.user = user;
@@ -54,7 +55,7 @@ public class RewardRedemption {
 	}
 
 
-	public void setRedemptionId(Long redemptionId) {
+	public void setRedemptionId(final Long redemptionId) {
 		this.redemptionId = redemptionId;
 	}
 
@@ -64,7 +65,7 @@ public class RewardRedemption {
 	}
 
 
-	public void setUser(User user) {
+	public void setUser(final User user) {
 		this.user = user;
 	}
 
@@ -74,7 +75,7 @@ public class RewardRedemption {
 	}
 
 
-	public void setReward(Reward reward) {
+	public void setReward(final Reward reward) {
 		this.reward = reward;
 	}
 
@@ -84,7 +85,7 @@ public class RewardRedemption {
 	}
 
 
-	public void setRedeemedPoints(Integer redeemedPoints) {
+	public void setRedeemedPoints(final Integer redeemedPoints) {
 		this.redeemedPoints = redeemedPoints;
 	}
 
@@ -94,8 +95,8 @@ public class RewardRedemption {
 	}
 
 
-	public void setRedeemedAt(LocalDateTime redeemedAt) {
+	public void setRedeemedAt(final LocalDateTime redeemedAt) {
 		this.redeemedAt = redeemedAt;
 	}
-    
+
 }

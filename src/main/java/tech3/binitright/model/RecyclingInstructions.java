@@ -13,7 +13,7 @@ import jakarta.persistence.OneToOne;
 @Entity
 @DiscriminatorValue("recyclingUinstructions")
 public class RecyclingInstructions{
-	
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "recyclingUinstructionsUid")
@@ -30,11 +30,11 @@ public class RecyclingInstructions{
     private String stepsUjson;
 
     private String contaminationUrules;
-    
+
     public RecyclingInstructions() {}
 
-    public RecyclingInstructions(Long recyclingInstructionsId, WasteCategories wasteCategory, String locale,
-			String title, String stepsUjson, String contaminationUrules) {
+    public RecyclingInstructions(final Long recyclingInstructionsId, final WasteCategories wasteCategory, final String locale,
+			final String title, final String stepsUjson, final String contaminationUrules) {
 		super();
 		this.recyclingInstructionsId = recyclingInstructionsId;
 		this.wasteCategory = wasteCategory;
@@ -48,7 +48,7 @@ public class RecyclingInstructions{
         return recyclingInstructionsId;
     }
 
-    public void setRecyclingInstructionsId(Long recyclingInstructionsId) {
+    public void setRecyclingInstructionsId(final Long recyclingInstructionsId) {
         this.recyclingInstructionsId = recyclingInstructionsId;
     }
 
@@ -56,7 +56,7 @@ public class RecyclingInstructions{
         return wasteCategory;
     }
 
-    public void setWasteCategories(WasteCategories wasteCategory) {
+    public void setWasteCategories(final WasteCategories wasteCategory) {
         this.wasteCategory = wasteCategory;
     }
 
@@ -64,7 +64,7 @@ public class RecyclingInstructions{
         return locale;
     }
 
-    public void setLocale(String locale) {
+    public void setLocale(final String locale) {
         this.locale = locale;
     }
 
@@ -72,7 +72,7 @@ public class RecyclingInstructions{
         return title;
     }
 
-    public void setTitle(String title) {
+    public void setTitle(final String title) {
         this.title = title;
     }
 
@@ -80,7 +80,7 @@ public class RecyclingInstructions{
         return stepsUjson;
     }
 
-    public void setStepsUjson(String stepsUjson) {
+    public void setStepsUjson(final String stepsUjson) {
         this.stepsUjson = stepsUjson;
     }
 
@@ -88,7 +88,7 @@ public class RecyclingInstructions{
         return contaminationUrules;
     }
 
-    public void setContaminationUrules(String ContaminationUrules) {
+    public void setContaminationUrules(final String ContaminationUrules) {
         this.contaminationUrules = ContaminationUrules;
     }
 

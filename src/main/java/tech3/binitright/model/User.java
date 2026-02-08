@@ -2,9 +2,9 @@ package tech3.binitright.model;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
@@ -29,9 +29,9 @@ public class User extends BinItRightUser{
     private Integer pointBalance = 0;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<UserAccessories> userAccessories; 
+    private List<UserAccessories> userAccessories;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<UserAchievement> userAchievements; 
+    private List<UserAchievement> userAchievements;
 
     @OneToMany(mappedBy = "raisedBy", cascade = CascadeType.ALL)
     private List<Issue> issues;
@@ -47,14 +47,15 @@ public class User extends BinItRightUser{
 
     public User() {}
 
-    public User(String userAddress, int currentRank,float carbonEmissionSaved) {
+    public User(final String userAddress, final int currentRank,final float carbonEmissionSaved) {
         this.userAddress = userAddress;
         this.currentRank=currentRank;
         this.carbonEmissionSaved=carbonEmissionSaved;
-        ;
+
     }
 
-    @PrePersist
+    @Override
+	@PrePersist
     protected void onCreate() {
         this.updatedat = LocalDateTime.now();
     }
@@ -63,7 +64,7 @@ public class User extends BinItRightUser{
 		return userAddress;
 	}
 
-	public void setUserAddress(String userAddress) {
+	public void setUserAddress(final String userAddress) {
 		this.userAddress = userAddress;
 	}
 
@@ -71,7 +72,7 @@ public class User extends BinItRightUser{
 		return currentRank;
 	}
 
-	public void setCurrentRank(int currentRank) {
+	public void setCurrentRank(final int currentRank) {
 		this.currentRank = currentRank;
 	}
 
@@ -79,7 +80,7 @@ public class User extends BinItRightUser{
 		return carbonEmissionSaved;
 	}
 
-	public void setCarbonEmissionSaved(float carbonEmissionSaved) {
+	public void setCarbonEmissionSaved(final float carbonEmissionSaved) {
 		this.carbonEmissionSaved = carbonEmissionSaved;
 	}
 
@@ -87,19 +88,19 @@ public class User extends BinItRightUser{
 		return updatedat;
 	}
 
-	public void setUpdatedat(LocalDateTime updatedat) {
+	public void setUpdatedat(final LocalDateTime updatedat) {
 		this.updatedat = updatedat;
 	}
 
     public Integer getPointBalance() { return pointBalance; }
 
-    public void setPointBalance(Integer pointBalance) { this.pointBalance = pointBalance; }
+    public void setPointBalance(final Integer pointBalance) { this.pointBalance = pointBalance; }
 
 	public List<UserAccessories> getUserAccessories() {
 		return userAccessories;
 	}
 
-	public void setUserAccessories(List<UserAccessories> userAccessories) {
+	public void setUserAccessories(final List<UserAccessories> userAccessories) {
 		this.userAccessories = userAccessories;
 	}
 
@@ -107,7 +108,7 @@ public class User extends BinItRightUser{
 		return userAchievements;
 	}
 
-	public void setUserAchievements(List<UserAchievement> userAchievements) {
+	public void setUserAchievements(final List<UserAchievement> userAchievements) {
 		this.userAchievements = userAchievements;
 	}
 
@@ -115,7 +116,7 @@ public class User extends BinItRightUser{
 		return issues;
 	}
 
-	public void setIssues(List<Issue> issues) {
+	public void setIssues(final List<Issue> issues) {
 		this.issues = issues;
 	}
 
@@ -123,7 +124,7 @@ public class User extends BinItRightUser{
 		return checkin;
 	}
 
-	public void setCheckin(List<CheckIn> checkin) {
+	public void setCheckin(final List<CheckIn> checkin) {
 		this.checkin = checkin;
 	}
 
@@ -131,7 +132,7 @@ public class User extends BinItRightUser{
 		return rewardredemption;
 	}
 
-	public void setRewardredemption(List<RewardRedemption> rewardredemption) {
+	public void setRewardredemption(final List<RewardRedemption> rewardredemption) {
 		this.rewardredemption = rewardredemption;
 	}
 
@@ -139,7 +140,7 @@ public class User extends BinItRightUser{
 		return Feedbacks;
 	}
 
-	public void setFeedbacks(List<Feedback> feedbacks) {
+	public void setFeedbacks(final List<Feedback> feedbacks) {
 		Feedbacks = feedbacks;
 	}
 

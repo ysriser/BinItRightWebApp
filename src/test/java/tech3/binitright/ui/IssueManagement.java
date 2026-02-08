@@ -1,12 +1,19 @@
 package tech3.binitright.ui;
 
-import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.time.Duration;
+
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.openqa.selenium.By;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
 import tech3.binitright.pages.MainPage;
-import java.time.Duration;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class IssueManagement extends Base {
@@ -16,14 +23,14 @@ public class IssueManagement extends Base {
     @Test
     @Order(1)
     void adminShouldMarkNewIssueAsInProgress() {
-        MainPage mainPage = new MainPage(driver);
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        final MainPage mainPage = new MainPage(driver);
+        final WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
         driver.get(baseUrl + "/login");
         mainPage.loginPage.login("admin", "password");
         mainPage.goToIssueManagement();
 
-        int index = mainPage.issueManagementPage.getFirstIndexByStatus("NEW");
+        final int index = mainPage.issueManagementPage.getFirstIndexByStatus("NEW");
         targetId = mainPage.issueManagementPage.getIssueId(index);
 
         mainPage.issueManagementPage.clickViewIssue(index);
@@ -40,8 +47,8 @@ public class IssueManagement extends Base {
     @Order(2)
     void adminShouldResolveThatSameIssue() {
         Assumptions.assumeTrue(targetId != null, "targetId not set");
-        MainPage mainPage = new MainPage(driver);
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        final MainPage mainPage = new MainPage(driver);
+        final WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
 
         // Explicitly Logout to ensure a clean server-side session
         driver.get(baseUrl + "/logout");

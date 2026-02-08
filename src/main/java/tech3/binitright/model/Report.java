@@ -15,7 +15,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "report")
 public class Report {
-	
+
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "reportUid")
@@ -24,13 +24,13 @@ public class Report {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id", nullable = false)
     private Admin admin;
-   
+
     @Column(name = "generatedUat")
     private LocalDateTime generatedAt;
-    
+
     public Report() {}
 
-	public Report(Long reportId, Admin admin, LocalDateTime generatedAt) {
+	public Report(final Long reportId, final Admin admin, final LocalDateTime generatedAt) {
 		super();
 		this.reportId = reportId;
 		this.admin = admin;
@@ -41,7 +41,7 @@ public class Report {
 		return reportId;
 	}
 
-	public void setReportId(Long reportIdId) {
+	public void setReportId(final Long reportIdId) {
 		this.reportId = reportId;
 	}
 
@@ -49,7 +49,7 @@ public class Report {
 		return admin;
 	}
 
-	public void setAdmin(Admin admin) {
+	public void setAdmin(final Admin admin) {
 		this.admin = admin;
 	}
 
@@ -57,7 +57,7 @@ public class Report {
 		return generatedAt;
 	}
 
-	public void setGeneratedAt(LocalDateTime generatedAt) {
+	public void setGeneratedAt(final LocalDateTime generatedAt) {
 		this.generatedAt = generatedAt;
 	}
 

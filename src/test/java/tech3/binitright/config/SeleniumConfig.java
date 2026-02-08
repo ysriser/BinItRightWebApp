@@ -10,10 +10,10 @@ import org.springframework.context.annotation.Configuration;
 public class SeleniumConfig {
     @Bean
     public WebDriver webDriver() {
-        ChromeOptions options = new ChromeOptions();
+        final ChromeOptions options = new ChromeOptions();
 
         // Check if we are running in CI/CD
-        String headless = System.getProperty("headless", "false");
+        final String headless = System.getProperty("headless", "false");
         if ("true".equals(headless)) {
             options.addArguments("--headless=new");
             options.addArguments("--no-sandbox");

@@ -3,12 +3,8 @@ package tech3.binitright.interfacemethods;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-
 import tech3.binitright.model.Admin;
-import tech3.binitright.model.CheckIn;
-import tech3.binitright.request.ReviewRequest;;
+import tech3.binitright.model.CheckIn;;
 
 public interface AdminInterface {
 

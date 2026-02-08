@@ -9,7 +9,7 @@ public final class UserProfileResponse {
     public UserProfileResponse() {
     }
         // Add this constructor
-        public UserProfileResponse(User user) {
+        public UserProfileResponse(final User user) {
             this.id = user.getId();
             this.pointBalance = user.getPointBalance();
         }
@@ -19,7 +19,7 @@ public final class UserProfileResponse {
             return id;
         }
 
-        public void setId(Long id) {
+        public void setId(final Long id) {
             this.id = id;
         }
 
@@ -27,7 +27,7 @@ public final class UserProfileResponse {
             return pointBalance;
         }
 
-        public void setPointBalance(Integer pointBalance) {
+        public void setPointBalance(final Integer pointBalance) {
             this.pointBalance = pointBalance;
         }
 }

@@ -17,13 +17,13 @@ public class LoginPage {
     @FindBy(className = "login-btn")
     private WebElement loginBtn;
 
-    public LoginPage(WebDriver driver) {
+    public LoginPage(final WebDriver driver) {
         this.driver = driver;
         PageFactory.initElements(driver, this);
     }
 
     // Change to PUBLIC and return DashboardPage
-    public void login(String username, String password) {
+    public void login(final String username, final String password) {
         usernameField.clear();
         usernameField.sendKeys(username);
         passwordField.clear();

@@ -12,9 +12,9 @@ public final class UserProfileDTO {
 
     public UserProfileDTO() {}
 
-    public UserProfileDTO(final String name, final int pointBalance, 
-    		final String equippedAvatarName, final int totalRecycled,  
-    		final String aiSummary,  final int totalAchievements, 
+    public UserProfileDTO(final String name, final int pointBalance,
+    		final String equippedAvatarName, final int totalRecycled,
+    		final String aiSummary,  final int totalAchievements,
     		final float carbonEmissionSaved) {
         this.name = name;
         this.pointBalance = pointBalance;

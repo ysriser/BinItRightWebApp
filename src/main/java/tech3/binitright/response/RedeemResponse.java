@@ -5,7 +5,7 @@ public final class RedeemResponse {
     private String message;
 
     public RedeemResponse() {}
-    public RedeemResponse(int newTotalPoints, String message) {
+    public RedeemResponse(final int newTotalPoints, final String message) {
         this.newTotalPoints = newTotalPoints;
         this.message = message;
     }

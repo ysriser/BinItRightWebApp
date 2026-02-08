@@ -1,11 +1,16 @@
 package tech3.binitright.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import tech3.binitright.request.AchievementDTO;
 import tech3.binitright.service.AchievementImplementation;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/achievements")
@@ -14,13 +19,13 @@ public class AchievementController {
 
     private final AchievementImplementation achievementImplementation;
 
-    public AchievementController(AchievementImplementation achievementImplementation) {
+    public AchievementController(final AchievementImplementation achievementImplementation) {
         this.achievementImplementation = achievementImplementation;
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<AchievementDTO>> getUserAchievements(@PathVariable Long userId) {
-        List<AchievementDTO> list = achievementImplementation.getAchievementsForUser(userId);
+    public ResponseEntity<List<AchievementDTO>> getUserAchievements(@PathVariable final Long userId) {
+        final List<AchievementDTO> list = achievementImplementation.getAchievementsForUser(userId);
         return ResponseEntity.ok(list);
     }
 }

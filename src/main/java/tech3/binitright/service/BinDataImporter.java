@@ -1,31 +1,32 @@
 package tech3.binitright.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import tech3.binitright.model.DropOffLocation;
-import tech3.binitright.model.DropOffLocation.Status;
-import tech3.binitright.repository.DropOffLocationRepository;
-
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.client.HttpClientErrorException;
-
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import jakarta.transaction.Transactional;
+import tech3.binitright.model.DropOffLocation;
+import tech3.binitright.model.DropOffLocation.Status;
+import tech3.binitright.repository.DropOffLocationRepository;
 
 @Profile({"test", "prod", "default"})
 @Service
@@ -45,7 +46,7 @@ public class BinDataImporter {
     private static final String LAMPUAPI =
             "https://api-open.data.gov.sg/v1/public/api/datasets/d_6226f69998ed0cb62151af37706508cd/poll-download";
 
-    public BinDataImporter(DropOffLocationRepository repo, RestTemplate restTemplate) {
+    public BinDataImporter(final DropOffLocationRepository repo, final RestTemplate restTemplate) {
         this.repo = repo;
         this.restTemplate = restTemplate;
         this.mapper = new ObjectMapper();
@@ -64,15 +65,15 @@ public class BinDataImporter {
         importFromApi(BLUEUBINUAPI, "BlueBin");
     }
 
-    private void importFromApi(String pollUrl, String binType) {
+    private void importFromApi(final String pollUrl, final String binType) {
         try {
-            HttpHeaders headers = new HttpHeaders();
+            final HttpHeaders headers = new HttpHeaders();
             headers.set("X-API-KEY", dataGovApiKey);
 
             System.out.println("Using API key header: " + dataGovApiKey.substring(0, 10));
-            HttpEntity<Void> entity = new HttpEntity<>(headers);
+            final HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-            ResponseEntity<JsonNode> response =
+            final ResponseEntity<JsonNode> response =
                     restTemplate.exchange(
                             pollUrl,
                             HttpMethod.GET,
@@ -80,62 +81,64 @@ public class BinDataImporter {
                             JsonNode.class
                     );
 
-            JsonNode pollResp = response.getBody();
-            String s3Url = pollResp.path("data").path("url").asText();
+            final JsonNode pollResp = response.getBody();
+            final String s3Url = pollResp.path("data").path("url").asText();
 
             if (s3Url == null || s3Url.isEmpty() || s3Url.equals("null")) {
                 throw new RuntimeException("Error: 'data.url' not found for " + binType);
             }
 
-            URI signed = new URI(s3Url);
-            String geoJson = restTemplate.getForObject(signed, String.class);
+            final URI signed = new URI(s3Url);
+            final String geoJson = restTemplate.getForObject(signed, String.class);
 
             parseAndSaveBins(geoJson, binType);
             System.out.println(">>> Successfully Imported: " + binType);
 
-        } catch (HttpClientErrorException.TooManyRequests e) {
+        } catch (final HttpClientErrorException.TooManyRequests e) {
             System.err.println("!!! Rate Limit Hit (429) for " + binType + ". Waiting 30s to retry...");
             pause(30000);
             importFromApi(pollUrl, binType); // Recursive retry once
-        } catch (Exception e) {
+        } catch (final Exception e) {
             System.err.println("!!! Failed to import " + binType + ": " + e.getMessage());
         }
     }
 
     @Transactional
-    private void parseAndSaveBins(String geoJson, String binType) {
+    private void parseAndSaveBins(final String geoJson, final String binType) {
         try {
-            JsonNode root = mapper.readTree(geoJson);
-            JsonNode features = root.get("features");
+            final JsonNode root = mapper.readTree(geoJson);
+            final JsonNode features = root.get("features");
 
             int count = 0;
-            for (JsonNode feature : features) {
-                JsonNode geom = feature.get("geometry");
-                JsonNode props = feature.get("properties");
+            for (final JsonNode feature : features) {
+                final JsonNode geom = feature.get("geometry");
+                final JsonNode props = feature.get("properties");
 
-                double lng = geom.get("coordinates").get(0).asDouble();
-                double lat = geom.get("coordinates").get(1).asDouble();
+                final double lng = geom.get("coordinates").get(0).asDouble();
+                final double lat = geom.get("coordinates").get(1).asDouble();
 
                 String incCrc;
                 if (props.has("INCUCRC")) {
                     incCrc = props.get("INCUCRC").asText();
                 } else {
-                    String html = props.path("Description").asText("");
-                    Map<String, String> meta = parseHtmlTable(html);
+                    final String html = props.path("Description").asText("");
+                    final Map<String, String> meta = parseHtmlTable(html);
                     incCrc = meta.get("INCUCRC");
                 }
 
-                if (incCrc == null || incCrc.isEmpty()) continue;
+                if (incCrc == null || incCrc.isEmpty()) {
+					continue;
+				}
 
-                DropOffLocation bin = binType.equals("EWaste")
+                final DropOffLocation bin = binType.equals("EWaste")
                         ? parseEWasteBin(props, lat, lng, binType)
                         : parseHtmlBasedBin(props, lat, lng, binType);
 
                 bin.setId(incCrc);
 
-                Optional<DropOffLocation> existing = repo.findById(incCrc);
+                final Optional<DropOffLocation> existing = repo.findById(incCrc);
                 if (existing.isPresent()) {
-                    DropOffLocation db = existing.get();
+                    final DropOffLocation db = existing.get();
                     db.setLatitude(bin.getLatitude());
                     db.setLongitude(bin.getLongitude());
                     db.setDescription(bin.getDescription());
@@ -147,18 +150,18 @@ public class BinDataImporter {
                 }
             }
             System.out.println(">>> Saved " + count + " " + binType + " bins");
-        } catch (Exception e) {
+        } catch (final Exception e) {
             System.err.println("!!! Error parsing " + binType + ": " + e.getMessage());
         }
     }
 
-    private DropOffLocation parseEWasteBin(JsonNode props, double lat, double lng, String binType) {
-        String block = props.path("ADDRESSBLOCKHOUSENUMBER").asText("");
-        String street = props.path("ADDRESSSTREETNAME").asText("");
-        String postal = props.path("ADDRESSPOSTALCODE").asText("");
-        String desc = props.path("DESCRIPTION").asText("");
+    private DropOffLocation parseEWasteBin(final JsonNode props, final double lat, final double lng, final String binType) {
+        final String block = props.path("ADDRESSBLOCKHOUSENUMBER").asText("");
+        final String street = props.path("ADDRESSSTREETNAME").asText("");
+        final String postal = props.path("ADDRESSPOSTALCODE").asText("");
+        final String desc = props.path("DESCRIPTION").asText("");
 
-        DropOffLocation bin = new DropOffLocation();
+        final DropOffLocation bin = new DropOffLocation();
         bin.setName("E-Waste Bin");
         bin.setAddress((block + " " + street).trim());
         bin.setPostalCode(postal);
@@ -170,18 +173,18 @@ public class BinDataImporter {
         return bin;
     }
 
-    private DropOffLocation parseHtmlBasedBin(JsonNode props, double lat, double lng, String binType) {
-        String html = props.path("Description").asText("");
-        Map<String, String> meta = parseHtmlTable(html);
+    private DropOffLocation parseHtmlBasedBin(final JsonNode props, final double lat, final double lng, final String binType) {
+        final String html = props.path("Description").asText("");
+        final Map<String, String> meta = parseHtmlTable(html);
 
-        String block = meta.getOrDefault("ADDRESSBLOCKHOUSENUMBER", "");
-        String street = meta.getOrDefault("ADDRESSSTREETNAME", "");
-        String building = meta.getOrDefault("ADDRESSBUILDINGNAME", "");
+        final String block = meta.getOrDefault("ADDRESSBLOCKHOUSENUMBER", "");
+        final String street = meta.getOrDefault("ADDRESSSTREETNAME", "");
+        final String building = meta.getOrDefault("ADDRESSBUILDINGNAME", "");
 
-        String fullAddress = (!block.isEmpty() && !street.isEmpty()) ? block + " " + street :
+        final String fullAddress = (!block.isEmpty() && !street.isEmpty()) ? block + " " + street :
                 (!building.isEmpty() ? building : street);
 
-        DropOffLocation bin = new DropOffLocation();
+        final DropOffLocation bin = new DropOffLocation();
         bin.setName(props.has("Name") ? props.get("Name").asText() : binType);
         bin.setAddress(fullAddress);
         bin.setPostalCode(meta.getOrDefault("ADDRESSPOSTALCODE", ""));
@@ -193,22 +196,24 @@ public class BinDataImporter {
         return bin;
     }
 
-    private Map<String, String> parseHtmlTable(String html) {
-        Map<String, String> map = new HashMap<>();
+    private Map<String, String> parseHtmlTable(final String html) {
+        final Map<String, String> map = new HashMap<>();
         try {
-            Document doc = Jsoup.parse(html);
-            Elements rows = doc.select("tr");
-            for (Element row : rows) {
-                Elements th = row.select("th");
-                Elements td = row.select("td");
-                if (!th.isEmpty() && !td.isEmpty()) map.put(th.text(), td.text());
+            final Document doc = Jsoup.parse(html);
+            final Elements rows = doc.select("tr");
+            for (final Element row : rows) {
+                final Elements th = row.select("th");
+                final Elements td = row.select("td");
+                if (!th.isEmpty() && !td.isEmpty()) {
+					map.put(th.text(), td.text());
+				}
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (final Exception e) { e.printStackTrace(); }
         return map;
     }
 
-    private void pause(int ms) {
+    private void pause(final int ms) {
         try { Thread.sleep(ms); }
-        catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+        catch (final InterruptedException e) { Thread.currentThread().interrupt(); }
     }
 }

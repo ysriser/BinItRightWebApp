@@ -1,12 +1,13 @@
 package tech3.binitright.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import tech3.binitright.interfacemethods.NewsInterface;
 import tech3.binitright.model.News;
 import tech3.binitright.repository.NewsRepository;
-import tech3.binitright.interfacemethods.NewsInterface;
-
-import java.util.List;
 
 @Service
 public class NewsImplementation implements NewsInterface {
@@ -20,7 +21,7 @@ public class NewsImplementation implements NewsInterface {
     }
 
     @Override
-    public News getNewsByNewsId(Long id) {
+    public News getNewsByNewsId(final Long id) {
         return newsRepository.findNewsByNewsId(id);
     }
 

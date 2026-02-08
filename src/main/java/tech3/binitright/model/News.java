@@ -26,7 +26,7 @@ public class News {
 
 	    @Column(name = "imageUurl")
 	    private String imageUrl;
-        
+
 	    public enum Status {
 	        Completed,
 	        Upcoming
@@ -36,20 +36,20 @@ public class News {
         private LocalDateTime publishedDate;
 
 
-		public News(final Long newsId, final String name, final String description, 
+		public News(final Long newsId, final String name, final String description,
 				final String imageUrl, final LocalDateTime publishedDate) {
-			
+
 			this.newsId = newsId;
 			this.name = name;
 			this.description = description;
 			this.imageUrl = imageUrl;
             this.publishedDate = publishedDate;
 		}
-	    
+
 		@Enumerated(EnumType.STRING)
 	    @Column(name = "status")
 		 private Status status;
-		 
+
 		public News() {}
 
 		public News(final Long newsId, final String name, final String description, final String imageUrl, final Status status) {
@@ -109,8 +109,8 @@ public class News {
             this.publishedDate = publishedDate;
         }
 
-		
-		 
-	
+
+
+
 
 }

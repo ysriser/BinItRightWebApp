@@ -42,13 +42,13 @@ public class WasteCategories {
 
 	    @Column(name = "avgUweight")
 	    private BigDecimal avgWeight;
-	    
+
 	    @OneToOne(mappedBy = "wasteCategory", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	    private RecyclingInstructions recyclingInstructions;
-	    
+
 	    @OneToMany(mappedBy = "wasteCategory", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	    private List<Feedback> feedback;
-	    
+
 	    @OneToMany(mappedBy = "wasteCategories", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	    private List<CheckIn> checkIns;
 
@@ -59,12 +59,12 @@ public class WasteCategories {
             EUWASTE,
             HAZARDOUS
 	    }
-	    
+
 	    public WasteCategories() {}
 
 		public WasteCategories(final Long catId, final String name, final StreamType streamType,
 				final Boolean isHazardous, final String iconUrl,
-				final BigDecimal emissionFactor, final BigDecimal avgWeight, 
+				final BigDecimal emissionFactor, final BigDecimal avgWeight,
 				final RecyclingInstructions recyclingInstructions,
 				final List<Feedback> feedback, final List<CheckIn> checkIns) {
 			super();
@@ -159,7 +159,7 @@ public class WasteCategories {
 		public void setCheckIns(final List<CheckIn> checkIns) {
 			this.checkIns = checkIns;
 		}
-	    
-	    
+
+
 
 }
