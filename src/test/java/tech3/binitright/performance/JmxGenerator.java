@@ -79,7 +79,7 @@ public class JmxGenerator {
                                         .method("POST")
                                         .contentType(ContentType.APPLICATION_JSON)
                                         .body("{"
-                                                + "\"binId\": \"06383D31CA5CC778\"," 
+                                                + "\"binId\": \"BIN-${__UUID}\"," 
                                                 + "\"wasteCategoryId\": 1,"          
                                                 + "\"fileName\": \"load_test_${__UUID}.jpg\"," 
                                                 + "\"quantity\": 2,"
@@ -90,6 +90,7 @@ public class JmxGenerator {
                                                httpHeaders()
                                                   .header("Authorization", "Bearer ${extracted_token}")
                                                         )
+                              
                         )
               
         ).saveAsJmx("tests/load_test.jmx");
