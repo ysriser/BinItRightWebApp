@@ -2,17 +2,20 @@ package tech3.binitright.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tech3.binitright.ai.OpenAIClient;
+import tech3.binitright.interfacemethods.ChatInterface;
 
 @Service
-public class ChatService {
+@Transactional
+public class ChatImplementation implements ChatInterface{
 
     private final OpenAIClient openAIClient;
 
     @Value("${openai.model}")
     private String model;
 
-    public ChatService(OpenAIClient openAIClient) {
+    public ChatImplementation(OpenAIClient openAIClient) {
         this.openAIClient = openAIClient;
     }
 
@@ -56,5 +59,47 @@ Always focus on helping the user dispose of the detected item correctly in Singa
         }
     }
 
-}
+    public String generateProgressSummary(
+            int pointBalance,
+            double carbonEmissionSaved,
+            int currentRank,
+            int totalRecycledItems
+    ) {
+        try {
+            String systemPrompt = """
+You are Bin-It-Right AI, a sustainability progress assistant in Singapore.
 
+Your task:
+- Generate a SHORT motivational dashboard summary (max 35 words).
+- Use ONLY the provided user statistics.
+- Encourage continued recycling and environmental impact.
+- Mention rank or milestone feeling if meaningful.
+- Do NOT invent numbers or achievements.
+- Tone: friendly, positive, eco-focused, mobile-app style.
+""";
+
+            String userPrompt = String.format("""
+User stats:
+Point balance: %d
+Carbon emission saved: %.1f kg
+Current rank: %s
+Total recycled items: %d
+
+Write the dashboard AI progress summary.
+""",
+                    pointBalance,
+                    carbonEmissionSaved,
+                    currentRank,
+                    totalRecycledItems
+            );
+
+            return openAIClient.chat(model, systemPrompt, userPrompt);
+
+        } catch (Exception ex) {
+            // graceful fallback if OpenAI fails
+            return "You're making a real environmental impact 🌱 Keep recycling to climb higher and save more CO₂!";
+        }
+    }
+
+
+}

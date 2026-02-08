@@ -48,14 +48,6 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/auth/login",
                                 "/api/admin/create",
-                                "/api/bins/**",
-                                "/api/bins/nearby",
-                                "/api/bins/all",
-                                "/api/checkin",
-                                "/api/videos/presign-upload",
-                                "/api/recycle-history",
-                                "/api/user/profile/**",
-                                "/api/chat",
                                 "/error"  // CRITICAL: Permit /error
                         ).permitAll()
                         .anyRequest().authenticated()

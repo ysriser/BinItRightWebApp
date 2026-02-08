@@ -29,9 +29,9 @@ public class IssueImplementation implements IssueInterface {
 
     @Override
     @Transactional
-    public Issue createIssue(IssueCreateRequest req) {
+    public Issue createIssue(IssueCreateRequest req, Long userId) {
 
-        User user = userRepository.findById(req.raisedByUserId())
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         Issue issue = new Issue(

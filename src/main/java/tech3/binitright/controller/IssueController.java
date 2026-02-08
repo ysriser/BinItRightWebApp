@@ -49,7 +49,7 @@ public class IssueController {
 
         model.addAttribute("currentPath", "/admin/issues");
 
-        return "issues";   // issues.html
+        return "issues";
     }
 
     /* VIEW SINGLE ISSUE */

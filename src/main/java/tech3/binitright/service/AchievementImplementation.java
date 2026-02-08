@@ -40,4 +40,8 @@ public class AchievementImplementation {
                 unlockedIds.contains(ach.getAchievementId()) 
         )).collect(Collectors.toList());
     }
+
+    public int getTotalAchievements(Long userId) {
+        return userAchievementRepo.countByUserId(userId);
+    }
 }

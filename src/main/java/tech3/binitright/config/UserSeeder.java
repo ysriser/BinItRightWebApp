@@ -157,13 +157,13 @@ public class UserSeeder {
             glass.setEmissionFactor(new BigDecimal("0.90"));
             glass.setAvgWeight(new BigDecimal("0.50"));
 
-            WasteCategories textile = new WasteCategories();
-            textile.setName("Textile");
-            textile.setStreamType(WasteCategories.StreamType.GENERAL);
-            textile.setIsHazardous(false);
-            textile.setIconUrl("textile");
-            textile.setEmissionFactor(new BigDecimal("2.10"));
-            textile.setAvgWeight(new BigDecimal("0.70"));
+            WasteCategories lighting = new WasteCategories();
+            lighting.setName("Lighting");
+            lighting.setStreamType(WasteCategories.StreamType.GENERAL);
+            lighting.setIsHazardous(false);
+            lighting.setIconUrl("lighting");
+            lighting.setEmissionFactor(new BigDecimal("2.10"));
+            lighting.setAvgWeight(new BigDecimal("0.70"));
 
             WasteCategories metal = new WasteCategories();
             metal.setName("Metal");
@@ -185,7 +185,7 @@ public class UserSeeder {
                     plastic,
                     ewaste,
                     glass,
-                    textile,
+                    lighting,
                     metal,
                     paper
             ));

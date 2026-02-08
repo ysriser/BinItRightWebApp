@@ -4,15 +4,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tech3.binitright.request.ChatRequest;
 import tech3.binitright.response.ChatResponse;
-import tech3.binitright.service.ChatService;
+import tech3.binitright.service.ChatImplementation;
 
 @RestController
 @RequestMapping("/api/chat")
 public class ChatController {
 
-    private final ChatService chatService;
+    private final ChatImplementation chatService;
 
-    public ChatController(ChatService chatService) {
+    public ChatController(ChatImplementation chatService) {
         this.chatService = chatService;
     }
 
