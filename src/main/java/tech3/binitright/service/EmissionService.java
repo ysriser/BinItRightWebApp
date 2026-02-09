@@ -1,5 +1,6 @@
 package tech3.binitright.service;
 
+import org.springframework.stereotype.Service;
 import tech3.binitright.dto.EmissionCalculator;
 import tech3.binitright.model.CheckIn;
 import tech3.binitright.model.WasteCategories;
@@ -8,6 +9,7 @@ import tech3.binitright.repository.CheckInRepository;
 import java.math.BigDecimal;
 import java.util.List;
 
+@Service
 public class EmissionService {
     private final CheckInRepository checkInRepository;
 

@@ -17,7 +17,11 @@ import tech3.binitright.model.UserAccessories;
 import tech3.binitright.service.CheckInImplementation;
 import tech3.binitright.service.EmissionService;
 import tech3.binitright.service.UserAccessoriesImplementation;
+import tech3.binitright.service.ChatImplementation;
+import tech3.binitright.service.AchievementImplementation;
 import tech3.binitright.service.UserImplementation;
+
+import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/api/summary")
@@ -95,7 +99,8 @@ public class SummaryRestController {
         String aiSummary = "You're making a real environmental impact 🌱 Keep recycling to climb higher and save more CO₂!";
 
         int totalAchievements = achievementService.getTotalAchievements(userId);
-        float co2Saved = user.getCarbonEmissionSaved();
+        BigDecimal co2SavedBD = emissionService.getUserTotalCo2Saved(userId);
+        float co2Saved = co2SavedBD == null ? 0f : co2SavedBD.floatValue();
 
         UserProfileDTO dto = new UserProfileDTO(
                 user.getName(),
