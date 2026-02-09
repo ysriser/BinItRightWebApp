@@ -120,3 +120,4 @@ jobs:
           name: app-binary-pr
           path: target/*.jar
           retention-days: 1
+
