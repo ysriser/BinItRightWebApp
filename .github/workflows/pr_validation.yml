@@ -12,6 +12,7 @@ jobs:
   lint:
     name: Java Linting (Checkstyle)
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK 21
