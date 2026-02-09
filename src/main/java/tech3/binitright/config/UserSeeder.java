@@ -151,15 +151,15 @@ public class UserSeeder {
             plastic.setStreamType(WasteCategories.StreamType.GENERAL);
             plastic.setIsHazardous(false);
             plastic.setIconUrl("plastic");
-            plastic.setEmissionFactor(new BigDecimal("1.50"));
-            plastic.setAvgWeight(new BigDecimal("0.30"));
+            plastic.setEmissionFactor(new BigDecimal("1.1600"));
+            plastic.setAvgWeight(new BigDecimal("0.0190"));
 
             WasteCategories ewaste = new WasteCategories();
             ewaste.setName("E-Waste");
             ewaste.setStreamType(WasteCategories.StreamType.E_WASTE);
             ewaste.setIsHazardous(true);
             ewaste.setIconUrl("e-waste");
-            ewaste.setEmissionFactor(new BigDecimal("4.20"));
+            ewaste.setEmissionFactor(new BigDecimal("0.8700"));
             ewaste.setAvgWeight(new BigDecimal("1.20"));
 
             WasteCategories glass = new WasteCategories();
@@ -167,32 +167,34 @@ public class UserSeeder {
             glass.setStreamType(WasteCategories.StreamType.GENERAL);
             glass.setIsHazardous(false);
             glass.setIconUrl("glass");
-            glass.setEmissionFactor(new BigDecimal("0.90"));
-            glass.setAvgWeight(new BigDecimal("0.50"));
+            glass.setEmissionFactor(new BigDecimal("0.3100"));
+            glass.setAvgWeight(new BigDecimal("0.2470"));
 
             WasteCategories lighting = new WasteCategories();
             lighting.setName("Lighting");
-            lighting.setStreamType(WasteCategories.StreamType.GENERAL);
-            lighting.setIsHazardous(false);
+            lighting.setStreamType(WasteCategories.StreamType.E_WASTE);
+            lighting.setIsHazardous(true);
             lighting.setIconUrl("lighting");
-            lighting.setEmissionFactor(new BigDecimal("2.10"));
-            lighting.setAvgWeight(new BigDecimal("0.70"));
+            lighting.setEmissionFactor(new BigDecimal("0.8700"));
+            lighting.setAvgWeight(new BigDecimal("0.1540"));
+
 
             WasteCategories metal = new WasteCategories();
             metal.setName("Metal");
             metal.setStreamType(WasteCategories.StreamType.GENERAL);
             metal.setIsHazardous(false);
             metal.setIconUrl("metal");
-            metal.setEmissionFactor(new BigDecimal("3.00"));
-            metal.setAvgWeight(new BigDecimal("0.80"));
+            metal.setEmissionFactor(new BigDecimal("4.8400"));
+            metal.setAvgWeight(new BigDecimal("0.0150"));
 
             WasteCategories paper = new WasteCategories();
             paper.setName("Paper");
             paper.setStreamType(WasteCategories.StreamType.GENERAL);
             paper.setIsHazardous(false);
             paper.setIconUrl("paper");
-            paper.setEmissionFactor(new BigDecimal("1.10"));
-            paper.setAvgWeight(new BigDecimal("0.25"));
+            paper.setEmissionFactor(new BigDecimal("3.9100"));
+            paper.setAvgWeight(new BigDecimal("0.0050"));
+
 
             wasteRepo.saveAll(List.of(
                     plastic,
