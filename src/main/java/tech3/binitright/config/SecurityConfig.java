@@ -60,6 +60,7 @@ public class SecurityConfig {
                                 "/api/chat",
                                 "/api/ready",
                                 "/error",
+                                "/api/forecast",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"// CRITICAL: Permit /error
