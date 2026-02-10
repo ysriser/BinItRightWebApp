@@ -69,7 +69,6 @@ public class BinDataImporter {
             HttpHeaders headers = new HttpHeaders();
             headers.set("X-API-KEY", dataGovApiKey);
 
-            System.out.println("Using API key header: " + dataGovApiKey.substring(0, 10));
             HttpEntity<Void> entity = new HttpEntity<>(headers);
 
             ResponseEntity<JsonNode> response =
@@ -91,14 +90,11 @@ public class BinDataImporter {
             String geoJson = restTemplate.getForObject(signed, String.class);
 
             parseAndSaveBins(geoJson, binType);
-            System.out.println(">>> Successfully Imported: " + binType);
 
-        } catch (HttpClientErrorException.TooManyRequests e) {
-            System.err.println("!!! Rate Limit Hit (429) for " + binType + ". Waiting 30s to retry...");
+        } catch (HttpClientErrorException.TooManyRequests exception) {
             pause(30000);
             importFromApi(pollUrl, binType); // Recursive retry once
-        } catch (Exception e) {
-            System.err.println("!!! Failed to import " + binType + ": " + e.getMessage());
+        } catch (Exception ex) {
         }
     }
 
@@ -146,9 +142,7 @@ public class BinDataImporter {
                     count++;
                 }
             }
-            System.out.println(">>> Saved " + count + " " + binType + " bins");
-        } catch (Exception e) {
-            System.err.println("!!! Error parsing " + binType + ": " + e.getMessage());
+        } catch (Exception ex) {
         }
     }
 
@@ -203,7 +197,7 @@ public class BinDataImporter {
                 Elements td = row.select("td");
                 if (!th.isEmpty() && !td.isEmpty()) map.put(th.text(), td.text());
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception ex) {  }
         return map;
     }
 
