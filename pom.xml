@@ -269,7 +269,6 @@
                 <version>3.21.2</version>
                 <configuration>
                     <linkXRef>false</linkXRef>
-                    <sourceEncoding>UTF-8</sourceEncoding>
                     <minimumTokens>100</minimumTokens>
                     <targetJdk>21</targetJdk>
                     <rulesets>
