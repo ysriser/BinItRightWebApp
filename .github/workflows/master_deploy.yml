@@ -248,15 +248,24 @@ jobs:
           replacer.full_list(1).replacement=JSESSIONID=$SESSION
           EOF
 
-      # --- PART 1: UI SCAN ---
-      - name: Run ZAP UI Baseline Scan
-        id: zap_scan
-        uses: zaproxy/action-baseline@v0.15.0
+      - name: Run ZAP API Scan
+        id: api_scan
+        uses: zaproxy/action-api-scan@v0.10.0
         continue-on-error: true
         with:
-          target: "https://${{ secrets.TEST_URL }}:443"
-          artifact_name: "zap-ui-internal" # Prevents 409 Conflict
-          cmd_options: '-z "-configfile /zap/wrk/zap_auth.prop" -j'
+          target: "https://${{ secrets.TEST_URL }}:443/v3/api-docs"
+          format: openapi
+          artifact_name: "zap-api-internal"
+          cmd_options: >
+            -m 0
+            -max_duration 5
+            -z "-config scanner.threadPerHost=10"
+            -z "-config pscan.maxAlertsPerRule=5"
+            -z "-config replacer.full_list(0).description=auth"
+            -z "-config replacer.full_list(0).enabled=true"
+            -z "-config replacer.full_list(0).matchtype=REQ_HEADER"
+            -z "-config replacer.full_list(0).matchstr=Authorization"
+            -z "-config replacer.full_list(0).replacement='Bearer ${{ env.JWT }}'"
 
       - name: Rename UI Report
         if: always()
