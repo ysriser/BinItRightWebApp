@@ -130,10 +130,10 @@ jobs:
             sleep 10
           done'
 
-      # Run the actual tests (generates the JSON results)
+      # Run tests and generate the IT (Integration Test) coverage report
       - name: Run Selenium Tests
         run: |
-          mvn verify \
+          mvn clean verify jacoco:report-it \
           -Dmaven.test.failure.ignore=true \
           -Dsurefire.skip=true \
           -Dtarget_host=${{ secrets.TEST_URL }} \
