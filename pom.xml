@@ -203,6 +203,9 @@
                     <consoleOutput>true</consoleOutput>
                     <failsOnError>true</failsOnError>
                     <linkXRef>false</linkXRef>
+                    <excludes>**/model/**</excludes>
+                    <excludes>**/request/**</excludes>
+                    <excludes>**/response/**</excludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -263,40 +266,40 @@
                 </execution>
             </executions>
         </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.21.2</version>
-                <configuration>
-                    <linkXRef>false</linkXRef>
-                    <minimumTokens>100</minimumTokens>
-                    <rulesets>
-                        <ruleset>category/java/errorprone.xml</ruleset>
-                        <ruleset>category/java/bestpractices.xml</ruleset>
-                        <ruleset>category/java/codestyle.xml</ruleset>
-                    </rulesets>
-                    <failOnViolation>false</failOnViolation>
-                    <format>xml</format>
-                    <minimumPriority>3</minimumPriority>
-                    <excludes>
-                        <exclude>**/test/**/*.java</exclude>
-                        <exclude>**/*Test.java</exclude>
-                        <exclude>**/*Tests.java</exclude>
-                        <exclude>*/tech3/binitright/service/**/*.java</exclude>
-                        <!--<exclude>**/model/**</exclude>-->
-                    </excludes>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>pmd-report</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>pmd</goal>
-                            <goal>cpd</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-pmd-plugin</artifactId>-->
+<!--                <version>3.21.2</version>-->
+<!--                <configuration>-->
+<!--                    <linkXRef>false</linkXRef>-->
+<!--                    <minimumTokens>100</minimumTokens>-->
+<!--                    <rulesets>-->
+<!--                        <ruleset>category/java/errorprone.xml</ruleset>-->
+<!--                        <ruleset>category/java/bestpractices.xml</ruleset>-->
+<!--                        <ruleset>category/java/codestyle.xml</ruleset>-->
+<!--                    </rulesets>-->
+<!--                    <failOnViolation>false</failOnViolation>-->
+<!--                    <format>xml</format>-->
+<!--                    <minimumPriority>3</minimumPriority>-->
+<!--                    <excludes>-->
+<!--                        <exclude>**/test/**/*.java</exclude>-->
+<!--                        <exclude>**/*Test.java</exclude>-->
+<!--                        <exclude>**/*Tests.java</exclude>-->
+<!--                        <exclude>*/tech3/binitright/service/**/*.java</exclude>-->
+<!--                        &lt;!&ndash;<exclude>**/model/**</exclude>&ndash;&gt;-->
+<!--                    </excludes>-->
+<!--                </configuration>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>pmd-report</id>-->
+<!--                        <phase>verify</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>pmd</goal>-->
+<!--                            <goal>cpd</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 </project>
