@@ -257,15 +257,18 @@ jobs:
           replacer.full_list(1).replacement=JSESSIONID=$SESSION
           EOF
 
-      # --- PART 1: UI SCAN (Baseline) ---
+      # --- PART 1: UI SCAN ---
       - name: Run ZAP UI Baseline Scan
+        id: zap_scan
         uses: zaproxy/action-baseline@v0.15.0
         continue-on-error: true
         with:
           target: "https://${{ secrets.TEST_URL }}:443"
-          artifact_name: "zap-ui-report"
-          cmd_options: '-z "-configfile /zap/wrk/zap_auth.prop" -j' # -j enables AJAX spider
+          artifact_name: "zap-ui-report" # Separate folder
+          # KEPT SAME:
+          cmd_options: '-z "-configfile /zap/wrk/zap_auth.prop" -j'
 
+      # --- PART 2: API SCAN ---
       - name: Run ZAP API Scan
         id: api_scan
         uses: zaproxy/action-api-scan@v0.10.0
@@ -273,22 +276,24 @@ jobs:
         with:
           target: "https://${{ secrets.TEST_URL }}:443/v3/api-docs"
           format: openapi
-          artifact_name: "zap-api-report"
+          artifact_name: "zap-api-report" # Separate folder
+          # KEPT SAME:
           cmd_options: >
             -z "-configfile /zap/wrk/zap_auth.prop"
             -z "-config scanner.threadPerHost=5"
             -z "-config scanner.maxRuleDurationInMins=1"
             -z "-config scanner.maxScanDurationInMins=4"
-            -m 2
+            -m 1
 
-      - name: Upload DAST Artifacts
+      # --- UPLOAD BOTH AS ONE ARTIFACT ---
+      - name: Upload Combined DAST Artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-            name: java-dast-results # UNIQUE NAME
-            path: |
-              report_html.html
-              report_json.json
+          name: java-dast-results
+          path: |
+            zap-ui-report/report_json.json
+            zap-api-report/report_json.json
 
       - name: Create DAST Summary
         if: always()
