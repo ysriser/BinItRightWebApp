@@ -22,6 +22,9 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Compile Project First
+        run: mvn compile -q
+
       - name: Run Checkstyle Analysis
         continue-on-error: true
         # This generates target/checkstyle-result.xml

@@ -45,7 +45,7 @@ public class UserSeeder {
     private IssueInterface issueService;
 
     @Autowired
-    public void setIssueService(IssueImplementation issueImplementation) {
+    public void setIssueService(final IssueImplementation issueImplementation) {
         this.issueService = issueImplementation;
     }
 
