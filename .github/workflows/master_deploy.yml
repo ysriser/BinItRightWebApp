@@ -275,7 +275,7 @@ jobs:
           # 2. -max_duration 10: This is a hard-coded ZAP global limit (in minutes)
           # 3. -config scanner.attackOnStart=true: Skip deep spidering if API is already mapped
           cmd_options: >
-            -z "-config scanner.threadPerHost=10"
+            -z "-config scanner.threadPerHost=2"
             -z "-config scanner.maxRuleDurationInMins=1"
             -z "-config scanner.maxScanDurationInMins=2"
             -z "-configfile /zap/wrk/zap_auth.prop"
