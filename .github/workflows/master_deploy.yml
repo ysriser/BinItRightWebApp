@@ -271,16 +271,15 @@ jobs:
           target: "https://${{ secrets.TEST_URL }}:443/v3/api-docs"
           format: openapi
           artifact_name: "zap-api-internal"
-          # 1. -m 1: This limits the 'strength' of the scan (1 is lowest/fastest)
-          # 2. -max_duration 10: This is a hard-coded ZAP global limit (in minutes)
-          # 3. -config scanner.attackOnStart=true: Skip deep spidering if API is already mapped
+          # -m 1: Low strength (Fastest)
+          # -max_duration 5: Hard limit of 5 minutes for the entire ZAP process
           cmd_options: >
             -z "-config scanner.threadPerHost=2"
             -z "-config scanner.maxRuleDurationInMins=1"
             -z "-config scanner.maxScanDurationInMins=2"
             -z "-configfile /zap/wrk/zap_auth.prop"
             -m 1
-            -max_duration 2
+            -max_duration 3
 
       - name: Rename API Report
         if: always()
