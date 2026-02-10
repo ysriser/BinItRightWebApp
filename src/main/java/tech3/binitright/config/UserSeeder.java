@@ -17,14 +17,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import tech3.binitright.service.AccessoriesImplementation;
-import tech3.binitright.service.AdminImplementation;
-import tech3.binitright.service.IssueImplementation;
-import tech3.binitright.service.UserAccessoriesImplementation;
-
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 @Configuration
 public class UserSeeder {
 
@@ -37,32 +29,13 @@ public class UserSeeder {
     private AccessoriesInterface accessoriesService;
 
     @Autowired
-    public void setAccessoriesService(AccessoriesImplementation accessoriesImplementation) {
-        this.accessoriesService = accessoriesImplementation;
-    }
-
-    @Autowired
     private IssueInterface issueService;
-
-    @Autowired
-    public void setIssueService(final IssueImplementation issueImplementation) {
-        this.issueService = issueImplementation;
-    }
 
     @Autowired
     private UserAccessoriesInterface userAccessoriesService;
 
     @Autowired
-    public void setUserAccessoriesService(UserAccessoriesImplementation userAccessoriesImplementation) {
-        this.userAccessoriesService = userAccessoriesImplementation;
-    }
-
-    @Autowired
     private AdminInterface adminService;
-
-    public void setAdminService(AdminImplementation adminserviceImp) {
-        this.adminService = adminserviceImp;
-    }
 
     public UserSeeder(UserInterface userService,
                       WasteCategoryRepository wasteRepo,
@@ -94,7 +67,6 @@ public class UserSeeder {
             for (SeedUser su : usersToSeed) {
 
                 if (!userService.findByUsername(su.username()).isEmpty()){
-                    System.out.println(">>> UserSeeder: " + su.username() + " already exists, skipping.");
                     continue;
                 }
 
@@ -113,8 +85,6 @@ public class UserSeeder {
 
                 User savedUser = userService.saveUser(user);
 
-                System.out.println(">>> UserSeeder: Created " + su.username());
-
                 // Assign accessories
                 for (int i = 0; i < su.accessoriesToAssign() && i < availableAccs.size(); i++) {
                     Accessories acc = availableAccs.get(i);
@@ -126,7 +96,6 @@ public class UserSeeder {
 
                     userAccessoriesService.save(ua);
 
-                    System.out.println(">>> Assigned " + acc.getName() + " to " + su.username());
                 }
             }
         };
@@ -142,7 +111,6 @@ public class UserSeeder {
 
             // Skip if already seeded
             if (wasteRepo.count() > 0) {
-                System.out.println(">>> Waste categories already exist, skipping");
                 return;
             }
 
@@ -205,7 +173,6 @@ public class UserSeeder {
                     paper
             ));
 
-            System.out.println(">>> Waste categories seeded (6 types)");
         };
     }
 
@@ -222,7 +189,6 @@ public class UserSeeder {
                     .orElseThrow(() -> new RuntimeException("User1 must exist before seeding CheckIns"));
 
             if (checkInRepo.count() > 0) {
-                System.out.println(">>> Check-ins already exist, skipping");
                 return;
             }
 
@@ -266,8 +232,6 @@ public class UserSeeder {
 
             checkInRepo.saveAll(List.of(c1, c2, c3));
 
-            System.out.println(">>> Check-ins seeded");
-
         };
     }
 
@@ -277,7 +241,6 @@ public class UserSeeder {
     public CommandLineRunner seedIssues() {
         return args -> {
             if (!issueService.findAll().isEmpty()) {
-                System.out.println(">>> Issues already exist, skipping.");
                 return;
             }
 
@@ -306,7 +269,6 @@ public class UserSeeder {
             Issue i4 = new Issue(Issue.IssueCategory.AppProblems, "User dashboard takes more than 10 seconds to load history.", Issue.IssueStatus.NEW, u4, null);
 
             issueService.saveAll(List.of(i1, i2, i3, i4));
-            System.out.println(">>> Issues seeded (4 entries)");
         };
     }
 }
