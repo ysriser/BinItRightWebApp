@@ -140,14 +140,6 @@ jobs:
           -Dtarget_port=443 \
           -Dheadless=true
 
-      # NEW: Upload the raw XML results for SonarCloud Orchestration
-      - name: Upload Selenium XML Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: java-selenium-results
-          path: target/failsafe-reports/TEST-*.xml
-
       # Convert JSONs into an HTML website
       - name: Generate Allure Report
         if: always()
@@ -256,15 +248,21 @@ jobs:
           replacer.full_list(1).replacement=JSESSIONID=$SESSION
           EOF
 
-      # --- PART 1: UI SCAN (Baseline) ---
+      # --- PART 1: UI SCAN ---
       - name: Run ZAP UI Baseline Scan
+        id: zap_scan
         uses: zaproxy/action-baseline@v0.15.0
         continue-on-error: true
         with:
           target: "https://${{ secrets.TEST_URL }}:443"
-          artifact_name: "zap-ui-report"
-          cmd_options: '-z "-configfile /zap/wrk/zap_auth.prop" -j' # -j enables AJAX spider
+          # We don't use artifact_name here because we will handle it manually
+          cmd_options: '-z "-configfile /zap/wrk/zap_auth.prop" -j'
 
+      - name: Rename UI Report
+        if: always()
+        run: mv report_json.json ui-report.json || echo "UI report not found"
+
+      # --- PART 2: API SCAN ---
       - name: Run ZAP API Scan
         id: api_scan
         uses: zaproxy/action-api-scan@v0.10.0
@@ -272,7 +270,6 @@ jobs:
         with:
           target: "https://${{ secrets.TEST_URL }}:443/v3/api-docs"
           format: openapi
-          artifact_name: "zap-api-report"
           cmd_options: >
             -z "-configfile /zap/wrk/zap_auth.prop"
             -z "-config scanner.threadPerHost=5"
@@ -280,14 +277,19 @@ jobs:
             -z "-config scanner.maxScanDurationInMins=4"
             -m 2
 
-      - name: Upload Combined Artifacts
+      - name: Rename API Report
+        if: always()
+        run: mv report_json.json api-report.json || echo "API report not found"
+
+      # --- UPLOAD BOTH UNIQUE FILES ---
+      - name: Upload DAST Artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: dast-security-reports
+          name: java-dast-results
           path: |
-            report_html.html
-            report_json.json
+            ui-report.json
+            api-report.json
 
       - name: Create DAST Summary
         if: always()
