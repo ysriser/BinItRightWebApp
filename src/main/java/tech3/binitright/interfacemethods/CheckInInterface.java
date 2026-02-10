@@ -2,18 +2,19 @@ package tech3.binitright.interfacemethods;
 
 import java.io.IOException;
 import java.util.List;
-import org.springframework.web.multipart.MultipartFile;
+
+import tech3.binitright.dto.LeaderboardDTO;
 import tech3.binitright.model.CheckIn;
 import tech3.binitright.request.CheckInDataReq;
-import tech3.binitright.response.CheckInDataResponse;
 
 public interface CheckInInterface {
     List<CheckIn> getAllCheckIns();
 
-    public CheckIn processCheckIn(CheckInDataReq data, Long userId) throws IOException;
+    CheckIn processCheckIn(CheckInDataReq data, Long userId) throws IOException;
 
-    public List<CheckIn> getPendingCheckIns();
+    List<CheckIn> getPendingCheckIns();
 
-    public Integer getUserTotalRecycled(Long userId);
+    Integer getUserTotalRecycled(Long userId);
 
+    List<LeaderboardDTO> getMonthlyLeaderboard();
 }

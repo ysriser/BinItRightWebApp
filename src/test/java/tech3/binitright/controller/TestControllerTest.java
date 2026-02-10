@@ -16,6 +16,7 @@ import tech3.binitright.util.JwtUtil;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -36,7 +37,7 @@ class TestControllerTest {
 
     @Test
     void scanReturnsV01EnvelopeAndFinalFiveFields() throws Exception {
-        Map<String, Object> finalObj = Map.of(
+        final Map<String, Object> finalObj = Map.of(
                 "category", "Plastic container",
                 "recyclable", true,
                 "confidence", 0.92,
@@ -48,7 +49,7 @@ class TestControllerTest {
                 )
         );
 
-        Map<String, Object> response = Map.of(
+        final Map<String, Object> response = Map.of(
                 "status", "success",
                 "request_id", "req-1",
                 "data", Map.of(
@@ -61,7 +62,7 @@ class TestControllerTest {
 
         when(scanService.handleScan(any(), any(), any(), eq(false))).thenReturn(response);
 
-        MockMultipartFile image = new MockMultipartFile(
+        final MockMultipartFile image = new MockMultipartFile(
                 "image",
                 "sample.jpg",
                 MediaType.IMAGE_JPEG_VALUE,
@@ -86,13 +87,13 @@ class TestControllerTest {
                 Map.of("status", "success", "request_id", "req-2", "data", Map.of())
         );
 
-        MockMultipartFile image = new MockMultipartFile(
+        final MockMultipartFile image = new MockMultipartFile(
                 "image",
                 "sample.jpg",
                 MediaType.IMAGE_JPEG_VALUE,
                 new byte[]{1, 2, 3}
         );
-        MockMultipartFile forceCloud = new MockMultipartFile(
+        final MockMultipartFile forceCloud = new MockMultipartFile(
                 "force_cloud",
                 "",
                 MediaType.TEXT_PLAIN_VALUE,
@@ -106,5 +107,35 @@ class TestControllerTest {
                 .andExpect(status().isOk());
 
         verify(scanService).handleScan(any(), any(), any(), eq(true));
+    }
+
+    @Test
+    void scanDefaultsForceCloudToFalseWhenPartMissing() throws Exception {
+        when(scanService.handleScan(any(), any(), any(), eq(false))).thenReturn(
+                Map.of("status", "success", "request_id", "req-3", "data", Map.of())
+        );
+
+        final MockMultipartFile image = new MockMultipartFile(
+                "image",
+                "sample.jpg",
+                MediaType.IMAGE_JPEG_VALUE,
+                new byte[]{1, 2, 3}
+        );
+
+        mockMvc.perform(multipart("/api/v1/scan")
+                        .file(image)
+                        .contentType(MediaType.MULTIPART_FORM_DATA_VALUE))
+                .andExpect(status().isOk());
+
+        verify(scanService).handleScan(any(), any(), any(), eq(false));
+    }
+
+    @Test
+    void scanWithoutImageReturnsBadRequest() throws Exception {
+        mockMvc.perform(multipart("/api/v1/scan")
+                        .contentType(MediaType.MULTIPART_FORM_DATA_VALUE))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(scanService);
     }
 }

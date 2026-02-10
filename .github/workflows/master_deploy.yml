@@ -140,6 +140,14 @@ jobs:
           -Dtarget_port=443 \
           -Dheadless=true
 
+      # NEW: Upload the raw XML results for SonarCloud Orchestration
+      - name: Upload Selenium XML Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-selenium-results
+          path: target/failsafe-reports/TEST-*.xml
+
       # Convert JSONs into an HTML website
       - name: Generate Allure Report
         if: always()

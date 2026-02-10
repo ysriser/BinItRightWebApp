@@ -39,6 +39,7 @@ public class SecurityConfig {
             final HttpSecurity http,
             final JwtAuthFilter jwtAuthFilter
     ) throws Exception {
+        applyGlobalSecurityHeaders(http); // Apply shared headers
         http
                 .securityMatcher("/api/**", "/error", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
                 .csrf(csrf -> csrf.disable())
@@ -59,6 +60,7 @@ public class SecurityConfig {
                                 "/api/chat",
                                 "/api/ready",
                                 "/error",
+                                "/api/forecast",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"// CRITICAL: Permit /error
@@ -85,6 +87,7 @@ public class SecurityConfig {
     @Bean
     @Order(2)
     public SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
+        applyGlobalSecurityHeaders(http); // Apply shared headers
         http
                 .securityMatcher(new NegatedRequestMatcher(new AntPathRequestMatcher("/api/**")))
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
@@ -151,6 +154,32 @@ public class SecurityConfig {
     @Bean
     public CookieSameSiteSupplier applicationCookieSameSiteSupplier() {
         return CookieSameSiteSupplier.ofLax();
+    }
+
+    private void applyGlobalSecurityHeaders(HttpSecurity http) throws Exception {
+        http.headers(headers -> headers
+                .frameOptions(frame -> frame.deny())
+                .contentTypeOptions(withDefaults())
+                .contentSecurityPolicy(csp -> csp.policyDirectives(
+                        "default-src 'self'; " +
+                                // Combined style-src to fix "Duplicate directive" Low risk
+                                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; " +
+                                "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; " +
+                                // Removed 'unsafe-inline' to fix Medium risk
+                                "script-src 'self' https://cdnjs.cloudflare.com; " +
+                                // Fixed Wildcard: restricted to specific DigitalOcean storage
+                                "img-src 'self' data: https://*.digitaloceanspaces.com; " +
+                                "media-src 'self' https://*.digitaloceanspaces.com; " +
+                                "connect-src 'self' https://*.digitaloceanspaces.com; " +
+                                "frame-ancestors 'none'; form-action 'self';")
+                )
+                .addHeaderWriter(new StaticHeadersWriter("Permissions-Policy",
+                        "camera=(), microphone=(), geolocation=()"))
+                // Spectre isolation headers
+                .addHeaderWriter(new StaticHeadersWriter("Cross-Origin-Resource-Policy", "same-origin"))
+                .addHeaderWriter(new StaticHeadersWriter("Cross-Origin-Embedder-Policy", "require-corp"))
+                .addHeaderWriter(new StaticHeadersWriter("Cross-Origin-Opener-Policy", "same-origin"))
+        );
     }
 }
 
