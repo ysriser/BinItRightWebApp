@@ -16,8 +16,14 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Data
+@Getter
+@Setter
 @Table(name = "waste_categories")
 public class WasteCategories {
 
@@ -78,87 +84,5 @@ public class WasteCategories {
 			this.feedback = feedback;
 			this.checkIns = checkIns;
 		}
-
-		public Long getCatId() {
-			return catId;
-		}
-
-		public void setCatId(Long catId) {
-			this.catId = catId;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		public StreamType getStreamType() {
-			return streamType;
-		}
-
-		public void setStreamType(StreamType streamType) {
-			this.streamType = streamType;
-		}
-
-		public Boolean getIsHazardous() {
-			return isHazardous;
-		}
-
-		public void setIsHazardous(Boolean isHazardous) {
-			this.isHazardous = isHazardous;
-		}
-
-		public String getIconUrl() {
-			return iconUrl;
-		}
-
-		public void setIconUrl(String iconUrl) {
-			this.iconUrl = iconUrl;
-		}
-
-		public BigDecimal getEmissionFactor() {
-			return emissionFactor;
-		}
-
-		public void setEmissionFactor(BigDecimal emissionFactor) {
-			this.emissionFactor = emissionFactor;
-		}
-
-		public BigDecimal getAvgWeight() {
-			return avgWeight;
-		}
-
-		public void setAvgWeight(BigDecimal avgWeight) {
-			this.avgWeight = avgWeight;
-		}
-
-		public RecyclingInstructions getRecyclingInstructions() {
-			return recyclingInstructions;
-		}
-
-		public void setRecyclingInstructions(RecyclingInstructions recyclingInstructions) {
-			this.recyclingInstructions = recyclingInstructions;
-		}
-
-		public List<Feedback> getFeedback() {
-			return feedback;
-		}
-
-		public void setFeedback(List<Feedback> feedback) {
-			this.feedback = feedback;
-		}
-
-		public List<CheckIn> getCheckIns() {
-			return checkIns;
-		}
-
-		public void setCheckIns(List<CheckIn> checkIns) {
-			this.checkIns = checkIns;
-		}
-	    
-	    
 
 }

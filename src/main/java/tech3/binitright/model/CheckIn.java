@@ -13,8 +13,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Data
+@Getter
+@Setter
 @Table(name = "check_in")
 public class CheckIn {
 
@@ -80,88 +86,5 @@ public class CheckIn {
 		this.rewardPoints = rewardPoints;
 		this.duration = duration;
 	}
-
-	public Long getCheckInId() {
-		return checkInId;
-	}
-
-	public void setCheckInId(Long checkInId) {
-		this.checkInId = checkInId;
-	}
-
-	public User getUser() {
-		return user;
-	}
-
-	public void setUser(User user) {
-		this.user = user;
-	}
-
-	public DropOffLocation getDropOffLocation() {
-		return dropOffLocation;
-	}
-
-	public void setDropOffLocation(DropOffLocation dropOffLocation) {
-		this.dropOffLocation = dropOffLocation;
-	}
-
-	public WasteCategories getWasteCategories() {
-		return wasteCategories;
-	}
-
-	public void setWasteCategories(WasteCategories wasteCategories) {
-		this.wasteCategories = wasteCategories;
-	}
-
-	public String getFileName() {
-		return fileName;
-	}
-
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
-	}
-
-	public LocalDateTime getCheckInTime() {
-		return checkInTime;
-	}
-
-	public void setCheckInTime(LocalDateTime checkInTime) {
-		this.checkInTime = checkInTime;
-	}
-
-	public Status getStatus() {
-		return status;
-	}
-
-	public void setStatus(Status status) {
-		this.status = status;
-	}
-
-	public Integer getQuantity() {
-		return quantity;
-	}
-
-	public void setQuantity(Integer quantity) {
-		this.quantity = quantity;
-	}
-
-	public Integer getRewardPoints() {
-		return rewardPoints;
-	}
-
-	public void setRewardPoints(Integer rewardPoints) {
-		this.rewardPoints = rewardPoints;
-	}
-
-	public Long getDuration() {
-		return duration;
-	}
-
-	public void setDuration(Long duration) {
-		this.duration = duration;
-	}
-
-    
-	
 
 }
