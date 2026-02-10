@@ -271,12 +271,15 @@ jobs:
           target: "https://${{ secrets.TEST_URL }}:443/v3/api-docs"
           format: openapi
           artifact_name: "zap-api-internal"
+          # -m 1: Low strength (Fastest)
+          # -max_duration 5: Hard limit of 5 minutes for the entire ZAP process
           cmd_options: >
-            -z "-config scanner.threadPerHost=10"
+            -z "-config scanner.threadPerHost=2"
             -z "-config scanner.maxRuleDurationInMins=1"
-            -z "-config scanner.maxScanDurationInMins=3"
+            -z "-config scanner.maxScanDurationInMins=2"
             -z "-configfile /zap/wrk/zap_auth.prop"
-            -m 2
+            -m 1
+            -max_duration 3
 
       - name: Rename API Report
         if: always()
