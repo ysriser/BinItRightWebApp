@@ -133,7 +133,8 @@ jobs:
       # Run tests and generate the IT (Integration Test) coverage report
       - name: Run Selenium Tests
         run: |
-          mvn clean verify jacoco:report-it \
+          # Use 'report-integration' instead of 'report-it'
+          mvn clean verify jacoco:report-integration \
           -Dmaven.test.failure.ignore=true \
           -Dsurefire.skip=true \
           -Dtarget_host=${{ secrets.TEST_URL }} \
