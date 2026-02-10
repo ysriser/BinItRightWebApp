@@ -26,13 +26,20 @@ jobs:
         continue-on-error: true
         run: mvn pmd:pmd pmd:cpd
 
-      - name: Upload PMD Reports
+      - name: 🔍 Show PMD Output Location
         if: always()
+        run: |
+          echo "Searching for PMD/CPD XML reports..."
+          find target -name "pmd.xml" -o -name "cpd.xml"
+
+      - name: Upload PMD Reports
         uses: actions/upload-artifact@v4
         with:
           name: java-lint-reports
-          path: target/**/*.xml
-          if-no-files-found: warn
+          path: |
+            target/pmd.xml
+            target/cpd.xml
+          if-no-files-found: error
 
   # ==========================================
   # BOX 1b: UNIT TESTS
