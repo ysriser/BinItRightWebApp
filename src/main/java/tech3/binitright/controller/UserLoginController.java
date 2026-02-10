@@ -30,12 +30,12 @@ public class UserLoginController {
     @PostMapping("/login")
     public LoginResponse login(@RequestBody LoginRequest request) {
 
-        // ✅ 1. Validate request body
+
         if (request.getUsername() == null || request.getPassword() == null) {
             return new LoginResponse(false, "Missing credentials", null);
         }
 
-        // ✅ 2. Find APP USER (app_users table)
+
         List<User> users = userService.findByUsername(request.getUsername());
 
         if (users.isEmpty()) {
@@ -44,7 +44,7 @@ public class UserLoginController {
 
         User user = users.get(0);
 
-        // ✅ 3. Match BCrypt password against password_hash
+
         if (!passwordEncoder.matches(
                 request.getPassword(),
                 user.getPassword_hash()
@@ -52,11 +52,11 @@ public class UserLoginController {
             return new LoginResponse(false, "Invalid username or password", null);
         }
 
-        // ✅ 4. Generate JWT token
+
         String token = jwtUtil.generateToken(user);
         System.out.println("User: " +  user.getId());
 
-        // ✅ 5. Return success
+
         return new LoginResponse(true, "Login success", token);
     }
     @PostMapping("/register")
