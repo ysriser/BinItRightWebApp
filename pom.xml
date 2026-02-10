@@ -282,7 +282,7 @@
                         <exclude>**/test/**/*.java</exclude>
                         <exclude>**/*Test.java</exclude>
                         <exclude>**/*Tests.java</exclude>
-                        <exclude>**/model/**/*.java</exclude>
+                        <exclude>*/tech3/binitright/model//.java</exclude>
                         <!--<exclude>**/model/**</exclude>-->
                     </excludes>
                 </configuration>
