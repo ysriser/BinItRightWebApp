@@ -28,6 +28,7 @@
         <logback.version>1.5.16</logback.version>
         <tomcat.version>10.1.46</tomcat.version>
         <mysql-connector-j.version>9.2.0</mysql-connector-j.version>
+        <sonar.exclusions>src/main/java/tech3/binitright/model/**</sonar.exclusions>
     </properties>
 
     <dependencyManagement>
