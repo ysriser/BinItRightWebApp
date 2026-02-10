@@ -248,24 +248,15 @@ jobs:
           replacer.full_list(1).replacement=JSESSIONID=$SESSION
           EOF
 
-      - name: Run ZAP API Scan
-        id: api_scan
-        uses: zaproxy/action-api-scan@v0.10.0
+      # --- PART 1: UI SCAN ---
+      - name: Run ZAP UI Baseline Scan
+        id: zap_scan
+        uses: zaproxy/action-baseline@v0.15.0
         continue-on-error: true
         with:
-          target: "https://${{ secrets.TEST_URL }}:443/v3/api-docs"
-          format: openapi
-          artifact_name: "zap-api-internal"
-          cmd_options: >
-            -m 0
-            -max_duration 2
-            -z "-config scanner.threadPerHost=10"
-            -z "-config pscan.maxAlertsPerRule=3"
-            -z "-config replacer.full_list(0).description=auth"
-            -z "-config replacer.full_list(0).enabled=true"
-            -z "-config replacer.full_list(0).matchtype=REQ_HEADER"
-            -z "-config replacer.full_list(0).matchstr=Authorization"
-            -z "-config replacer.full_list(0).replacement='Bearer ${{ env.JWT }}'"
+          target: "https://${{ secrets.TEST_URL }}:443"
+          artifact_name: "zap-ui-internal" # Prevents 409 Conflict
+          cmd_options: '-z "-configfile /zap/wrk/zap_auth.prop" -j'
 
       - name: Rename UI Report
         if: always()
@@ -280,15 +271,16 @@ jobs:
           target: "https://${{ secrets.TEST_URL }}:443/v3/api-docs"
           format: openapi
           artifact_name: "zap-api-internal"
-          # -m 1: Low strength (Fastest)
-          # -max_duration 5: Hard limit of 5 minutes for the entire ZAP process
           cmd_options: >
-            -z "-config scanner.threadPerHost=2"
-            -z "-config scanner.maxRuleDurationInMins=1"
-            -z "-config scanner.maxScanDurationInMins=2"
-            -z "-configfile /zap/wrk/zap_auth.prop"
-            -m 1
-            -max_duration 3
+            -m 0
+            -max_duration 2
+            -z "-config scanner.threadPerHost=10"
+            -z "-config pscan.maxAlertsPerRule=2"
+            -z "-config replacer.full_list(0).description=auth"
+            -z "-config replacer.full_list(0).enabled=true"
+            -z "-config replacer.full_list(0).matchtype=REQ_HEADER"
+            -z "-config replacer.full_list(0).matchstr=Authorization"
+            -z "-config replacer.full_list(0).replacement='Bearer ${{ env.JWT }}'"
 
       - name: Rename API Report
         if: always()
