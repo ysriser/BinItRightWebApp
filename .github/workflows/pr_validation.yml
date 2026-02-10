@@ -1,4 +1,4 @@
-name: PR Validation (Quality Gates)
+﻿name: PR Validation (Quality Gates)
 
 on:
   pull_request:
@@ -81,7 +81,7 @@ jobs:
           name: java-coverage-reports
           path: |
             target/site/jacoco/
-            target/site/jacoco/jacoco.xml
+            target/site/jacoco/coverage.xml
           retention-days: 7
 
   # ==========================================
