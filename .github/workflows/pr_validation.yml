@@ -14,6 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive  # ← CRITICAL for submodules!
+          token: ${{ secrets.GH_PAT }}
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
@@ -23,7 +27,7 @@ jobs:
 
       - name: Run PMD Analysis
         continue-on-error: true
-        working-directory: ./BinItRightWebApp
+        working-directory: ./BinItRightWebApp  # ← KEEP this!
         run: mvn pmd:pmd pmd:cpd
 
       - name: Upload PMD Reports
@@ -32,8 +36,10 @@ jobs:
         with:
           name: java-lint-reports
           path: |
-            BinItRightWebApp/target/site/pmd.xml  
+            BinItRightWebApp/target/site/pmd.xml
             BinItRightWebApp/target/site/cpd.xml
+            BinItRightWebApp/target/pmd.xml
+            BinItRightWebApp/target/cpd.xml
           if-no-files-found: warn
           retention-days: 7
 
