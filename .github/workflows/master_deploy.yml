@@ -281,14 +281,14 @@ jobs:
             -z "-config scanner.maxScanDurationInMins=4"
             -m 2
 
-      - name: Upload Combined Artifacts
+      - name: Upload DAST Artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: dast-security-reports
-          path: |
-            report_html.html
-            report_json.json
+            name: java-dast-results # UNIQUE NAME
+            path: |
+              report_html.html
+              report_json.json
 
       - name: Create DAST Summary
         if: always()
