@@ -4,7 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -13,7 +16,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import tech3.binitright.interfacemethods.AdminInterface;
 import tech3.binitright.model.Admin;
+import tech3.binitright.util.JwtUtil;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -22,7 +27,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(LoginRestController.class)
+@WebMvcTest(
+        controllers = LoginRestController.class,
+        excludeAutoConfiguration = {
+                SecurityAutoConfiguration.class,
+                SecurityFilterAutoConfiguration.class
+        }
+)
 @AutoConfigureMockMvc(addFilters = false)
 class LoginRestControllerTest {
 
@@ -37,6 +48,9 @@ class LoginRestControllerTest {
 
     @MockBean
     private PasswordEncoder passwordEncoder;
+
+    @MockBean
+    private JwtUtil jwtUtil;
 
     @Test
     void createAdminReturnsConflictWhenUsernameExists() throws Exception {
@@ -74,6 +88,10 @@ class LoginRestControllerTest {
                 .andExpect(jsonPath("$.message").value("Admin Account created successfully"));
 
         verify(passwordEncoder).encode("plain");
-        verify(adminService).saveAdmin(any(Admin.class));
+
+        final ArgumentCaptor<Admin> savedAdminCaptor = ArgumentCaptor.forClass(Admin.class);
+        verify(adminService).saveAdmin(savedAdminCaptor.capture());
+        assertEquals("newadmin", savedAdminCaptor.getValue().getUsername());
+        assertEquals("encoded-value", savedAdminCaptor.getValue().getPassword_hash());
     }
 }
