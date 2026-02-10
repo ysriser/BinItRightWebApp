@@ -130,31 +130,15 @@ jobs:
             sleep 10
           done'
 
-      # Run tests and generate the IT (Integration Test) coverage report
+      # Run the actual tests (generates the JSON results)
       - name: Run Selenium Tests
         run: |
-          mvn clean verify jacoco:report-integration \
+          mvn verify \
           -Dmaven.test.failure.ignore=true \
           -Dsurefire.skip=true \
           -Dtarget_host=${{ secrets.TEST_URL }} \
           -Dtarget_port=443 \
           -Dheadless=true
-
-      # 1. Upload Results (Pass/Fail)
-      - name: Upload Selenium XML Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: java-selenium-results
-          path: target/failsafe-reports/TEST-*.xml
-
-      # 2. Upload Coverage (The % - REQUIRED for SonarCloud)
-      - name: Upload Selenium Coverage
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: java-selenium-coverage
-          path: target/site/jacoco-it/jacoco.xml
 
       # Convert JSONs into an HTML website
       - name: Generate Allure Report
