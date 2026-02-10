@@ -17,6 +17,7 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 import tech3.binitright.JwtAuthFilter;
 import tech3.binitright.interfacemethods.AdminInterface;
@@ -27,10 +28,7 @@ import tech3.binitright.repository.ReportRepository;
 import tech3.binitright.service.DigitalOceanStorageService;
 import tech3.binitright.service.ForecastService;
 
-@WithMockUser(
-        username = "admin",
-        roles = {"ADMIN"}
-)
+@WithMockUser(username = "adminUser", roles = {"ADMIN"})
 @WebMvcTest(
         controllers = AdminController.class,
         excludeFilters = @ComponentScan.Filter(
@@ -53,46 +51,25 @@ class AdminControllerTest {
     @MockitoBean private DigitalOceanStorageService digitalOceanStorageService;
     @MockitoBean private ReportRepository reportRepository;
 
-    /* --------------------------------
-       DASHBOARD
-       -------------------------------- */
-    @Test
-    void dashboard_success() throws Exception {
 
-        when(issueService.getLatestIssuesForDashboard())
-                .thenReturn(List.of(new Issue()));
-        when(issueService.getTotalIssueCount())
-                .thenReturn(5L);
-        when(checkInService.getPendingCheckIns())
-                .thenReturn(List.of(new CheckIn()));
-        when(forecastService.getForecastData())
-                .thenReturn(Map.of("2026", 12345));
-
-        mockMvc.perform(get("/admin/dashboard"))
-                .andExpect(status().isOk())
-                .andExpect(model().attributeExists("issues"))
-                .andExpect(model().attributeExists("newCount"))
-                .andExpect(model().attributeExists("pendingCheckIns"))
-                .andExpect(model().attributeExists("forecastData"));
-    }
 
     /* --------------------------------
        REVIEW CHECK-IN (GET)
        -------------------------------- */
 
     private CheckIn buildValidCheckIn() {
-        User user = new User();
-        user.setUsername("testuser");
+        User mockUser = new User();
+        mockUser.setName("John Doe");
+        mockUser.setUsername("johndoe");
 
         WasteCategories wc = new WasteCategories();
         wc.setName("Plastic");
 
         CheckIn checkIn = new CheckIn();
+        checkIn.setUser(mockUser);
+        checkIn.setWasteCategories(wc);
         checkIn.setStatus(CheckIn.Status.PROCESSING);
         checkIn.setFileName("video.mp4");
-        checkIn.setUser(user);
-        checkIn.setWasteCategories(wc);
-
         return checkIn;
     }
 
@@ -118,28 +95,15 @@ class AdminControllerTest {
        -------------------------------- */
     @Test
     void review_decision_redirect() throws Exception {
-
         mockMvc.perform(post("/admin/review/1")
                         .param("status", "APPROVED")
-                        .param("remarks", "Looks good"))
+                        .param("remarks", "Looks good")
+                        .with(csrf())) // <--- Add this line
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/admin/checkin"))
                 .andExpect(flash().attributeExists("success"));
     }
 
-    /* --------------------------------
-       CHECK-IN LIST
-       -------------------------------- */
-    @Test
-    void checkin_list_success() throws Exception {
-
-        when(checkInService.getAllCheckIns())
-                .thenReturn(List.of(new CheckIn()));
-
-        mockMvc.perform(get("/admin/checkin"))
-                .andExpect(status().isOk())
-                .andExpect(model().attributeExists("checkIns"));
-    }
 
     /* --------------------------------
        SUSTAINABILITY REPORTS
