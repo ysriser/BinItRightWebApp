@@ -115,13 +115,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run Semgrep Scan
-        run: semgrep scan --config auto --json --output semgrep-results.json
+        run: semgrep scan --config auto --sarif --output semgrep.sarif
       - name: Upload SAST Artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: java-sast-results
-          path: semgrep-results.json
+          path: semgrep.sarif
 
   # ==========================================
   # BOX 4: MAVEN BUILD (Verification)
