@@ -140,6 +140,14 @@ jobs:
           -Dtarget_port=443 \
           -Dheadless=true
 
+      # NEW: Upload the raw XML results for SonarCloud Orchestration
+      - name: Upload Selenium XML Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: java-selenium-results
+          path: target/failsafe-reports/TEST-*.xml
+
       # Convert JSONs into an HTML website
       - name: Generate Allure Report
         if: always()
@@ -257,7 +265,6 @@ jobs:
           artifact_name: "zap-ui-report"
           cmd_options: '-z "-configfile /zap/wrk/zap_auth.prop" -j' # -j enables AJAX spider
 
-      # --- PART 2: API SCAN (Deep Attack) ---
       - name: Run ZAP API Scan
         id: api_scan
         uses: zaproxy/action-api-scan@v0.10.0
@@ -266,10 +273,12 @@ jobs:
           target: "https://${{ secrets.TEST_URL }}:443/v3/api-docs"
           format: openapi
           artifact_name: "zap-api-report"
-          cmd_options:
+          cmd_options: >
             -z "-configfile /zap/wrk/zap_auth.prop"
-            -z "-config scanner.threadPerHost=2"
-            -z "-config scanner.maxRuleDurationInMins=2"
+            -z "-config scanner.threadPerHost=5"
+            -z "-config scanner.maxRuleDurationInMins=1"
+            -z "-config scanner.maxScanDurationInMins=4"
+            -m 2
 
       - name: Upload Combined Artifacts
         if: always()
