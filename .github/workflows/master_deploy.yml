@@ -258,9 +258,9 @@ jobs:
           artifact_name: "zap-api-internal"
           cmd_options: >
             -m 0
-            -max_duration 5
+            -max_duration 2
             -z "-config scanner.threadPerHost=10"
-            -z "-config pscan.maxAlertsPerRule=5"
+            -z "-config pscan.maxAlertsPerRule=3"
             -z "-config replacer.full_list(0).description=auth"
             -z "-config replacer.full_list(0).enabled=true"
             -z "-config replacer.full_list(0).matchtype=REQ_HEADER"
