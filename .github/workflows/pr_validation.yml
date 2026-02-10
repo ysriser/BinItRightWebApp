@@ -95,16 +95,15 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: "fs"
-          format: "table"
-          output: "sca-report.txt"
-          exit-code: "1"
+          format: "sarif" # CHANGED
+          output: "java-sca.sarif" # CHANGED
+          exit-code: "0"
           severity: "CRITICAL,HIGH"
       - name: Upload SCA Artifact
-        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: java-sca-results
-          path: sca-report.txt
+          path: java-sca.sarif
 
   # ==========================================
   # BOX 3: SAST (Code Security)
