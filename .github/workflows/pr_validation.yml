@@ -23,6 +23,7 @@ jobs:
 
       - name: Run PMD Analysis
         continue-on-error: true
+        working-directory: ./BinItRightWebApp
         run: mvn pmd:pmd pmd:cpd
 
       - name: Upload PMD Reports
@@ -31,8 +32,8 @@ jobs:
         with:
           name: java-lint-reports
           path: |
-            **/pmd.xml
-            **/cpd.xml
+            BinItRightWebApp/target/site/pmd.xml  
+            BinItRightWebApp/target/site/cpd.xml
           if-no-files-found: warn
           retention-days: 7
 
