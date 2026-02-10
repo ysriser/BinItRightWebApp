@@ -270,8 +270,13 @@ jobs:
         with:
           target: "https://${{ secrets.TEST_URL }}:443/v3/api-docs"
           format: openapi
-          artifact_name: "zap-api-internal" # Prevents 409 Conflict
-          cmd_options: '-z "-configfile /zap/wrk/zap_auth.prop" -m 2'
+          artifact_name: "zap-api-internal"
+          cmd_options: >
+            -z "-config scanner.threadPerHost=10"
+            -z "-config scanner.maxRuleDurationInMins=1"
+            -z "-config scanner.maxScanDurationInMins=3"
+            -z "-configfile /zap/wrk/zap_auth.prop"
+            -m 2
 
       - name: Rename API Report
         if: always()
