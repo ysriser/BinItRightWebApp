@@ -31,8 +31,8 @@ jobs:
         with:
           name: java-lint-reports
           path: |
-            target/site/pmd.xml
-            target/site/cpd.xml
+            **/pmd.xml
+            **/cpd.xml
           if-no-files-found: warn
           retention-days: 7
 
