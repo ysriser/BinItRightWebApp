@@ -78,7 +78,7 @@ class CheckInControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "johndoe") // Simulates fallback logic (username instead of ID)
+    @WithMockUser(username = "john doe") // Simulates fallback logic (username instead of ID)
     void submitCheckIn_WithUsername_TriggersFallback() throws Exception {
         // Arrange
         CheckInDataReq request = new CheckInDataReq();
@@ -86,12 +86,12 @@ class CheckInControllerTest {
 
         User mockUser = new User();
         mockUser.setId(99L);
-        mockUser.setUsername("johndoe");
+        mockUser.setUsername("john doe");
 
         CheckIn mockSaved = new CheckIn();
         mockSaved.setCheckInId(2L);
 
-        when(userService.findByUsername("johndoe")).thenReturn(List.of(mockUser));
+        when(userService.findByUsername("john doe")).thenReturn(List.of(mockUser));
         when(checkInService.processCheckIn(any(CheckInDataReq.class), eq(99L)))
                 .thenReturn(mockSaved);
 
