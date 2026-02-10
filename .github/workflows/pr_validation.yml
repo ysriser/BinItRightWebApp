@@ -23,8 +23,7 @@ jobs:
           cache: maven
 
       - name: Run Lint Check
-        run: mvn checkstyle:check
-
+        run: mvn checkstyle:checkstyle
       - name: Upload Lint Reports
         if: always()
         uses: actions/upload-artifact@v4
