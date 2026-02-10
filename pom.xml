@@ -284,6 +284,16 @@
                         <exclude>**/*Tests.java</exclude>
                     </excludes>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>pmd-report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>pmd</goal>
+                            <goal>cpd</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
