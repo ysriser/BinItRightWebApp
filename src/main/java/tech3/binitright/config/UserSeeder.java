@@ -16,7 +16,6 @@ import tech3.binitright.repository.WasteCategoryRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-
 @Configuration
 public class UserSeeder {
 
@@ -37,10 +36,10 @@ public class UserSeeder {
     @Autowired
     private AdminInterface adminService;
 
-    public UserSeeder(UserInterface userService,
-                      WasteCategoryRepository wasteRepo,
-                      DropOffLocationRepository dropOffRepo,
-                      CheckInRepository checkInRepo) {
+    public UserSeeder(final UserInterface userService,
+                      final WasteCategoryRepository wasteRepo,
+                      final DropOffLocationRepository dropOffRepo,
+                      final CheckInRepository checkInRepo) {
         this.userService = userService;
         this.wasteRepo = wasteRepo;
         this.dropOffRepo = dropOffRepo;
@@ -50,7 +49,7 @@ public class UserSeeder {
     @Bean
     @Order(5)
     @Profile({"test", "prod", "default"}) // Avoid running this in "prod" to keep the DB clean
-    public CommandLineRunner seedUsers(PasswordEncoder passwordEncoder) {
+    public CommandLineRunner seedUsers(final PasswordEncoder passwordEncoder) {
         return args -> {
 
             record SeedUser(String username, String email, String name, int accessoriesToAssign) {}
@@ -186,15 +185,25 @@ public class UserSeeder {
             User user = userService.findByUsername("User1")
                     .stream()
                     .findFirst()
-                    .orElseThrow(() -> new RuntimeException("User1 must exist before seeding CheckIns"));
+                    .orElseThrow(() -> new RuntimeException(
+                            "User1 must exist before seeding CheckIns"));
 
             if (checkInRepo.count() > 0) {
                 return;
             }
 
-            WasteCategories plastic = wasteRepo.findByNameIgnoreCase("Plastic").orElseThrow(() -> new RuntimeException("Plastic category missing"));
-            WasteCategories ewaste = wasteRepo.findByNameIgnoreCase("E-Waste").orElseThrow(() -> new RuntimeException("E-Waste category missing"));
-            WasteCategories glass = wasteRepo.findByNameIgnoreCase("Glass").orElseThrow(() -> new RuntimeException("Glass category missing"));
+            WasteCategories plastic = wasteRepo
+                    .findByNameIgnoreCase("Plastic")
+                    .orElseThrow(() -> new RuntimeException(
+                            "Plastic category missing"));
+            WasteCategories ewaste = wasteRepo
+                    .findByNameIgnoreCase("E-Waste")
+                    .orElseThrow(() -> new RuntimeException(
+                            "E-Waste category missing"));
+            WasteCategories glass = wasteRepo
+                    .findByNameIgnoreCase("Glass")
+                    .orElseThrow(() -> new RuntimeException(
+                            "Glass category missing"));
 
             DropOffLocation d1 = dropOffRepo.findById("06383D31CA5CC778").orElseThrow();
             DropOffLocation d2 = dropOffRepo.findById("06193A57B84223C5").orElseThrow();
@@ -254,19 +263,30 @@ public class UserSeeder {
             Admin admin1 = adminService.findById(1L).orElse(null);
 
             // Issue 1: Login crash
-            Issue i1 = new Issue(Issue.IssueCategory.AppProblems, "App crashes immediately after tapping the login button.", Issue.IssueStatus.NEW, u1, null);
+            Issue i1 = new Issue(
+                    Issue.IssueCategory.AppProblems,
+                    "App crashes immediately after tapping the login button.",
+                    Issue.IssueStatus.NEW, u1, null);
 
             // Issue 2: Overflowing bin
-            Issue i2 = new Issue(Issue.IssueCategory.BinIssues, "Recycling bin near Block 512 is overflowing and needs collection.", Issue.IssueStatus.IN_PROGRESS, u2, admin1);
+            Issue i2 = new Issue(
+                    Issue.IssueCategory.BinIssues,
+                    "Recycling bin near Block 512 is overflowing and needs collection.",
+                    Issue.IssueStatus.IN_PROGRESS, u2, admin1);
 
             // Issue 3: Incorrect map location (Resolved)
-            // Note: We use the constructor and then manually set dates to match your SQL '2026-02-01' requirement
-            Issue i3 = new Issue(Issue.IssueCategory.LocationErrors, "GPS location for Jurong recycling point is incorrect on the map.", Issue.IssueStatus.RESOLVED, u3, admin1);
+            Issue i3 = new Issue(
+                    Issue.IssueCategory.LocationErrors,
+                    "GPS location for Jurong recycling point is incorrect on the map.",
+                    Issue.IssueStatus.RESOLVED, u3, admin1);
             i3.setCreatedAt(LocalDateTime.of(2026, 2, 1, 9, 10));
             i3.setResolvedAt(LocalDateTime.of(2026, 2, 3, 15, 25));
 
             // Issue 4: Slow dashboard
-            Issue i4 = new Issue(Issue.IssueCategory.AppProblems, "User dashboard takes more than 10 seconds to load history.", Issue.IssueStatus.NEW, u4, null);
+            Issue i4 = new Issue(
+                    Issue.IssueCategory.AppProblems,
+                    "User dashboard takes more than 10 seconds to load history.",
+                    Issue.IssueStatus.NEW, u4, null);
 
             issueService.saveAll(List.of(i1, i2, i3, i4));
         };
