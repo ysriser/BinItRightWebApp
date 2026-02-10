@@ -21,8 +21,6 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 import tech3.binitright.JwtAuthFilter;
 import tech3.binitright.interfacemethods.AdminInterface;
-import tech3.binitright.interfacemethods.CheckInInterface;
-import tech3.binitright.interfacemethods.IssueInterface;
 import tech3.binitright.model.*;
 import tech3.binitright.repository.ReportRepository;
 import tech3.binitright.service.DigitalOceanStorageService;
@@ -44,12 +42,14 @@ class AdminControllerTest {
 
     /* -------- Mock all dependencies -------- */
 
-    @MockitoBean private AdminInterface adminService;
-    @MockitoBean private CheckInInterface checkInService;
-    @MockitoBean private IssueInterface issueService;
-    @MockitoBean private ForecastService forecastService;
-    @MockitoBean private DigitalOceanStorageService digitalOceanStorageService;
-    @MockitoBean private ReportRepository reportRepository;
+    @MockitoBean
+    private AdminInterface adminService;
+    @MockitoBean
+    private ForecastService forecastService;
+    @MockitoBean
+    private DigitalOceanStorageService digitalOceanStorageService;
+    @MockitoBean
+    private ReportRepository reportRepository;
 
 
 
