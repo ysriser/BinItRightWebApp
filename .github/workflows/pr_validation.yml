@@ -10,9 +10,9 @@ jobs:
   # BOX 1a: LINT (Static Analysis)
   # ==========================================
   lint:
-    name: Java Linting (Checkstyle)
+    name: Java Linting (PMD)
     runs-on: ubuntu-latest
-    continue-on-error: true
+    continue-on-error: true  # Keeps workflow running even if PMD finds issues
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK 21
@@ -22,14 +22,18 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Run Lint Check
-        run: mvn checkstyle:checkstyle
-      - name: Upload Lint Reports
+      - name: Run PMD Analysis
+        run: mvn pmd:pmd pmd:cpd
+
+      - name: Upload PMD Reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: java-lint-reports
-          path: target/checkstyle-result.xml
+          path: |
+            target/site/pmd.xml
+            target/site/cpd.xml
+          retention-days: 7
 
   # ==========================================
   # BOX 1b: UNIT TESTS

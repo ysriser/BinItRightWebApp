@@ -263,6 +263,25 @@
                 </execution>
             </executions>
         </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>3.21.2</version>
+                <configuration>
+                    <linkXRef>false</linkXRef>
+                    <sourceEncoding>UTF-8</sourceEncoding>
+                    <minimumTokens>100</minimumTokens>
+                    <targetJdk>21</targetJdk>
+                    <rulesets>
+                        <ruleset>/rulesets/java/basic.xml</ruleset>
+                        <ruleset>/rulesets/java/unusedcode.xml</ruleset>
+                        <ruleset>/rulesets/java/imports.xml</ruleset>
+                    </rulesets>
+                    <failOnViolation>false</failOnViolation>
+                    <format>xml</format>
+                    <minimumPriority>3</minimumPriority>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>
