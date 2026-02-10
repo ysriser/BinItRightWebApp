@@ -255,12 +255,12 @@ jobs:
         continue-on-error: true
         with:
           target: "https://${{ secrets.TEST_URL }}:443"
-          # We don't use artifact_name here because we will handle it manually
+          artifact_name: "zap-ui-internal" # Prevents 409 Conflict
           cmd_options: '-z "-configfile /zap/wrk/zap_auth.prop" -j'
 
       - name: Rename UI Report
         if: always()
-        run: mv report_json.json ui-report.json || echo "UI report not found"
+        run: mv report_json.json ui-report.json || true
 
       # --- PART 2: API SCAN ---
       - name: Run ZAP API Scan
@@ -270,18 +270,13 @@ jobs:
         with:
           target: "https://${{ secrets.TEST_URL }}:443/v3/api-docs"
           format: openapi
-          cmd_options: >
-            -z "-configfile /zap/wrk/zap_auth.prop"
-            -z "-config scanner.threadPerHost=5"
-            -z "-config scanner.maxRuleDurationInMins=1"
-            -z "-config scanner.maxScanDurationInMins=4"
-            -m 2
+          artifact_name: "zap-api-internal" # Prevents 409 Conflict
+          cmd_options: '-z "-configfile /zap/wrk/zap_auth.prop" -m 2'
 
       - name: Rename API Report
         if: always()
-        run: mv report_json.json api-report.json || echo "API report not found"
+        run: mv report_json.json api-report.json || true
 
-      # --- UPLOAD BOTH UNIQUE FILES ---
       - name: Upload DAST Artifacts
         if: always()
         uses: actions/upload-artifact@v4
