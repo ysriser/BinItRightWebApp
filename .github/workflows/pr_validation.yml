@@ -10,7 +10,7 @@ jobs:
   # BOX 1a: LINT (Static Analysis)
   # ==========================================
   lint:
-    name: Java Linting (PMD)
+    name: Java Linting (Checkstyle)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,23 +22,22 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Run PMD Analysis
+      - name: Run Checkstyle Analysis
         continue-on-error: true
-        run: mvn pmd:pmd pmd:cpd
+        # This generates target/checkstyle-result.xml
+        run: mvn checkstyle:checkstyle
 
-      - name: 🔍 Show PMD Output Location
+      - name: 🔍 Show Checkstyle Output Location
         if: always()
         run: |
-          echo "Searching for PMD/CPD XML reports..."
-          find target -name "pmd.xml" -o -name "cpd.xml"
+          echo "Searching for Checkstyle XML reports..."
+          find target -name "checkstyle-result.xml"
 
-      - name: Upload PMD Reports
+      - name: Upload Checkstyle Reports
         uses: actions/upload-artifact@v4
         with:
-          name: java-lint-reports
-          path: |
-            target/pmd.xml
-            target/cpd.xml
+          name: java-checkstyle-reports
+          path: target/checkstyle-result.xml
           if-no-files-found: error
 
   # ==========================================
