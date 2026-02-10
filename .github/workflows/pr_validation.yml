@@ -12,7 +12,6 @@ jobs:
   lint:
     name: Java Linting (PMD)
     runs-on: ubuntu-latest
-    continue-on-error: true  # Keeps workflow running even if PMD finds issues
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK 21
@@ -23,6 +22,7 @@ jobs:
           cache: maven
 
       - name: Run PMD Analysis
+        continue-on-error: true
         run: mvn pmd:pmd pmd:cpd
 
       - name: Upload PMD Reports
@@ -33,6 +33,7 @@ jobs:
           path: |
             target/site/pmd.xml
             target/site/cpd.xml
+          if-no-files-found: warn
           retention-days: 7
 
   # ==========================================

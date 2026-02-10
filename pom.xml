@@ -270,15 +270,19 @@
                 <configuration>
                     <linkXRef>false</linkXRef>
                     <minimumTokens>100</minimumTokens>
-                    <targetJdk>21</targetJdk>
                     <rulesets>
-                        <ruleset>/rulesets/java/basic.xml</ruleset>
-                        <ruleset>/rulesets/java/unusedcode.xml</ruleset>
-                        <ruleset>/rulesets/java/imports.xml</ruleset>
+                        <ruleset>category/java/errorprone.xml</ruleset>
+                        <ruleset>category/java/bestpractices.xml</ruleset>
+                        <ruleset>category/java/codestyle.xml</ruleset>
                     </rulesets>
                     <failOnViolation>false</failOnViolation>
                     <format>xml</format>
                     <minimumPriority>3</minimumPriority>
+                    <excludes>
+                        <exclude>**/test/**/*.java</exclude>
+                        <exclude>**/*Test.java</exclude>
+                        <exclude>**/*Tests.java</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
         </plugins>
