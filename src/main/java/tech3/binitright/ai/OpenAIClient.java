@@ -118,13 +118,13 @@ public class OpenAIClient implements LlmClient {
             return content != null ? content.toString() : fallback();
 
         } catch (Exception e) {
-            // ⭐ graceful fallback for demo / rate-limit / network failure
+
             return fallback();
         }
     }
 
     private String fallback() {
-        return "⚠️ AI service temporarily unavailable. " +
+        return "AI service temporarily unavailable. " +
                 "Please try again later.";
     }
 }
