@@ -17,19 +17,24 @@ public abstract class BinItRightUser {
 	private Long id;
 	
 	private String name;
-	private String username;	
-	private String password_hash;
+	private String username;
+
+    @Column(name = "password_hash")
+    private String passwordHash;
+
 	private String locale;
 	private String emailAddress;
 	private String role;
-	private LocalDateTime created_at;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 	
 	public BinItRightUser() {}
 	
-	public BinItRightUser(String name, String username, String password_hash, String locale, String emailAddress, String role,LocalDateTime created_at) {
+	public BinItRightUser(String name, String username, String passwordHash, String locale, String emailAddress, String role) {
 		this.name = name;
 		this.username = username;
-		this.password_hash = password_hash;
+		this.passwordHash = passwordHash;
 		this.locale = locale;
 		this.emailAddress = emailAddress;
 		this.role = role;
@@ -38,7 +43,7 @@ public abstract class BinItRightUser {
 	
 	@PrePersist
     protected void onCreate() {
-        this.created_at = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
     }
 
     public Long getId() {
@@ -66,11 +71,11 @@ public abstract class BinItRightUser {
 	}
 
 	public String getPassword_hash() {
-		return password_hash;
+		return passwordHash;
 	}
 
-	public void setPassword_hash(String password_hash) {
-		this.password_hash = password_hash;
+	public void setPassword_hash(String passwordHash) {
+		this.passwordHash = passwordHash;
 	}
 
 	public String getLocale() {
@@ -98,11 +103,11 @@ public abstract class BinItRightUser {
 	}
 
 	public LocalDateTime getCreated_at() {
-		return created_at;
+		return createdAt;
 	}
 
-	public void setCreated_at(LocalDateTime created_at) {
-		this.created_at = created_at;
+	public void setCreated_at(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
 	}
 
 }

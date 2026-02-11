@@ -3,7 +3,7 @@ package techthree.binitright.dto;
 public class UserProfileDTO {
     private String name;
     private int pointBalance;
-    private String equippedAvatarName; // The String we'll map to the drawable
+    private String equippedAvatarName;
     private int totalRecycled;
     private String aiSummary;
     private int totalAchievements;
@@ -42,5 +42,5 @@ public class UserProfileDTO {
     public void setTotalAchievements(int totalAchievements) { this.totalAchievements = totalAchievements; }
 
     public float getCarbonEmissionSaved() { return carbonEmissionSaved; }
-    public void setCarbonEmissionSaved() { this.carbonEmissionSaved = carbonEmissionSaved; }
+    public void setCarbonEmissionSaved(float carbonEmissionSaved) { this.carbonEmissionSaved = carbonEmissionSaved; }
 }

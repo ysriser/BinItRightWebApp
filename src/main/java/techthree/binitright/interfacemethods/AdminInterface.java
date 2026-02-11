@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import techthree.binitright.model.Admin;
 import techthree.binitright.model.CheckIn;
-;
 
 public interface AdminInterface {
 
