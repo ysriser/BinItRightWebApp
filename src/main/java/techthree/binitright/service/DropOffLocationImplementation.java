@@ -1,15 +1,15 @@
-package tech3.binitright.service;
+package techthree.binitright.service;
 
 import java.util.Comparator;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
-import tech3.binitright.interfacemethods.DropOffLocationInterface;
-import tech3.binitright.model.DropOffLocation;
-import tech3.binitright.repository.DropOffLocationRepository;
-import tech3.binitright.request.NearByBinDto;
-import tech3.binitright.util.DistanceUtil;
+import techthree.binitright.interfacemethods.DropOffLocationInterface;
+import techthree.binitright.model.DropOffLocation;
+import techthree.binitright.repository.DropOffLocationRepository;
+import techthree.binitright.request.NearByBinDto;
+import techthree.binitright.util.DistanceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
