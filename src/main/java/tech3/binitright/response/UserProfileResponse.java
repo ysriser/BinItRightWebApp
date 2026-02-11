@@ -8,13 +8,13 @@ public class UserProfileResponse {
 
     public UserProfileResponse() {
     }
-        // Add this constructor
+
         public UserProfileResponse(User user) {
             this.id = user.getId();
             this.pointBalance = user.getPointBalance();
         }
 
-        // Getters and Setters
+
         public Long getId() {
             return id;
         }
