@@ -17,14 +17,14 @@ public class NewsTest {
         news.setName("Recycling Campaign");
         news.setDescription("Join our community recycling campaign.");
         news.setImageUrl("news.png");
-        news.setStatus(News.Status.Upcoming);
+        news.setStatus(News.Status.UPCOMING);
         news.setPublishedDate(published);
 
         assertEquals(1L, news.getNewsId());
         assertEquals("Recycling Campaign", news.getName());
         assertEquals("Join our community recycling campaign.", news.getDescription());
         assertEquals("news.png", news.getImageUrl());
-        assertEquals(News.Status.Upcoming, news.getStatus());
+        assertEquals(News.Status.UPCOMING, news.getStatus());
         assertEquals(published, news.getPublishedDate());
     }
 
@@ -35,14 +35,14 @@ public class NewsTest {
                 "Cleanup Drive",
                 "Beach cleanup this weekend",
                 "cleanup.jpg",
-                News.Status.Completed
+                News.Status.COMPLETED
         );
 
         assertEquals(10L, news.getNewsId());
         assertEquals("Cleanup Drive", news.getName());
         assertEquals("Beach cleanup this weekend", news.getDescription());
         assertEquals("cleanup.jpg", news.getImageUrl());
-        assertEquals(News.Status.Completed, news.getStatus());
+        assertEquals(News.Status.COMPLETED, news.getStatus());
         assertNull(news.getPublishedDate()); // not set in this constructor
     }
 

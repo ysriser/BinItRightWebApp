@@ -112,7 +112,7 @@ public class IssueImplementationTest {
 
         assertEquals(Issue.IssueStatus.NEW, toSave.getStatus());
         assertEquals(u, toSave.getRaisedBy());
-        assertEquals(Issue.IssueCategory.BinIssues, toSave.getIssueCategory());
+        assertEquals(Issue.IssueCategory.BIN_ISSUES, toSave.getIssueCategory());
     }
 
     @Test
