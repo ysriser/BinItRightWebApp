@@ -203,57 +203,57 @@
                     <div class="table-responsive">
                         <table class="tbl">
                             <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>User</th>
-                                    <th>Item</th>
-                                    <th>Qty</th>
-                                    <th>Status</th>
-                                    <th class="text-end">Action</th>
-                                </tr>
+                            <tr>
+                                <th>ID</th>
+                                <th>User</th>
+                                <th>Item</th>
+                                <th>Qty</th>
+                                <th>Status</th>
+                                <th class="text-end">Action</th>
+                            </tr>
                             </thead>
                             <tbody>
 
-                                <!-- Thymeleaf: empty state -->
-                                <tr th:if="${pendingCheckIns == null or #lists.isEmpty(pendingCheckIns)}">
-                                    <td colspan="6" class="text-center py-4 text-muted">
-                                        <i class="bi bi-inbox" style="font-size:1.8rem; display:block; margin-bottom:6px;"></i>
-                                        No pending check-ins
-                                    </td>
-                                </tr>
+                            <!-- Thymeleaf: empty state -->
+                            <tr th:if="${pendingCheckIns == null or #lists.isEmpty(pendingCheckIns)}">
+                                <td colspan="6" class="text-center py-4 text-muted">
+                                    <i class="bi bi-inbox" style="font-size:1.8rem; display:block; margin-bottom:6px;"></i>
+                                    No pending check-ins
+                                </td>
+                            </tr>
 
-                                <!-- Thymeleaf: data loop -->
-                                <tr th:each="checkIn : ${pendingCheckIns}">
-                                    <td>
-                                        <span class="cell-id" th:text="'#' + checkIn.checkInId"></span>
-                                    </td>
-                                    <td>
-                                        <div class="cell-user">
-                                            <div class="avatar-sm" th:text="${checkIn.user.username.substring(0,2).toUpperCase()}"></div>
-                                            <span class="user-name" th:text="${checkIn.user.username}"></span>
-                                        </div>
-                                    </td>
-                                    <td>
+                            <!-- Thymeleaf: data loop -->
+                            <tr th:each="checkIn : ${pendingCheckIns}">
+                                <td>
+                                    <span class="cell-id" th:text="'#' + checkIn.checkInId"></span>
+                                </td>
+                                <td>
+                                    <div class="cell-user">
+                                        <div class="avatar-sm" th:text="${checkIn.user.username.substring(0,2).toUpperCase()}"></div>
+                                        <span class="user-name" th:text="${checkIn.user.username}"></span>
+                                    </div>
+                                </td>
+                                <td>
                                         <span class="item-tag">
                                             <i class="bi bi-recycle"></i>
                                             <span th:text="${checkIn.wasteCategories.name}"></span>
                                         </span>
-                                    </td>
-                                    <td>
-                                        <span class="qty-badge" th:text="${checkIn.quantity}"></span>
-                                    </td>
-                                    <td>
+                                </td>
+                                <td>
+                                    <span class="qty-badge" th:text="${checkIn.quantity}"></span>
+                                </td>
+                                <td>
                                         <span class="status-badge">
                                             <span class="dot"></span>
                                             <span th:text="${checkIn.status}"></span>
                                         </span>
-                                    </td>
-                                    <td class="text-end">
-                                        <a th:href="@{/admin/review/{id}(id=${checkIn.checkInId})}" class="btn-review">
-                                            <i class="bi bi-eye"></i> Review
-                                        </a>
-                                    </td>
-                                </tr>
+                                </td>
+                                <td class="text-end">
+                                    <a th:href="@{/admin/review/{id}(id=${checkIn.checkInId})}" class="btn-review">
+                                        <i class="bi bi-eye"></i> Review
+                                    </a>
+                                </td>
+                            </tr>
                             </tbody>
                         </table>
                     </div>
@@ -280,7 +280,7 @@
                         <div class="issue-left">
                             <div class="issue-header">
                                 <span class="issue-name"
-                                  th:text="${issue.raisedBy.name}">
+                                      th:text="${issue.raisedBy.name}">
                                     User Name
                                 </span>
                             </div>
@@ -371,7 +371,8 @@
       console.log("Canvas check:", lineCanvas, barCanvas);
 
       if (lineCanvas) {
-        new Chart(lineCanvas, {
+
+       const lineChart =  new Chart(lineCanvas, {
           type: "line",
           data: {
             labels: years,
@@ -387,7 +388,8 @@
 
       if (barCanvas) {
         const CURRENT_YEAR = "2026";
-        new Chart(barCanvas, {
+
+         const barChart =new Chart(barCanvas, {
           type: "bar",
           data: {
             labels: [CURRENT_YEAR],
