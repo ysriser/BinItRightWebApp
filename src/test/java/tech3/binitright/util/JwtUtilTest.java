@@ -30,5 +30,6 @@ class JwtUtilTest {
 
         assertNotNull(token);
         assertEquals("123", subject);
+
     }
 }
