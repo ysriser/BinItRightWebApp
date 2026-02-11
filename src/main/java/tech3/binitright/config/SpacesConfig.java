@@ -30,10 +30,10 @@ public class SpacesConfig {
     @Value("${storage.spaces.region}")
     private String region;
 
-    @Value("${storage.spaces.access-key}")
+    @Value("${SPACES_ACCESS_KEY}")
     private String accessKey;
 
-    @Value("${storage.spaces.secret-key}")
+    @Value("${SPACES_SECRET_KEY}")
     private String secretKey;
 
     @Value("${storage.spaces.bucket}")
@@ -67,5 +67,6 @@ public class SpacesConfig {
                         new AWSStaticCredentialsProvider(credentials)
                 )
                 .build();
+
     }
 }

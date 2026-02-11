@@ -161,7 +161,4 @@ public class CheckIn {
 		this.duration = duration;
 	}
 
-    
-	
-
 }

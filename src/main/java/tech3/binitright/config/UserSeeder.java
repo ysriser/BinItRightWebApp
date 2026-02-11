@@ -2,6 +2,7 @@ package tech3.binitright.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,9 +18,19 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import tech3.binitright.service.AccessoriesImplementation;
+import tech3.binitright.service.AdminImplementation;
+import tech3.binitright.service.IssueImplementation;
+import tech3.binitright.service.UserAccessoriesImplementation;
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Configuration
 public class UserSeeder {
+
+    @Value("${APP_USER_PASSWORD}")
+    private String userPassword;
 
     private final UserInterface userService;
     private final WasteCategoryRepository wasteRepo;
@@ -33,14 +44,17 @@ public class UserSeeder {
     private static final String USER1 = "User1";
     private static final Logger log = LoggerFactory.getLogger(UserSeeder.class);
 
-    public UserSeeder(UserInterface userService,
-                      WasteCategoryRepository wasteRepo,
-                      DropOffLocationRepository dropOffRepo,
-                      CheckInRepository checkInRepo,
-                      AccessoriesInterface accessoriesService,
-                      IssueInterface issueService,
-                      UserAccessoriesInterface userAccessoriesService,
-                      AdminInterface adminService) {
+    public UserSeeder(
+            UserInterface userService,
+            WasteCategoryRepository wasteRepo,
+            DropOffLocationRepository dropOffRepo,
+            CheckInRepository checkInRepo,
+            AccessoriesInterface accessoriesService,
+            IssueInterface issueService,
+            UserAccessoriesInterface userAccessoriesService,
+            AdminInterface adminService
+    ) {
+
         this.userService = userService;
         this.wasteRepo = wasteRepo;
         this.dropOffRepo = dropOffRepo;
@@ -81,7 +95,7 @@ public class UserSeeder {
                 user.setEmailAddress(su.email());
                 user.setName(su.name());
                 user.setRole("USER");
-                user.setPassword_hash(passwordEncoder.encode("password"));
+                user.setPassword_hash(passwordEncoder.encode(userPassword));
 
                 user.setPointBalance(1000);
                 user.setCurrentRank(1);
