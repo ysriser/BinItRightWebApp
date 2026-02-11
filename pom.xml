@@ -10,7 +10,7 @@
         <relativePath/>
     </parent>
 
-    <groupId>tech3</groupId>
+    <groupId>techthree</groupId>
     <artifactId>BinItRight</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>BinItRight</name>
@@ -191,7 +191,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
-                    <mainClass>tech3.binitright.performance.JmxGenerator</mainClass>
+                    <mainClass>techthree.binitright.performance.JmxGenerator</mainClass>
                 </configuration>
             </plugin>
             <plugin>
