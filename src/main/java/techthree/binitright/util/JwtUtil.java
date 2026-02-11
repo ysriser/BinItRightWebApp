@@ -16,7 +16,7 @@ public class JwtUtil {
     private String jwtSecret;
 
     private static final long EXPIRY_MS =
-            24 * 60 * 60 * 1000; // 1 day
+            24L * 60 * 60 * 1000; // 1 day
 
     public String generateToken(User user) {
         return Jwts.builder()
