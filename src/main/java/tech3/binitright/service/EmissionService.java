@@ -41,6 +41,7 @@ public class EmissionService {
 
 
     public Long getPendingApprovals(Long userId) {
+
         return checkInRepository.countPendingByUserId(userId);
     }
 }

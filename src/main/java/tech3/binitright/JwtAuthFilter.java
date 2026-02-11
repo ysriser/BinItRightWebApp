@@ -31,7 +31,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        // ✅ Only handle /api/** (ignore web admin and others)
+
         if (!path.startsWith("/api/")) {
             filterChain.doFilter(request, response);
             return;
@@ -43,7 +43,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        // ✅ Extract JWT from Authorization header
+
         String auth = request.getHeader("Authorization");
 
         if (auth != null && auth.startsWith("Bearer ")) {
@@ -53,9 +53,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 String username = jwtUtil.extractUsername(token);
 
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-
-                    // if you want role-based:
-                    // String role = jwtUtil.extractRole(token);
 
                     var authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
 
@@ -71,7 +68,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 SecurityContextHolder.clearContext();
             }
         }
-
         filterChain.doFilter(request, response);
     }
 }

@@ -24,7 +24,4 @@ public class NewsImplementation implements NewsInterface {
         return newsRepository.findNewsByNewsId(id);
     }
 
-
-
-
 }

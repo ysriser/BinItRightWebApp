@@ -8,15 +8,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import tech3.binitright.interfacemethods.ScanInterface;
 import tech3.binitright.service.ScanService;
 
 @RestController
 @RequestMapping("/api/v1")
 public class ScanRestController {
 
-    private final ScanService scanService;
+    private final ScanInterface scanService;
 
-    public ScanRestController(final ScanService scanService) {
+    public ScanRestController(final ScanInterface scanService) {
+
         this.scanService = scanService;
     }
 
