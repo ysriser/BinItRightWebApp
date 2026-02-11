@@ -10,10 +10,11 @@ public class JmxGenerator {
 
         String host = System.getProperty("target_host", "localhost");
         String testUrl = System.getProperty("test_url");
+        String localBaseUrl = System.getProperty("LOCAL_URL");
         String baseUrl;
         if (host.equals("localhost")) {
             // Local environment uses HTTP and 8080
-            baseUrl = "http://localhost:8080";
+            baseUrl=localBaseUrl;
         } else {
             // Remote environments use HTTPS and the provided host
             // We use port 443 (standard for HTTPS)
@@ -27,9 +28,10 @@ public class JmxGenerator {
         
         testPlan(
             threadGroup("Admin_Load_Test")
-                .rampTo(5, Duration.ofSeconds(10))
-                .holdIterating(10)
+                .rampTo(50, Duration.ofSeconds(30))
+                .holdIterating(1)
                 .children(
+                        constantTimer(Duration.ofMillis(350)),
                     httpCookies(), // Necessary to maintain the session
                     
                     // 1. LOGIN (Required to access /admin/**)
@@ -47,12 +49,13 @@ public class JmxGenerator {
                         
                     httpSampler("GET_Admin_Forecast", baseUrl + "/admin/forecast"),
                     httpSampler("4_GET_Checkin_List", baseUrl + "/admin/checkin"),
-                    httpSampler("5_GET_Reports", baseUrl + "/admin/sustainability-reports")),
+                    httpSampler("5_GET_Reports", baseUrl + "/admin/sustainability-reports")
+                ),
                 threadGroup("ANDROID_API_Load_Test")
-                        .rampTo(10, Duration.ofSeconds(15))
-                        .holdIterating(20)
+                        .rampTo(250, Duration.ofSeconds(30))
+                        .holdIterating(1)
                         .children(
-
+                                constantTimer(Duration.ofMillis(350)),
                                 httpSampler("API_Login", baseUrl + "/api/auth/login")
                                         .method("POST")
                                         .contentType(ContentType.APPLICATION_JSON)
@@ -78,6 +81,14 @@ public class JmxGenerator {
 
                                 httpSampler("Access Recycle History API", baseUrl + "/api/recycle-history")
                                         .header("Authorization", "Bearer ${extracted_token}")
+                        ),
+                threadGroup("Python_API_Load_Test")
+                        .rampTo(50, Duration.ofSeconds(30))
+                        .holdIterating(30) // Set to 30 repetitions
+                        .children(
+                                constantTimer(Duration.ofMillis(350)),
+                                httpSampler("Python_Forecast_API", baseUrl + "/python/forecast")
+                                        .method("GET")
                         )
 
         ).saveAsJmx("tests/load_test.jmx");
