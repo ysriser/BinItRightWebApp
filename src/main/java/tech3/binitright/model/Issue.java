@@ -22,10 +22,10 @@ public class Issue {
     private Long issueId;
 
     public enum IssueCategory {
-        BinIssues,
-        AppProblems,
-        LocationErrors,
-        Others
+        BIN_ISSUES,
+        APP_PROBLEMS,
+        LOCATION_ERRORS,
+        OTHERS
     }
 
     @Enumerated(EnumType.STRING)

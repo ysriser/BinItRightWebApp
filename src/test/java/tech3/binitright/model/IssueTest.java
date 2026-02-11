@@ -12,14 +12,14 @@ public class IssueTest {
         Admin resolvedBy = new Admin();
 
         issue.setIssueId(1L);
-        issue.setIssueCategory(Issue.IssueCategory.AppProblems);
+        issue.setIssueCategory(Issue.IssueCategory.APP_PROBLEMS);
         issue.setDescription("App crashes on login");
         issue.setStatus(Issue.IssueStatus.NEW);
         issue.setRaisedBy(raisedBy);
         issue.setResolvedBy(resolvedBy);
 
         assertEquals(1L, issue.getIssueId());
-        assertEquals(Issue.IssueCategory.AppProblems, issue.getIssueCategory());
+        assertEquals(Issue.IssueCategory.APP_PROBLEMS, issue.getIssueCategory());
         assertEquals("App crashes on login", issue.getDescription());
         assertEquals(Issue.IssueStatus.NEW, issue.getStatus());
         assertSame(raisedBy, issue.getRaisedBy());
@@ -32,14 +32,14 @@ public class IssueTest {
         Admin resolvedBy = new Admin();
 
         Issue issue = new Issue(
-                Issue.IssueCategory.BinIssues,
+                Issue.IssueCategory.BIN_ISSUES,
                 "Bin is full",
                 Issue.IssueStatus.IN_PROGRESS,
                 raisedBy,
                 resolvedBy
         );
 
-        assertEquals(Issue.IssueCategory.BinIssues, issue.getIssueCategory());
+        assertEquals(Issue.IssueCategory.BIN_ISSUES, issue.getIssueCategory());
         assertEquals("Bin is full", issue.getDescription());
         assertEquals(Issue.IssueStatus.IN_PROGRESS, issue.getStatus());
         assertSame(raisedBy, issue.getRaisedBy());

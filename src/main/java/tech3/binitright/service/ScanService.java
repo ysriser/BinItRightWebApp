@@ -67,6 +67,19 @@ public class ScanService implements ScanInterface {
         this.objectMapper = objectMapper;
     }
 
+    private static final String FIELD_CATEGORY = "category";
+    private static final String FIELD_CONFIDENCE = "confidence";
+    private static final String FIELD_ESCALATE = "escalate";
+    private static final String CATEGORY_OTHER_UNCERTAIN = "other_uncertain";
+    private static final String CATEGORY_NOT_SURE = "Not sure";
+    private static final String CATEGORY_PLASTIC = "plastic";
+    private static final String CATEGORY_GLASS = "glass";
+
+    private static final String PROVIDER_OPENAI = "openai";
+    private static final String META_TIER2_PROVIDER_USED = "tier2_provider_used";
+
+    private static final String INSTRUCTION_PLACE_BLUE_BIN = "Place in the blue recycling bin.";
+
     public Map<String, Object> handleScan(
             final MultipartFile image,
             final String tier1Json,
@@ -77,15 +90,15 @@ public class ScanService implements ScanInterface {
         final String requestId = UUID.randomUUID().toString();
 
         final Map<String, Object> tier1 = parseTier1OrFallback(tier1Json);
-        final String category = String.valueOf(tier1.get("category"));
-        final double confidence = toDouble(tier1.get("confidence"));
-        final boolean tier1Escalate = Boolean.TRUE.equals(tier1.get("escalate"));
+        final String category = String.valueOf(tier1.get(FIELD_CATEGORY));
+        final double confidence = toDouble(tier1.get(FIELD_CONFIDENCE));
+        final boolean tier1Escalate = Boolean.TRUE.equals(tier1.get(FIELD_ESCALATE));
         final double margin = computeMargin(tier1);
 
         final double categoryThreshold = getCategoryThreshold(category);
         final boolean lowConfidence = confidence < categoryThreshold;
         final boolean lowMargin = margin < marginThreshold;
-        final boolean otherUncertain = "other_uncertain".equalsIgnoreCase(category);
+        final boolean otherUncertain = CATEGORY_OTHER_UNCERTAIN.equalsIgnoreCase(category);
 
         final List<String> reasonCodes = new ArrayList<>();
         if (forceCloud) {
@@ -118,7 +131,7 @@ public class ScanService implements ScanInterface {
             final String providerAttempted = normalizeProvider(tier2Provider);
             meta.put("tier2_provider_attempted", providerAttempted);
 
-            if ("openai".equals(providerAttempted)) {
+            if (PROVIDER_OPENAI.equals(providerAttempted)) {
                 Map<String, Object> openAiFinal = null;
                 OpenAiCallException openAiError = null;
 
@@ -133,23 +146,23 @@ public class ScanService implements ScanInterface {
 
                 if (openAiFinal != null) {
                     finalResult = openAiFinal;
-                    meta.put("tier2_provider_used", "openai");
+                    meta.put(META_TIER2_PROVIDER_USED, PROVIDER_OPENAI);
                 } else {
                     finalResult = buildMockTier2Final(tier1);
                     reasonCodes.add("TIER2_FALLBACK_MOCK");
-                    meta.put("tier2_provider_used", "mock");
+                    meta.put(META_TIER2_PROVIDER_USED, "mock");
                     if (openAiError != null) {
                         meta.put("tier2_error", openAiError.getError());
                     }
                 }
             } else {
                 finalResult = buildMockTier2Final(tier1);
-                meta.put("tier2_provider_used", "mock");
+                meta.put(META_TIER2_PROVIDER_USED, "mock");
             }
         } else {
             finalResult = buildTier1Final(tier1);
             meta.put("tier2_provider_attempted", "mock");
-            meta.put("tier2_provider_used", "mock");
+            meta.put(META_TIER2_PROVIDER_USED, "mock");
         }
 
         final Map<String, Object> decision = new HashMap<>();
@@ -186,14 +199,14 @@ public class ScanService implements ScanInterface {
         try {
             final JsonNode root = objectMapper.readTree(tier1Json);
             final Map<String, Object> parsed = new HashMap<>();
-            parsed.put("category", root.path("category").asText("other_uncertain"));
-            parsed.put("confidence", root.path("confidence").asDouble(0.0));
-            parsed.put("escalate", root.path("escalate").asBoolean(true));
+            parsed.put(FIELD_CATEGORY, root.path(FIELD_CATEGORY).asText(CATEGORY_OTHER_UNCERTAIN));
+            parsed.put(FIELD_CONFIDENCE, root.path(FIELD_CONFIDENCE).asDouble(0.0));
+            parsed.put(FIELD_ESCALATE, root.path(FIELD_ESCALATE).asBoolean(true));
 
             final List<Map<String, Object>> top3 = new ArrayList<>();
             for (JsonNode item : root.path("top3")) {
                 final Map<String, Object> one = new HashMap<>();
-                one.put("label", item.path("label").asText("other_uncertain"));
+                one.put("label", item.path("label").asText(CATEGORY_OTHER_UNCERTAIN));
                 one.put("p", item.path("p").asDouble(0.0));
                 top3.add(one);
             }
@@ -206,9 +219,9 @@ public class ScanService implements ScanInterface {
 
     private Map<String, Object> createFallbackTier1() {
         final Map<String, Object> tier1 = new HashMap<>();
-        tier1.put("category", "other_uncertain");
-        tier1.put("confidence", 0.0);
-        tier1.put("escalate", true);
+        tier1.put(FIELD_CATEGORY, CATEGORY_OTHER_UNCERTAIN);
+        tier1.put(FIELD_CONFIDENCE, 0.0);
+        tier1.put(FIELD_ESCALATE, true);
         tier1.put("top3", new ArrayList<>());
         return tier1;
     }
@@ -220,7 +233,7 @@ public class ScanService implements ScanInterface {
             final double p2 = extractProbability(top3List.get(1));
             return p1 - p2;
         }
-        return toDouble(tier1.get("confidence"));
+        return toDouble(tier1.get(FIELD_CONFIDENCE));
     }
 
     private double extractProbability(final Object topItem) {
@@ -245,28 +258,28 @@ public class ScanService implements ScanInterface {
     }
 
     private double getCategoryThreshold(final String category) {
-        if ("plastic".equalsIgnoreCase(category)) {
+        if (CATEGORY_PLASTIC.equalsIgnoreCase(category)) {
             return plasticConfThreshold;
         }
-        if ("glass".equalsIgnoreCase(category)) {
+        if (CATEGORY_GLASS.equalsIgnoreCase(category)) {
             return glassConfThreshold;
         }
         return confThreshold;
     }
 
     private Map<String, Object> buildTier1Final(final Map<String, Object> tier1) {
-        final String category = String.valueOf(tier1.get("category")).toLowerCase(Locale.ROOT);
-        final double confidence = toDouble(tier1.get("confidence"));
+        final String category = String.valueOf(tier1.get(FIELD_CATEGORY)).toLowerCase(Locale.ROOT);
+        final double confidence = toDouble(tier1.get(FIELD_CONFIDENCE));
 
         if ("paper".equals(category)) {
             return buildFinal("Paper", true, confidence, List.of(
                     "Keep paper clean and dry before recycling.",
                     "Remove food-stained layers if possible.",
-                    "Place in the blue recycling bin."
+                    INSTRUCTION_PLACE_BLUE_BIN
             ));
         }
-        if ("plastic".equals(category)) {
-            return buildFinal("Plastic", true, confidence, List.of(
+        if (CATEGORY_PLASTIC.equals(category)) {
+            return buildFinal(CATEGORY_PLASTIC, true, confidence, List.of(
                     "Empty all contents from the container.",
                     "Rinse to remove residue.",
                     "Place clean plastic in the blue recycling bin."
@@ -276,11 +289,11 @@ public class ScanService implements ScanInterface {
             return buildFinal("Metal", true, confidence, List.of(
                     "Empty the can or metal container.",
                     "Rinse quickly if needed.",
-                    "Place in the blue recycling bin."
+                    INSTRUCTION_PLACE_BLUE_BIN
             ));
         }
-        if ("glass".equals(category)) {
-            return buildFinal("Glass", true, confidence, List.of(
+        if (CATEGORY_GLASS.equals(category)) {
+            return buildFinal(CATEGORY_GLASS, true, confidence, List.of(
                     "Empty all contents from the glass item.",
                     "Rinse to remove food or drink residue.",
                     "Place unbroken glass in the blue recycling bin."
@@ -301,7 +314,7 @@ public class ScanService implements ScanInterface {
             ));
         }
 
-        return buildFinal("Not sure", false, confidence, List.of(
+        return buildFinal(CATEGORY_NOT_SURE, false, confidence, List.of(
                 "Dispose as general waste to avoid recycling contamination.",
                 "If item has battery or electronics, use an e-waste collection point.",
                 "Only place clean paper/plastic/metal/glass into the blue recycling bin."
@@ -309,8 +322,8 @@ public class ScanService implements ScanInterface {
     }
 
     private Map<String, Object> buildMockTier2Final(final Map<String, Object> tier1) {
-        final String category = String.valueOf(tier1.get("category")).toLowerCase(Locale.ROOT);
-        final double confidence = toDouble(tier1.get("confidence"));
+        final String category = String.valueOf(tier1.get(FIELD_CATEGORY)).toLowerCase(Locale.ROOT);
+        final double confidence = toDouble(tier1.get(FIELD_CONFIDENCE));
 
         if ("paper".equals(category)) {
             return buildFinal("Paper packaging", true, confidence, List.of(
@@ -319,7 +332,7 @@ public class ScanService implements ScanInterface {
                     "Recycle the clean part in the blue recycling bin."
             ));
         }
-        if ("plastic".equals(category)) {
+        if (CATEGORY_PLASTIC.equals(category)) {
             return buildFinal("Plastic container", true, confidence, List.of(
                     "Empty all contents before disposal.",
                     "Rinse the container to remove residue.",
@@ -330,10 +343,10 @@ public class ScanService implements ScanInterface {
             return buildFinal("Metal container", true, confidence, List.of(
                     "Empty all contents from the container.",
                     "Rinse lightly if needed.",
-                    "Place in the blue recycling bin."
+                    INSTRUCTION_PLACE_BLUE_BIN
             ));
         }
-        if ("glass".equals(category)) {
+        if (CATEGORY_GLASS.equals(category)) {
             return buildFinal("Glass container", true, confidence, List.of(
                     "Empty all contents from the glass item.",
                     "Rinse to remove residue.",
@@ -355,7 +368,7 @@ public class ScanService implements ScanInterface {
             ));
         }
 
-        return buildFinal("Not sure", false, confidence, List.of(
+        return buildFinal(CATEGORY_NOT_SURE, false, confidence, List.of(
                 "Dispose as general waste to avoid contaminating recycling streams.",
                 "If the item may contain electronics or battery, use e-waste collection points.",
                 "Only place clean and known recyclable materials into the blue recycling bin."
@@ -393,9 +406,9 @@ public class ScanService implements ScanInterface {
                 instruction == null || instruction.isBlank() ? safeInstructions.get(0) : instruction;
 
         final Map<String, Object> result = new HashMap<>();
-        result.put("category", category);
+        result.put(FIELD_CATEGORY, category);
         result.put("recyclable", recyclable);
-        result.put("confidence", clampConfidence(confidence));
+        result.put(FIELD_CONFIDENCE, clampConfidence(confidence));
         result.put("instruction", safeInstruction);
         result.put("instructions", safeInstructions);
         return result;
@@ -416,8 +429,8 @@ public class ScanService implements ScanInterface {
             return "mock";
         }
         final String lowered = provider.trim().toLowerCase(Locale.ROOT);
-        if ("openai".equals(lowered)) {
-            return "openai";
+        if (PROVIDER_OPENAI.equals(lowered)) {
+            return PROVIDER_OPENAI;
         }
         return "mock";
     }
@@ -493,12 +506,12 @@ public class ScanService implements ScanInterface {
         final Map<String, Object> schema = new HashMap<>();
         schema.put("type", "object");
         schema.put("additionalProperties", false);
-        schema.put("required", List.of("category", "recyclable", "confidence", "instruction", "instructions"));
+        schema.put("required", List.of(FIELD_CATEGORY, "recyclable", FIELD_CONFIDENCE, "instruction", "instructions"));
 
         final Map<String, Object> properties = new HashMap<>();
-        properties.put("category", Map.of("type", "string", "minLength", 1, "maxLength", 80));
+        properties.put(FIELD_CATEGORY, Map.of("type", "string", "minLength", 1, "maxLength", 80));
         properties.put("recyclable", Map.of("type", "boolean"));
-        properties.put("confidence", Map.of("type", "number", "minimum", 0, "maximum", 1));
+        properties.put(FIELD_CONFIDENCE, Map.of("type", "number", "minimum", 0, "maximum", 1));
         properties.put("instruction", Map.of("type", "string", "minLength", 1, "maxLength", 140));
         properties.put("instructions", Map.of(
                 "type", "array",
@@ -522,9 +535,9 @@ public class ScanService implements ScanInterface {
             text.put("verbosity", openAiVerbosity == null || openAiVerbosity.isBlank() ? "low" : openAiVerbosity);
         }
 
-        final String tier1Category = String.valueOf(tier1.get("category")).trim().toLowerCase(Locale.ROOT);
-        final double tier1Confidence = toDouble(tier1.get("confidence"));
-        final boolean tier1HighlyUncertain = "other_uncertain".equals(tier1Category)
+        final String tier1Category = String.valueOf(tier1.get(FIELD_CATEGORY)).trim().toLowerCase(Locale.ROOT);
+        final double tier1Confidence = toDouble(tier1.get(FIELD_CONFIDENCE));
+        final boolean tier1HighlyUncertain = CATEGORY_OTHER_UNCERTAIN.equals(tier1Category)
                 || "uncertain".equals(tier1Category)
                 || "unknown".equals(tier1Category)
                 || tier1Confidence < confThreshold;
@@ -533,8 +546,8 @@ public class ScanService implements ScanInterface {
         if (tier1HighlyUncertain) {
             tier1Hint = "Tier1 is uncertain. Do not mirror Tier1 label. Use image evidence as primary source.";
         } else {
-            tier1Hint = "Tier1 hint (may still be wrong): category=" + tier1.get("category")
-                    + ", confidence=" + tier1.get("confidence")
+            tier1Hint = "Tier1 hint (may still be wrong): category=" + tier1.get(FIELD_CATEGORY)
+                    + ", confidence=" + tier1.get(FIELD_CONFIDENCE)
                     + ", top3=" + tier1.get("top3");
         }
         final String systemPrompt = "You are a Tier-2 recycling disposal expert for a Singapore waste-sorting app. "
@@ -618,16 +631,16 @@ public class ScanService implements ScanInterface {
         }
 
         final JsonNode finalNode = objectMapper.readTree(outputJson);
-        String category = finalNode.path("category").asText("").trim();
-        if ("other_uncertain".equalsIgnoreCase(category)
+        String category = finalNode.path(FIELD_CATEGORY).asText("").trim();
+        if (CATEGORY_OTHER_UNCERTAIN.equalsIgnoreCase(category)
                 || "uncertain".equalsIgnoreCase(category)
-                || "not sure".equalsIgnoreCase(category)
+                || CATEGORY_NOT_SURE.equalsIgnoreCase(category)
                 || "unknown".equalsIgnoreCase(category)) {
-            category = "Not sure";
+            category = CATEGORY_NOT_SURE;
         }
         final String instruction = finalNode.path("instruction").asText("").trim();
         final boolean recyclable = finalNode.path("recyclable").asBoolean(false);
-        final double confidence = clampConfidence(finalNode.path("confidence").asDouble(0.0));
+        final double confidence = clampConfidence(finalNode.path(FIELD_CONFIDENCE).asDouble(0.0));
 
         final List<String> instructions = new ArrayList<>();
         for (JsonNode step : finalNode.path("instructions")) {
