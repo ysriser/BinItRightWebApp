@@ -3,7 +3,7 @@ package techthree.binitright.dto;
 public class UserProfileDTO {
     private String name;
     private int pointBalance;
-    private String equippedAvatarName; // The String we'll map to the drawable
+    private String equippedAvatarName;
     private int totalRecycled;
     private String aiSummary;
     private int totalAchievements;

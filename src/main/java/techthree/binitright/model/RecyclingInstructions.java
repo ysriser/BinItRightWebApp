@@ -27,21 +27,23 @@ public class RecyclingInstructions{
 
     private String title;
 
-    private String steps_json;
+    @Column(name = "steps_json")
+    private String stepsJson;
 
-    private String contamination_rules;
+    @Column(name = "contamination_rules")
+    private String contaminationRules;
     
     public RecyclingInstructions() {}
 
     public RecyclingInstructions(Long recyclingInstructionsId, WasteCategories wasteCategory, String locale,
-			String title, String steps_json, String contamination_rules) {
+			String title, String stepsJson, String contaminationRules) {
 		super();
 		this.recyclingInstructionsId = recyclingInstructionsId;
 		this.wasteCategory = wasteCategory;
 		this.locale = locale;
 		this.title = title;
-		this.steps_json = steps_json;
-		this.contamination_rules = contamination_rules;
+		this.stepsJson = stepsJson;
+		this.contaminationRules = contaminationRules;
 	}
 
 	public Long getRecyclingInstructionsId() {
@@ -77,19 +79,19 @@ public class RecyclingInstructions{
     }
 
     public String getSteps_json() {
-        return steps_json;
+        return stepsJson;
     }
 
-    public void setSteps_json(String steps_json) {
-        this.steps_json = steps_json;
+    public void setSteps_json(String stepsJson) {
+        this.stepsJson = stepsJson;
     }
 
     public String getContamination_rules() {
-        return contamination_rules;
+        return contaminationRules;
     }
 
-    public void setContamination_rules(String Contamination_rules) {
-        this.contamination_rules = Contamination_rules;
+    public void setContamination_rules(String contaminationRules) {
+        this.contaminationRules = contaminationRules;
     }
 
 

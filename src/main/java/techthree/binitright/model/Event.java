@@ -45,14 +45,14 @@ public class Event {
     }
     
     public Event() {}
-    public Event(Long eventId, String title, String description, String locationName, String PostalCode, LocalDateTime startTime,
+    public Event(Long eventId, String title, String description, String locationName, String postalCode, LocalDateTime startTime,
                  LocalDateTime endTime, String imageUrl, Status status) {
 		
 		this.eventId = eventId;
 		this.title = title;
 		this.description = description;
 		this.locationName = locationName;
-        this.postalCode = PostalCode;
+        this.postalCode = postalCode;
 		this.startTime = startTime;
 		this.endTime = endTime;
 		this.imageUrl = imageUrl;
