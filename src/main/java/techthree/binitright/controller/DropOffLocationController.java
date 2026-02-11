@@ -2,6 +2,8 @@ package techthree.binitright.controller;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,6 +16,9 @@ import techthree.binitright.service.DropOffLocationImplementation;
 @RestController
 @RequestMapping("/api/bins")
 public class DropOffLocationController {
+
+    private static final Logger logger = LoggerFactory.getLogger(DropOffLocationController.class);
+
 
     private final DropOffLocationImplementation service;
 
@@ -31,7 +36,7 @@ public class DropOffLocationController {
             @RequestParam double lat,
             @RequestParam double lng,
             @RequestParam(defaultValue = "30") double radius) {
-    	System.out.println("Inside dropOff controller:  "+lat);
+        logger.info("Inside dropOff controller: {}", lat);
 
         return service.getNearbyBins(lat, lng, radius);
     }
@@ -43,7 +48,7 @@ public class DropOffLocationController {
             @RequestParam(required = false) Double radius,
             @RequestParam(required = false) String binType,
             @RequestParam(required = false) Integer limit) {
-    	System.out.println("Inside.....");
+        logger.info("Inside FindBins controller");
 
         if (radius != null) {
             return service.getNearbyBins(lat, lng, radius)
@@ -58,8 +63,8 @@ public class DropOffLocationController {
                 .stream()
                 .limit(limit != null ? limit : Long.MAX_VALUE)
                 .toList();
-        
-       System.out.println("list size:"+list.size());
+
+        logger.info("list size: {}", list.size());
        return list;
     }
     

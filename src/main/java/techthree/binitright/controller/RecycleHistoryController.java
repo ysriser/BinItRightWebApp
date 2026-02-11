@@ -22,7 +22,7 @@ public class RecycleHistoryController {
     public List<RecycleHistoryResponse> getRecycleHistory(Authentication authentication) {
 
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new RuntimeException("Unauthorized");
+            throw new org.springframework.security.access.AccessDeniedException("Unauthorized");
         }
 
         String userIdStr = (String) authentication.getPrincipal();

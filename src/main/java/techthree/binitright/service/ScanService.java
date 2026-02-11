@@ -529,7 +529,7 @@ public class ScanService implements ScanInterface {
         schema.put("required", List.of(FIELD_CATEGORY, KEY_RECYCLABLE, FIELD_CONFIDENCE, KEY_INSTRUCTION, KEY_INSTRUCTIONS));
 
         final Map<String, Object> properties = new HashMap<>();
-        properties.put(FIELD_CATEGORY, Map.of("type", "string", "minLength", 1, "maxLength", 80));
+        properties.put(FIELD_CATEGORY, Map.of("type", TYPE_STRING, MIN_LENGTH, 1, MAX_LENGTH, 80));
         properties.put(KEY_RECYCLABLE, Map.of("type", "boolean"));
         properties.put(FIELD_CONFIDENCE, Map.of("type", "number", "minimum", 0, "maximum", 1));
         properties.put(KEY_INSTRUCTION, Map.of("type", TYPE_STRING, MIN_LENGTH, 1, MAX_LENGTH, 140));

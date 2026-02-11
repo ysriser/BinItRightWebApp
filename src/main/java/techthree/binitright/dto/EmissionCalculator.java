@@ -3,6 +3,9 @@ package techthree.binitright.dto;
 import java.math.BigDecimal;
 
 public class EmissionCalculator {
+
+    private EmissionCalculator() {}
+
     private static BigDecimal safe(BigDecimal v) {
         return v == null ? BigDecimal.ZERO : v;
     }
