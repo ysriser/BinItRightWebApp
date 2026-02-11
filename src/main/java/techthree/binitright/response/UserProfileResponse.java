@@ -1,0 +1,33 @@
+package techthree.binitright.response;
+
+import techthree.binitright.model.User;
+
+public class UserProfileResponse {
+    private Long id;
+    private Integer pointBalance;
+
+    public UserProfileResponse() {
+    }
+
+        public UserProfileResponse(User user) {
+            this.id = user.getId();
+            this.pointBalance = user.getPointBalance();
+        }
+
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public Integer getPointBalance() {
+            return pointBalance;
+        }
+
+        public void setPointBalance(Integer pointBalance) {
+            this.pointBalance = pointBalance;
+        }
+}
