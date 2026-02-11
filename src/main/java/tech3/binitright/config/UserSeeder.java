@@ -32,48 +32,30 @@ public class UserSeeder {
     private final WasteCategoryRepository wasteRepo;
     private final DropOffLocationRepository dropOffRepo;
     private final CheckInRepository checkInRepo;
+    private final AccessoriesInterface accessoriesService;
+    private final IssueInterface issueService;
+    private final UserAccessoriesInterface userAccessoriesService;
+    private final AdminInterface adminService;
 
-    @Autowired
-    private AccessoriesInterface accessoriesService;
-
-    @Autowired
-    public void setAccessoriesService(AccessoriesImplementation accessoriesImplementation) {
-        this.accessoriesService = accessoriesImplementation;
-    }
-
-    @Autowired
-    private IssueInterface issueService;
-
-    @Autowired
-    public void setIssueService(IssueImplementation issueImplementation) {
-        this.issueService = issueImplementation;
-    }
-
-    @Autowired
-    private UserAccessoriesInterface userAccessoriesService;
-
-    @Autowired
-    public void setUserAccessoriesService(UserAccessoriesImplementation userAccessoriesImplementation) {
-        this.userAccessoriesService = userAccessoriesImplementation;
-    }
-
-    @Autowired
-    private AdminInterface adminService;
-
-    public void setAdminService(AdminImplementation adminserviceImp) {
-        this.adminService = adminserviceImp;
-    }
-
-    public UserSeeder(UserInterface userService,
-                      WasteCategoryRepository wasteRepo,
-                      DropOffLocationRepository dropOffRepo,
-                      CheckInRepository checkInRepo) {
+    public UserSeeder(
+            UserInterface userService,
+            WasteCategoryRepository wasteRepo,
+            DropOffLocationRepository dropOffRepo,
+            CheckInRepository checkInRepo,
+            AccessoriesInterface accessoriesService,
+            IssueInterface issueService,
+            UserAccessoriesInterface userAccessoriesService,
+            AdminInterface adminService
+    ) {
         this.userService = userService;
         this.wasteRepo = wasteRepo;
         this.dropOffRepo = dropOffRepo;
         this.checkInRepo = checkInRepo;
+        this.accessoriesService = accessoriesService;
+        this.issueService = issueService;
+        this.userAccessoriesService = userAccessoriesService;
+        this.adminService = adminService;
     }
-
     @Bean
     @Order(5)
     @Profile({"test", "prod", "default"}) // Avoid running this in "prod" to keep the DB clean

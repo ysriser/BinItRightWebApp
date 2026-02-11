@@ -23,9 +23,10 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+import tech3.binitright.interfacemethods.ScanInterface;
 
 @Service
-public class ScanService {
+public class ScanService implements ScanInterface {
 
     private final ObjectMapper objectMapper;
 

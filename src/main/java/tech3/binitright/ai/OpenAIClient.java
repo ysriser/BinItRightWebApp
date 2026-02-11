@@ -66,12 +66,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import tech3.binitright.interfacemethods.LlmClient;
 
 import java.util.List;
 import java.util.Map;
 
 @Component
-public class OpenAIClient {
+public class OpenAIClient implements LlmClient {
 
     private final WebClient webClient;
 
@@ -117,13 +118,13 @@ public class OpenAIClient {
             return content != null ? content.toString() : fallback();
 
         } catch (Exception e) {
-            // ⭐ graceful fallback for demo / rate-limit / network failure
+
             return fallback();
         }
     }
 
     private String fallback() {
-        return "⚠️ AI service temporarily unavailable. " +
+        return "AI service temporarily unavailable. " +
                 "Please try again later.";
     }
 }
