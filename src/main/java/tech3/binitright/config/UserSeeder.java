@@ -1,6 +1,7 @@
 package tech3.binitright.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,18 +13,10 @@ import tech3.binitright.model.*;
 import tech3.binitright.repository.CheckInRepository;
 import tech3.binitright.repository.DropOffLocationRepository;
 import tech3.binitright.repository.WasteCategoryRepository;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import tech3.binitright.service.AccessoriesImplementation;
-import tech3.binitright.service.AdminImplementation;
-import tech3.binitright.service.IssueImplementation;
-import tech3.binitright.service.UserAccessoriesImplementation;
-
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Configuration
 public class UserSeeder {
@@ -32,46 +25,30 @@ public class UserSeeder {
     private final WasteCategoryRepository wasteRepo;
     private final DropOffLocationRepository dropOffRepo;
     private final CheckInRepository checkInRepo;
+    private final AccessoriesInterface accessoriesService;
+    private final IssueInterface issueService;
+    private final UserAccessoriesInterface userAccessoriesService;
+    private final AdminInterface adminService;
 
-    @Autowired
-    private AccessoriesInterface accessoriesService;
-
-    @Autowired
-    public void setAccessoriesService(AccessoriesImplementation accessoriesImplementation) {
-        this.accessoriesService = accessoriesImplementation;
-    }
-
-    @Autowired
-    private IssueInterface issueService;
-
-    @Autowired
-    public void setIssueService(IssueImplementation issueImplementation) {
-        this.issueService = issueImplementation;
-    }
-
-    @Autowired
-    private UserAccessoriesInterface userAccessoriesService;
-
-    @Autowired
-    public void setUserAccessoriesService(UserAccessoriesImplementation userAccessoriesImplementation) {
-        this.userAccessoriesService = userAccessoriesImplementation;
-    }
-
-    @Autowired
-    private AdminInterface adminService;
-
-    public void setAdminService(AdminImplementation adminserviceImp) {
-        this.adminService = adminserviceImp;
-    }
+    private static final String USER1 = "User1";
+    private static final Logger log = LoggerFactory.getLogger(UserSeeder.class);
 
     public UserSeeder(UserInterface userService,
                       WasteCategoryRepository wasteRepo,
                       DropOffLocationRepository dropOffRepo,
-                      CheckInRepository checkInRepo) {
+                      CheckInRepository checkInRepo,
+                      AccessoriesInterface accessoriesService,
+                      IssueInterface issueService,
+                      UserAccessoriesInterface userAccessoriesService,
+                      AdminInterface adminService) {
         this.userService = userService;
         this.wasteRepo = wasteRepo;
         this.dropOffRepo = dropOffRepo;
         this.checkInRepo = checkInRepo;
+        this.accessoriesService = accessoriesService;
+        this.issueService = issueService;
+        this.userAccessoriesService = userAccessoriesService;
+        this.adminService = adminService;
     }
 
     @Bean
@@ -83,7 +60,7 @@ public class UserSeeder {
             record SeedUser(String username, String email, String name, int accessoriesToAssign) {}
 
             List<SeedUser> usersToSeed = List.of(
-                    new SeedUser("User1", "tester1@binitright.com", "Default Tester 1", 2),
+                    new SeedUser(USER1, "tester1@binitright.com", "Default Tester 1", 2),
                     new SeedUser("User2", "tester2@binitright.com", "Default Tester 2", 4),
                     new SeedUser("User3", "tester3@binitright.com", "Default Tester 3", 3),
                     new SeedUser("User4", "tester4@binitright.com", "Default Tester 4", 1)
@@ -113,7 +90,7 @@ public class UserSeeder {
 
                 User savedUser = userService.saveUser(user);
 
-                System.out.println(">>> UserSeeder: Created " + su.username());
+                log.info(">>> UserSeeder: Created " + su.username());
 
                 // Assign accessories
                 for (int i = 0; i < su.accessoriesToAssign() && i < availableAccs.size(); i++) {
@@ -126,7 +103,7 @@ public class UserSeeder {
 
                     userAccessoriesService.save(ua);
 
-                    System.out.println(">>> Assigned " + acc.getName() + " to " + su.username());
+                    log.info(">>> Assigned " + acc.getName() + " to " + su.username());
                 }
             }
         };
@@ -205,7 +182,7 @@ public class UserSeeder {
                     paper
             ));
 
-            System.out.println(">>> Waste categories seeded (6 types)");
+            log.info(">>> Waste categories seeded (6 types)");
         };
     }
 
@@ -216,13 +193,13 @@ public class UserSeeder {
         return args -> {
 
             // Ensure user exists
-            User user = userService.findByUsername("User1")
+            User user = userService.findByUsername(USER1)
                     .stream()
                     .findFirst()
-                    .orElseThrow(() -> new RuntimeException("User1 must exist before seeding CheckIns"));
+                    .orElseThrow(() -> new RuntimeException(USER1 + " must exist before seeding CheckIns"));
 
             if (checkInRepo.count() > 0) {
-                System.out.println(">>> Check-ins already exist, skipping");
+                log.info(">>> Check-ins already exist, skipping");
                 return;
             }
 
@@ -266,7 +243,7 @@ public class UserSeeder {
 
             checkInRepo.saveAll(List.of(c1, c2, c3));
 
-            System.out.println(">>> Check-ins seeded");
+            log.info(">>> Check-ins seeded");
 
         };
     }
@@ -282,7 +259,7 @@ public class UserSeeder {
             }
 
             // Retrieve users seeded in Order 5
-            User u1 = userService.findByUsername("User1").getFirst();
+            User u1 = userService.findByUsername(USER1).getFirst();
             User u2 = userService.findByUsername("User2").getFirst();
             User u3 = userService.findByUsername("User3").getFirst();
             User u4 = userService.findByUsername("User4").getFirst();
@@ -306,7 +283,7 @@ public class UserSeeder {
             Issue i4 = new Issue(Issue.IssueCategory.AppProblems, "User dashboard takes more than 10 seconds to load history.", Issue.IssueStatus.NEW, u4, null);
 
             issueService.saveAll(List.of(i1, i2, i3, i4));
-            System.out.println(">>> Issues seeded (4 entries)");
+            log.info(">>> Issues seeded (4 entries)");
         };
     }
 }
