@@ -1,6 +1,7 @@
 package tech3.binitright.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +28,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Configuration
 public class UserSeeder {
+
+    @Value("${APP_USER_PASSWORD}")
+    private String userPassword;
 
     private final UserInterface userService;
     private final WasteCategoryRepository wasteRepo;
@@ -104,7 +108,7 @@ public class UserSeeder {
                 user.setEmailAddress(su.email());
                 user.setName(su.name());
                 user.setRole("USER");
-                user.setPassword_hash(passwordEncoder.encode("password"));
+                user.setPassword_hash(passwordEncoder.encode(userPassword));
 
                 user.setPointBalance(1000);
                 user.setCurrentRank(1);

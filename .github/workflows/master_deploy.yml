@@ -83,8 +83,10 @@ jobs:
             export MYSQL_ROOT_PASSWORD='${{ secrets.TEST_DB_PASSWORD }}'
             export DATA_GOV_API_KEY='${{ secrets.DATA_GOV_API_KEY }}'
             export APP_ADMIN_PASSWORD='${{ secrets.APP_ADMIN_PASSWORD }}'
+            export APP_USER_PASSWORD='${{ secrets.APP_USER_PASSWORD }}'
             export SPACES_ACCESS_KEY='${{ secrets.SPACES_ACCESS_KEY }}'
             export SPACES_SECRET_KEY='${{ secrets.SPACES_SECRET_KEY }}'
+            export JWT_SECRET='${{ secrets.JWT_SECRET }}'
             export OPENAI_API_KEY_CHAT='${{ secrets.OPENAI_API_KEY_CHAT }}'
             export SPRING_PROFILES_ACTIVE=test
             export TIER2_PROVIDER='${{ secrets.TIER2_PROVIDER }}'
@@ -359,8 +361,10 @@ jobs:
             export MYSQL_ROOT_PASSWORD='${{ secrets.DB_PASSWORD }}'
             export DATA_GOV_API_KEY='${{ secrets.DATA_GOV_API_KEY }}'
             export APP_ADMIN_PASSWORD='${{ secrets.APP_ADMIN_PASSWORD }}'
+            export APP_USER_PASSWORD='${{ secrets.APP_USER_PASSWORD }}'
             export SPACES_ACCESS_KEY='${{ secrets.SPACES_ACCESS_KEY }}'
             export SPACES_SECRET_KEY='${{ secrets.SPACES_SECRET_KEY }}'
+            export JWT_SECRET='${{ secrets.JWT_SECRET }}'
             export OPENAI_API_KEY_CHAT='${{ secrets.OPENAI_API_KEY_CHAT }}'
             export SPRING_PROFILES_ACTIVE=prod
             export TIER2_PROVIDER='${{ secrets.TIER2_PROVIDER }}'
