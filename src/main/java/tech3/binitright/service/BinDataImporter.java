@@ -158,8 +158,8 @@ public class BinDataImporter {
         bin.setPostalCode(postal);
         bin.setDescription(desc);
         bin.setBinType(binType);
-        bin.setLatitude(new BigDecimal(lat));
-        bin.setLongitude(new BigDecimal(lng));
+        bin.setLatitude(BigDecimal.valueOf(lat));
+        bin.setLongitude(BigDecimal.valueOf(lng));
         bin.setStatus(Status.ACTIVE);
         return bin;
     }
@@ -181,8 +181,8 @@ public class BinDataImporter {
         bin.setPostalCode(meta.getOrDefault("ADDRESSPOSTALCODE", ""));
         bin.setDescription(meta.getOrDefault("DESCRIPTION", ""));
         bin.setBinType(binType);
-        bin.setLatitude(new BigDecimal(lat));
-        bin.setLongitude(new BigDecimal(lng));
+        bin.setLatitude(BigDecimal.valueOf(lat));
+        bin.setLongitude(BigDecimal.valueOf(lng));
         bin.setStatus(Status.ACTIVE);
         return bin;
     }
