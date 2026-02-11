@@ -6,11 +6,8 @@ import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.test.util.ReflectionTestUtils;
 import tech3.binitright.interfacemethods.UserAccessoriesInterface;
-import tech3.binitright.interfacemethods.UserInterface;
 import tech3.binitright.model.UserAccessories;
-import tech3.binitright.service.UserAccessoriesImplementation;
 
 import java.util.List;
 
