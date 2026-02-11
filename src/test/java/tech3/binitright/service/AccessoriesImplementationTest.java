@@ -23,36 +23,40 @@ public class AccessoriesImplementationTest {
 
     @Test
     void findAll_returnsAccessoriesFromRepository() {
-        // Arrange
         Accessories a1 = new Accessories();
         Accessories a2 = new Accessories();
         List<Accessories> expected = List.of(a1, a2);
 
         when(accessoriesRepository.findAll()).thenReturn(expected);
 
-        // Act
         List<Accessories> actual = accessoriesService.findAll();
 
-        // Assert
         assertNotNull(actual);
-        assertEquals(2, actual.size());
-        assertSame(expected, actual); // it returns the same list instance from repo
-        verify(accessoriesRepository, times(1)).findAll();
+        assertEquals(expected, actual);
+        verify(accessoriesRepository).findAll();
         verifyNoMoreInteractions(accessoriesRepository);
     }
 
     @Test
     void findAll_whenRepositoryReturnsEmpty_returnsEmptyList() {
-        // Arrange
         when(accessoriesRepository.findAll()).thenReturn(List.of());
 
-        // Act
         List<Accessories> actual = accessoriesService.findAll();
 
-        // Assert
         assertNotNull(actual);
         assertTrue(actual.isEmpty());
-        verify(accessoriesRepository, times(1)).findAll();
+        verify(accessoriesRepository).findAll();
+        verifyNoMoreInteractions(accessoriesRepository);
+    }
+
+    @Test
+    void findAll_whenRepositoryThrows_propagatesException() {
+        when(accessoriesRepository.findAll()).thenThrow(new RuntimeException("DB down"));
+
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> accessoriesService.findAll());
+        assertEquals("DB down", ex.getMessage());
+
+        verify(accessoriesRepository).findAll();
         verifyNoMoreInteractions(accessoriesRepository);
     }
 }
