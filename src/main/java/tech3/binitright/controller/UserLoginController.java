@@ -57,7 +57,6 @@ public class UserLoginController {
 
         // ✅ 4. Generate JWT token
         String token = jwtUtil.generateToken(user);
-
         // ✅ 5. Return success
         return new LoginResponse(true, "Login success", token);
     }
