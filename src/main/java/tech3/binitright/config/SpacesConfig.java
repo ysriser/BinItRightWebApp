@@ -67,5 +67,6 @@ public class SpacesConfig {
                         new AWSStaticCredentialsProvider(credentials)
                 )
                 .build();
+
     }
 }
