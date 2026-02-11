@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import tech3.binitright.dto.UserProfileDTO;
@@ -14,12 +13,8 @@ import tech3.binitright.interfacemethods.UserAccessoriesInterface;
 import tech3.binitright.interfacemethods.UserInterface;
 import tech3.binitright.model.User;
 import tech3.binitright.model.UserAccessories;
-import tech3.binitright.service.CheckInImplementation;
 import tech3.binitright.service.EmissionService;
-import tech3.binitright.service.UserAccessoriesImplementation;
-import tech3.binitright.service.ChatImplementation;
 import tech3.binitright.service.AchievementImplementation;
-import tech3.binitright.service.UserImplementation;
 
 import java.math.BigDecimal;
 
@@ -29,38 +24,25 @@ public class SummaryRestController {
 
     @Autowired
     private EmissionService emissionService;
-    @Autowired
-    private UserInterface userService;
-
-    @Autowired
-    public void setUserService(UserImplementation userImplementation) {
-        this.userService = userImplementation;
-    }
-
-    @Autowired
-    private CheckInInterface checkInService;
-
-    public void setcheckInService(CheckInImplementation checkInserviceImp) {
-        this.checkInService = checkInserviceImp;
-    }
-
-    @Autowired
-    private ChatInterface chatService;
-
-    @Autowired
-    public void setChatService(ChatImplementation chatInserviceImp) {
-        this.chatService = chatInserviceImp;
-    }
-
-    @Autowired
-    private UserAccessoriesInterface userAccessoriesService;
 
     @Autowired
     private AchievementImplementation achievementService;
 
-    @Autowired
-    public void setUserAccessoriesService(UserAccessoriesImplementation userAccessoriesImplementation) {
-        this.userAccessoriesService = userAccessoriesImplementation;
+    private final UserInterface userService;
+    private final CheckInInterface checkInService;
+    private final ChatInterface chatService;
+    private final UserAccessoriesInterface userAccessoriesService;
+
+    public SummaryRestController(
+            UserInterface userService,
+            CheckInInterface checkInService,
+            ChatInterface chatService,
+            UserAccessoriesInterface userAccessoriesService) {
+
+        this.userService = userService;
+        this.checkInService = checkInService;
+        this.chatService = chatService;
+        this.userAccessoriesService = userAccessoriesService;
     }
 
     @GetMapping("/profile")

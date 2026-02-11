@@ -1,6 +1,5 @@
 package tech3.binitright.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -18,14 +17,18 @@ import java.util.List;
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "*")
 public class UserLoginController {
-    @Autowired
-    private UserInterface userService;
+    private final UserInterface userService;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    public UserLoginController(UserInterface userService,
+                         PasswordEncoder passwordEncoder,
+                         JwtUtil jwtUtil) {
+        this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
+    }
 
-    @Autowired
-    private JwtUtil jwtUtil;
 
     @PostMapping("/login")
     public LoginResponse login(@RequestBody LoginRequest request) {
@@ -54,7 +57,6 @@ public class UserLoginController {
 
         // ✅ 4. Generate JWT token
         String token = jwtUtil.generateToken(user);
-        System.out.println("User: " +  user.getId());
 
         // ✅ 5. Return success
         return new LoginResponse(true, "Login success", token);

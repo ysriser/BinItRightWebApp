@@ -4,7 +4,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tech3.binitright.dto.ShopItemDTO;
 import tech3.binitright.response.RedeemResponse;
-import tech3.binitright.model.Accessories;
 import tech3.binitright.service.RewardShopService;
 import tech3.binitright.util.JwtUtil;
 import org.springframework.security.core.Authentication;
@@ -16,14 +15,11 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class RewardShopController {
     private final RewardShopService rewardShopService;
-    private final JwtUtil jwtUtil;
 
     public RewardShopController(
-            RewardShopService rewardShopService,
-            JwtUtil jwtUtil
+            RewardShopService rewardShopService
     ) {
         this.rewardShopService = rewardShopService;
-        this.jwtUtil = jwtUtil;
     }
 
 

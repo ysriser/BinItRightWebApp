@@ -1,12 +1,10 @@
 package tech3.binitright.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import tech3.binitright.interfacemethods.AdminInterface;
-import tech3.binitright.interfacemethods.UserInterface;
 import tech3.binitright.model.Admin;
 
 import java.util.Map;
@@ -16,13 +14,17 @@ import java.util.Map;
 @RequestMapping("/api/admin")
 public class LoginRestController {
 
-    @Autowired
-    private AdminInterface adminService;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final AdminInterface adminService;
+    private final PasswordEncoder passwordEncoder;
+
+    public LoginRestController(AdminInterface adminService,
+                         PasswordEncoder passwordEncoder) {
+        this.adminService = adminService;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @PostMapping("/create")
-    public ResponseEntity<?> saveAdmin(@RequestBody Admin admin) {
+    public ResponseEntity<Map<String, String>> saveAdmin(@RequestBody Admin admin) {
 
         if (adminService.findAdminByUsername(admin.getUsername()).isEmpty()) {
 
