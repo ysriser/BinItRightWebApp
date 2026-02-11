@@ -95,7 +95,7 @@ public class UserSeeder {
 
                 User savedUser = userService.saveUser(user);
 
-                log.info(">>> UserSeeder: Created " + su.username());
+                log.info(">>> UserSeeder: Created {}", su.username());
 
                 // Assign accessories
                 for (int i = 0; i < su.accessoriesToAssign() && i < availableAccs.size(); i++) {
@@ -108,7 +108,7 @@ public class UserSeeder {
 
                     userAccessoriesService.save(ua);
 
-                    log.info(">>> Assigned " + acc.getName() + " to " + su.username());
+                    log.info(">>> Assigned {} to {}", acc.getName(), su.username());
                 }
             }
         };

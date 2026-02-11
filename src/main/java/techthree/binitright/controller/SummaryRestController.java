@@ -59,7 +59,7 @@ public class SummaryRestController {
 
 
     @GetMapping("/profile")
-    public ResponseEntity<?> getProfileSummary(Authentication authentication) {
+    public ResponseEntity<UserProfileDTO> getProfileSummary(Authentication authentication) {
         // 1. Safety check for the "User1" string issue we saw earlier
         Long userId;
         try {
@@ -72,7 +72,7 @@ public class SummaryRestController {
 
         User user = userService.findById(userId);
         if (user == null) {
-            return ResponseEntity.status(404).body("User not found");
+            return ResponseEntity.notFound().build();
         }
 
         String avatarName = userAccessoriesService.findAllByUser_Id(userId)
