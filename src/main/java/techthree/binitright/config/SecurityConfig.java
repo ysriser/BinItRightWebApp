@@ -29,6 +29,10 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class SecurityConfig {
 
     private static final String API_PATTERN = "/api/**";
+    private static final String SWAGGER_UI_PATTERN = "/swagger-ui/**";
+    private static final String API_DOCS_PATTERN = "/v3/api-docs/**";
+    private static final String SWAGGER_UI_HTML = "/swagger-ui.html";
+    private static final String SAME_ORIGIN = "same-origin";
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -43,7 +47,7 @@ public class SecurityConfig {
     ) throws Exception {
         applyGlobalSecurityHeaders(http); // Apply shared headers
         http
-                .securityMatcher(API_PATTERN, "/error", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+                .securityMatcher(API_PATTERN, "/error", API_DOCS_PATTERN, SWAGGER_UI_PATTERN, SWAGGER_UI_HTML)
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -63,9 +67,9 @@ public class SecurityConfig {
                                 "/api/ready",
                                 "/error",
                                 "/api/forecast",
-                                "/v3/api-docs/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html"// CRITICAL: Permit /error
+                                API_DOCS_PATTERN,
+                                SWAGGER_UI_PATTERN,
+                                SWAGGER_UI_HTML
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
@@ -111,13 +115,13 @@ public class SecurityConfig {
                                 "Permissions-Policy",
                                 "camera=(), microphone=(), geolocation=()"
                         ))
-                        .addHeaderWriter(new StaticHeadersWriter("Cross-Origin-Resource-Policy", "same-origin"))
+                        .addHeaderWriter(new StaticHeadersWriter("Cross-Origin-Resource-Policy", SAME_ORIGIN))
                         .addHeaderWriter(new StaticHeadersWriter("Cross-Origin-Embedder-Policy", "require-corp"))
-                        .addHeaderWriter(new StaticHeadersWriter("Cross-Origin-Opener-Policy", "same-origin"))
+                        .addHeaderWriter(new StaticHeadersWriter("Cross-Origin-Opener-Policy", SAME_ORIGIN))
                         .cacheControl(withDefaults())
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login", "/css/**", "/js/**", "/api/admin/create", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/login", "/css/**", "/js/**", "/api/admin/create", API_DOCS_PATTERN, SWAGGER_UI_PATTERN, SWAGGER_UI_HTML).permitAll()
                         .requestMatchers("/admin/**").hasRole("admin")
                         .anyRequest().authenticated()
                 )
@@ -178,9 +182,9 @@ public class SecurityConfig {
                 .addHeaderWriter(new StaticHeadersWriter("Permissions-Policy",
                         "camera=(), microphone=(), geolocation=()"))
                 // Spectre isolation headers
-                .addHeaderWriter(new StaticHeadersWriter("Cross-Origin-Resource-Policy", "same-origin"))
+                .addHeaderWriter(new StaticHeadersWriter("Cross-Origin-Resource-Policy", SAME_ORIGIN))
                 .addHeaderWriter(new StaticHeadersWriter("Cross-Origin-Embedder-Policy", "require-corp"))
-                .addHeaderWriter(new StaticHeadersWriter("Cross-Origin-Opener-Policy", "same-origin"))
+                .addHeaderWriter(new StaticHeadersWriter("Cross-Origin-Opener-Policy", SAME_ORIGIN))
         );
     }
 }

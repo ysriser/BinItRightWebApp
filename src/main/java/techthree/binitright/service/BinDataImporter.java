@@ -39,6 +39,8 @@ public class BinDataImporter {
     @Value("${data.gov.api.key}")
     private String dataGovApiKey;
 
+    private static final String FIELD_INC_CRC = "INC_CRC";
+
     private static final String BLUE_BIN_API =
             "https://api-open.data.gov.sg/v1/public/api/datasets/d_4dde14826642f49eefff48b7832b90db/poll-download";
 
@@ -47,8 +49,6 @@ public class BinDataImporter {
 
     private static final String LAMP_API =
             "https://api-open.data.gov.sg/v1/public/api/datasets/d_6226f69998ed0cb62151af37706508cd/poll-download";
-
-    private static final String INC_CRC_KEY = "INC_CRC";
 
     public BinDataImporter(DropOffLocationRepository repo, RestTemplate restTemplate) {
         this.repo = repo;
@@ -109,6 +109,7 @@ public class BinDataImporter {
             JsonNode root = mapper.readTree(geoJson);
             JsonNode features = root.get("features");
 
+            int count = 0;
             for (JsonNode feature : features) {
                 JsonNode geom = feature.get("geometry");
                 JsonNode props = feature.get("properties");
@@ -117,12 +118,12 @@ public class BinDataImporter {
                 double lat = geom.get("coordinates").get(1).asDouble();
 
                 String incCrc;
-                if (props.has(INC_CRC_KEY)) {
-                    incCrc = props.get(INC_CRC_KEY).asText();
+                if (props.has(FIELD_INC_CRC)) {
+                    incCrc = props.get(FIELD_INC_CRC).asText();
                 } else {
                     String html = props.path("Description").asText("");
                     Map<String, String> meta = parseHtmlTable(html);
-                    incCrc = meta.get(INC_CRC_KEY);
+                    incCrc = meta.get(FIELD_INC_CRC);
                 }
 
                 if (incCrc == null || incCrc.isEmpty()) continue;

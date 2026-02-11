@@ -83,9 +83,9 @@ public class IssueImplementationTest {
         User u = user(userId);
 
         IssueCreateRequest req = new IssueCreateRequest(
-                "BinIssues",
+                "BIN_ISSUES",
                 "Bin is overflowing",
-                null          // 👈 third argument
+                null
         );
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(u));
@@ -112,13 +112,13 @@ public class IssueImplementationTest {
 
         assertEquals(Issue.IssueStatus.NEW, toSave.getStatus());
         assertEquals(u, toSave.getRaisedBy());
-        assertEquals(Issue.IssueCategory.BinIssues, toSave.getIssueCategory());
+        assertEquals(Issue.IssueCategory.BIN_ISSUES, toSave.getIssueCategory());
     }
 
     @Test
     void createIssue_whenUserMissing_throwsEntityNotFound() {
         Long userId = 99L;
-        IssueCreateRequest req = new IssueCreateRequest("BinIssues", "x", null);
+        IssueCreateRequest req = new IssueCreateRequest("BIN_ISSUES", "x", null);
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 

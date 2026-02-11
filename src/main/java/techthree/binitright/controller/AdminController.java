@@ -22,6 +22,7 @@ import techthree.binitright.service.*;
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
+
     private final AdminInterface adminService;
     private final CheckInInterface checkInService;
     private final ForecastService forecastService;
@@ -29,6 +30,7 @@ public class AdminController {
     private final DigitalOceanStorageService digitalOceanStorageService;
     private final ReportRepository reportRepository;
     private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
+    private static final String CURRENT_PATH = "currentPath";
 
     public AdminController(AdminInterface adminService,
                            CheckInInterface checkInService,
@@ -47,7 +49,7 @@ public class AdminController {
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
 
-        model.addAttribute("currentPath", "/admin/dashboard");
+        model.addAttribute(CURRENT_PATH, "/admin/dashboard");
         model.addAttribute("issues",
                 issueService.getLatestIssuesForDashboard());
         model.addAttribute("newCount",
@@ -81,7 +83,7 @@ public class AdminController {
                     checkIn.getStatus(), checkIn.getFileName());
         }
 
-        model.addAttribute("currentPath", "/admin/checkin");
+        model.addAttribute(CURRENT_PATH, "/admin/checkin");
         model.addAttribute("checkIn", checkIn);
         model.addAttribute("adminUsername", principal.getName());
 
@@ -110,7 +112,7 @@ public class AdminController {
     public String checkinReviewList(Model model) {
         // Get all check-ins (you may want to filter by status)
         List<CheckIn> allCheckIns = checkInService.getAllCheckIns();
-        model.addAttribute("currentPath", "/admin/checkin");
+        model.addAttribute(CURRENT_PATH, "/admin/checkin");
         model.addAttribute("checkIns", allCheckIns);
         return "checkin-list";
     }
@@ -127,7 +129,7 @@ public class AdminController {
             reports = reportRepository.findAll();
         }
         model.addAttribute("allReports", reports);
-        model.addAttribute("currentPath", "/admin/sustainability-reports");
+        model.addAttribute(CURRENT_PATH, "/admin/sustainability-reports");
 
         return "sustainability-reports";
     }
