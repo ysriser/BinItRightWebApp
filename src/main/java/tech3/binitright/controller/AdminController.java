@@ -4,8 +4,9 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -22,43 +23,30 @@ import tech3.binitright.service.*;
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
+    private final AdminInterface adminService;
+    private final CheckInInterface checkInService;
+    private final ForecastService forecastService;
+    private final IssueInterface issueService;
+    private final DigitalOceanStorageService digitalOceanStorageService;
+    private final ReportRepository reportRepository;
+    private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
 
-    @Autowired
-    private AdminInterface adminService;
-
-    public void setAdminService(AdminImplementation adminserviceImp) {
-        this.adminService = adminserviceImp;
-    }
-
-    @Autowired
-    private CheckInInterface checkInService;
-
-    public void setcheckInService(CheckInImplementation checkInserviceImp) {
-        this.checkInService = checkInserviceImp;
-    }
-
-    @Autowired
-    private ForecastService forecastService;
-
-    public void setForecastService(ForecastService forecastService) {
+    public AdminController(AdminInterface adminService,
+                           CheckInInterface checkInService,
+                           ForecastService forecastService,
+                           IssueInterface issueService,
+                           DigitalOceanStorageService digitalOceanStorageService,
+                           ReportRepository reportRepository) {
+        this.adminService = adminService;
+        this.checkInService = checkInService;
         this.forecastService = forecastService;
+        this.issueService = issueService;
+        this.digitalOceanStorageService = digitalOceanStorageService;
+        this.reportRepository = reportRepository;
     }
-
-    @Autowired
-    private IssueInterface issueService;
-
-    public void setIssueService(IssueImplementation issueserviceImp) {
-        this.issueService = issueserviceImp;
-    }
-
-    @Autowired
-    private DigitalOceanStorageService digitalOceanStorageService;
-    @Autowired private ReportRepository reportRepository;
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
-
-        List<Issue> issues = issueService.getAllIssues();
 
         model.addAttribute("currentPath", "/admin/dashboard");
         model.addAttribute("issues",
@@ -71,10 +59,10 @@ public class AdminController {
                 checkInService.getPendingCheckIns()
         );
 
-                  model.addAttribute(
-                       "forecastData",
-                       forecastService.getForecastData()
-                 );
+        model.addAttribute(
+                "forecastData",
+                forecastService.getForecastData()
+        );
 
         return "admin-dashboard";
     }
@@ -82,7 +70,7 @@ public class AdminController {
     @GetMapping("/review/{checkInId}")
     public String reviewCheckIn(@PathVariable Long checkInId, Model model, Principal principal) {
         CheckIn checkIn = adminService.reviewCheckIn(checkInId);
-        String signedUrl = null;;
+        String signedUrl = null;
 
         if (checkIn.getStatus() == CheckIn.Status.PROCESSING
                 && checkIn.getFileName() != null) {
@@ -90,8 +78,8 @@ public class AdminController {
                     .generateSignedVideoUrl(checkIn.getFileName());
             model.addAttribute("signedVideoUrl", signedUrl);
         } else {
-            System.out.println("Video not added - Status: " + checkIn.getStatus()
-                    + ", FileName: " + checkIn.getFileName());
+            logger.info("Video not added - Status: {}, FileName: {}",
+                    checkIn.getStatus(), checkIn.getFileName());
         }
 
         model.addAttribute("currentPath", "/admin/checkin");
@@ -125,10 +113,10 @@ public class AdminController {
         List<CheckIn> allCheckIns = checkInService.getAllCheckIns();
         model.addAttribute("currentPath", "/admin/checkin");
         model.addAttribute("checkIns", allCheckIns);
-        return "checkin-list"; 
+        return "checkin-list";
     }
-      @GetMapping("/sustainability-reports")
-      public String showSustainabilityReports(
+    @GetMapping("/sustainability-reports")
+    public String showSustainabilityReports(
             @RequestParam(value = "month", required = false) Integer month,
             @RequestParam(value = "year", required = false) Integer year,
             Model model) {
@@ -137,12 +125,12 @@ public class AdminController {
         if (month != null && year != null) {
             reports = reportRepository.findByMonthAndYear(month, year);
         } else {
-           reports = reportRepository.findAll();
-       }
+            reports = reportRepository.findAll();
+        }
         model.addAttribute("allReports", reports);
         model.addAttribute("currentPath", "/admin/sustainability-reports");
 
-       return "sustainability-reports";
+        return "sustainability-reports";
     }
     @GetMapping("/forecast")// using to check api end point in load test for python
     @ResponseBody

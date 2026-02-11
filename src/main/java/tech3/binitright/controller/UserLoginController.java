@@ -27,6 +27,7 @@ public class UserLoginController {
     @Autowired
     private JwtUtil jwtUtil;
 
+
     @PostMapping("/login")
     public LoginResponse login(@RequestBody LoginRequest request) {
 
@@ -54,8 +55,6 @@ public class UserLoginController {
 
 
         String token = jwtUtil.generateToken(user);
-        System.out.println("User: " +  user.getId());
-
 
         return new LoginResponse(true, "Login success", token);
     }

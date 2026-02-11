@@ -22,7 +22,7 @@ class LeaderboardControllerTest {
 
     @BeforeEach
     void setUp() {
-        controller = new LeaderboardController();
+        controller = new LeaderboardController(checkInService);
         checkInService = Mockito.mock(CheckInInterface.class);
         ReflectionTestUtils.setField(controller, "checkInService", checkInService);
     }

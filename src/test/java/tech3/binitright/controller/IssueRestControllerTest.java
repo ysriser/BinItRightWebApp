@@ -28,9 +28,6 @@ class IssueRestControllerTest {
     void setUp() {
         issueService = Mockito.mock(IssueInterface.class);
         controller = new IssueRestController(issueService);
-
-        userService = Mockito.mock(UserInterface.class);
-        ReflectionTestUtils.setField(controller, "userService", userService);
     }
 
     @Test

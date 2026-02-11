@@ -5,12 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import tech3.binitright.interfacemethods.UserAccessoriesInterface;
-import tech3.binitright.interfacemethods.UserInterface;
-import tech3.binitright.model.Event;
-import tech3.binitright.model.User;
 import tech3.binitright.model.UserAccessories;
 import tech3.binitright.service.UserAccessoriesImplementation;
-import tech3.binitright.service.UserImplementation;
 
 import java.util.List;
 
@@ -22,16 +18,8 @@ public class UserAccessoriesRestController {
     private UserAccessoriesInterface userAccessoriesService;
 
     @Autowired
-    public void setUserAccessoriesService(UserAccessoriesImplementation userAccessoriesImplementation) {
+    public void setUserAccessoriesService(UserAccessoriesInterface userAccessoriesImplementation) {
         this.userAccessoriesService = userAccessoriesImplementation;
-    }
-
-    @Autowired
-    private UserInterface userService;
-
-    @Autowired
-    public void setUserService(UserImplementation userImplementation) {
-        this.userService = userImplementation;
     }
 
     @GetMapping("/my-items")

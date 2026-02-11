@@ -1,7 +1,6 @@
 package tech3.binitright.controller;
 
 import java.io.IOException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -12,30 +11,21 @@ import tech3.binitright.model.CheckIn;
 import tech3.binitright.model.User;
 import tech3.binitright.request.CheckInDataReq;
 import tech3.binitright.response.CheckInDataResponse;
-import tech3.binitright.service.CheckInImplementation;
-import tech3.binitright.service.UserImplementation;
 
 @RestController
 @RequestMapping("/api/checkin")
 public class CheckInController {
 
-	@Autowired
-	private CheckInInterface checkInService;
-	
-	public void setcheckInService(CheckInImplementation checkInserviceImp) {
-		this.checkInService = checkInserviceImp;
-	}
+    private final CheckInInterface checkInService;
+    private final UserInterface userService;
 
-    @Autowired
-    private UserInterface userService;
-
-    @Autowired
-    public void setUserService(UserImplementation userImplementation) {
-        this.userService = userImplementation;
+    public CheckInController(CheckInInterface checkInService,
+                             UserInterface userService) {
+        this.checkInService = checkInService;
+        this.userService = userService;
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
     public ResponseEntity<CheckInDataResponse> submitRecycleCheckIn(
             @RequestBody CheckInDataReq data, Authentication authentication) throws IOException{
         Long userId;

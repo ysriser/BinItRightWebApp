@@ -5,8 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Data
+@Getter
+@Setter
 @Table(name = "drop_off_location")
 public class DropOffLocation {
 
@@ -60,86 +66,6 @@ public class DropOffLocation {
 		this.latitude = latitude;
 		this.longitude = longitude;
 		this.status = status;
-		this.checkIn = checkIn;
-	}
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getAddress() {
-		return address;
-	}
-
-	public void setAddress(String address) {
-		this.address = address;
-	}
-
-	public String getPostalCode() {
-		return postalCode;
-	}
-
-	public void setPostalCode(String postalCode) {
-		this.postalCode = postalCode;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getBinType() {
-		return binType;
-	}
-
-	public void setBinType(String binType) {
-		this.binType = binType;
-	}
-
-	public BigDecimal getLatitude() {
-		return latitude;
-	}
-
-	public void setLatitude(BigDecimal latitude) {
-		this.latitude = latitude;
-	}
-
-	public BigDecimal getLongitude() {
-		return longitude;
-	}
-
-	public void setLongitude(BigDecimal longitude) {
-		this.longitude = longitude;
-	}
-
-	public Status getStatus() {
-		return status;
-	}
-
-	public void setStatus(Status status) {
-		this.status = status;
-	}
-
-	public List<CheckIn> getCheckIn() {
-		return checkIn;
-	}
-
-	public void setCheckIn(List<CheckIn> checkIn) {
 		this.checkIn = checkIn;
 	}
 

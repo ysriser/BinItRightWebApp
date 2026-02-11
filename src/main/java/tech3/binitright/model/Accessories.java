@@ -81,5 +81,4 @@ public class Accessories {
     public void setUserAccessories(List<UserAccessories> userAccessories) {
         this.userAccessories = userAccessories;
     }
-
 }

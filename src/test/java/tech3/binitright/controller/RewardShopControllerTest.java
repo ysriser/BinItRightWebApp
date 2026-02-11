@@ -41,7 +41,7 @@ public class RewardShopControllerTest {
         FakeRewardShopService fakeService = new FakeRewardShopService();
         JwtUtil jwtUtil = null;
 
-        RewardShopController controller = new RewardShopController(fakeService, jwtUtil);
+        RewardShopController controller = new RewardShopController(fakeService);
 
         Authentication auth = new UsernamePasswordAuthenticationToken("5", null, List.of());
 
@@ -58,7 +58,7 @@ public class RewardShopControllerTest {
         FakeRewardShopService fakeService = new FakeRewardShopService();
         JwtUtil jwtUtil = null;
 
-        RewardShopController controller = new RewardShopController(fakeService, jwtUtil);
+        RewardShopController controller = new RewardShopController(fakeService);
 
         Authentication auth = new UsernamePasswordAuthenticationToken("7", null, List.of());
 
