@@ -41,7 +41,7 @@ class IssueControllerTest {
     void viewIssues_ReturnsIssuesViewAndPopulatesModel() {
 
         Model model = new ExtendedModelMap();
-        List<Issue> mockIssues = List.of(new Issue(IssueCategory.BinIssues, "Broken Lid", IssueStatus.NEW, new User(), null));
+        List<Issue> mockIssues = List.of(new Issue(IssueCategory.BIN_ISSUES, "Broken Lid", IssueStatus.NEW, new User(), null));
 
         when(issueService.getAllIssues()).thenReturn(mockIssues);
         when(issueService.countByStatus(IssueStatus.NEW)).thenReturn(1L);
@@ -63,7 +63,7 @@ class IssueControllerTest {
     void viewIssue_ReturnsSingleIssueView() {
 
         Model model = new ExtendedModelMap();
-        Issue mockIssue = new Issue(IssueCategory.AppProblems, "Login bug", IssueStatus.NEW, new User(), null);
+        Issue mockIssue = new Issue(IssueCategory.APP_PROBLEMS, "Login bug", IssueStatus.NEW, new User(), null);
         when(issueService.getIssueById(1L)).thenReturn(mockIssue);
 
         // Act

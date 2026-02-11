@@ -28,8 +28,8 @@ public class News {
 	    private String imageUrl;
         
 	    public enum Status {
-	        Completed,
-	        Upcoming
+	        COMPLETED,
+	        UPCOMING
 	    }
 
         @Column(name = "published_date")
