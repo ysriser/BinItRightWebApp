@@ -88,7 +88,7 @@ public class Event {
     }
 
     public void setLocationName(String location) {
-        this.locationName = locationName;
+        this.locationName = location;
     }
 
     public String getPostalCode() {
