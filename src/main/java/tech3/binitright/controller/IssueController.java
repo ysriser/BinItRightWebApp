@@ -1,5 +1,6 @@
 package tech3.binitright.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import java.util.List;
@@ -10,19 +11,27 @@ import tech3.binitright.interfacemethods.IssueInterface;
 import tech3.binitright.model.Admin;
 import tech3.binitright.model.Issue;
 import tech3.binitright.model.Issue.IssueStatus;
+import tech3.binitright.service.AdminImplementation;
+import tech3.binitright.service.IssueImplementation;
 
 @Controller
 @RequestMapping("/admin/issues")
 public class IssueController {
 
-    private final IssueInterface issueService;
-    private final AdminInterface adminService;
+    @Autowired
+    private IssueInterface issueService;
 
-    public IssueController(IssueInterface issueService,
-                           AdminInterface adminService) {
-        this.issueService = issueService;
-        this.adminService = adminService;
+    public void setIssueService(IssueImplementation issueserviceImp) {
+        this.issueService = issueserviceImp;
     }
+
+    @Autowired
+    private AdminInterface adminService;
+
+    public void setAdminService(AdminImplementation adminserviceImp) {
+        this.adminService = adminserviceImp;
+    }
+
 
     @GetMapping
     public String viewIssues(Model model) {

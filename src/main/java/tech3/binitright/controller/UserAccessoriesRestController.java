@@ -1,20 +1,25 @@
 package tech3.binitright.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import tech3.binitright.interfacemethods.UserAccessoriesInterface;
 import tech3.binitright.model.UserAccessories;
+import tech3.binitright.service.UserAccessoriesImplementation;
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/user-accessories")
 public class UserAccessoriesRestController {
 
-    private final UserAccessoriesInterface userAccessoriesService;
+    @Autowired
+    private UserAccessoriesInterface userAccessoriesService;
 
-    public UserAccessoriesRestController(UserAccessoriesInterface userAccessoriesService) {
-        this.userAccessoriesService = userAccessoriesService;
+    @Autowired
+    public void setUserAccessoriesService(UserAccessoriesImplementation userAccessoriesImplementation) {
+        this.userAccessoriesService = userAccessoriesImplementation;
     }
 
     @GetMapping("/my-items")

@@ -13,8 +13,7 @@ import tech3.binitright.interfacemethods.UserAccessoriesInterface;
 import tech3.binitright.interfacemethods.UserInterface;
 import tech3.binitright.model.User;
 import tech3.binitright.model.UserAccessories;
-import tech3.binitright.service.EmissionService;
-import tech3.binitright.service.AchievementImplementation;
+import tech3.binitright.service.*;
 
 import java.math.BigDecimal;
 
@@ -24,26 +23,40 @@ public class SummaryRestController {
 
     @Autowired
     private EmissionService emissionService;
+    @Autowired
+    private UserInterface userService;
+
+    @Autowired
+    public void setUserService(UserImplementation userImplementation) {
+        this.userService = userImplementation;
+    }
+
+    @Autowired
+    private CheckInInterface checkInService;
+
+    public void setcheckInService(CheckInImplementation checkInserviceImp) {
+        this.checkInService = checkInserviceImp;
+    }
+
+    @Autowired
+    private ChatInterface chatService;
+
+    @Autowired
+    public void setChatService(ChatImplementation chatInserviceImp) {
+        this.chatService = chatInserviceImp;
+    }
+
+    @Autowired
+    private UserAccessoriesInterface userAccessoriesService;
 
     @Autowired
     private AchievementImplementation achievementService;
 
-    private final UserInterface userService;
-    private final CheckInInterface checkInService;
-    private final ChatInterface chatService;
-    private final UserAccessoriesInterface userAccessoriesService;
-
-    public SummaryRestController(
-            UserInterface userService,
-            CheckInInterface checkInService,
-            ChatInterface chatService,
-            UserAccessoriesInterface userAccessoriesService) {
-
-        this.userService = userService;
-        this.checkInService = checkInService;
-        this.chatService = chatService;
-        this.userAccessoriesService = userAccessoriesService;
+    @Autowired
+    public void setUserAccessoriesService(UserAccessoriesImplementation userAccessoriesImplementation) {
+        this.userAccessoriesService = userAccessoriesImplementation;
     }
+
 
     @GetMapping("/profile")
     public ResponseEntity<?> getProfileSummary(Authentication authentication) {

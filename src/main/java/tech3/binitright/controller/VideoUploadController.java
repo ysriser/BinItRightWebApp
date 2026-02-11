@@ -1,19 +1,22 @@
 package tech3.binitright.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import tech3.binitright.interfacemethods.VideoUploadInterface;
 import tech3.binitright.request.PresignedUploadRequest;
 import tech3.binitright.response.PresignedUploadResponse;
+import tech3.binitright.service.VideoUploadImplementation;
 
 @RestController
 @RequestMapping("/api/videos")
 @CrossOrigin(origins = "*")
 public class VideoUploadController {
 
-    private final VideoUploadInterface videoService;
+    @Autowired
+    private VideoUploadInterface videoService;
 
-    public VideoUploadController(VideoUploadInterface videoService) {
-        this.videoService = videoService;
+    public void setVideoService(VideoUploadImplementation videoserviceImp) {
+        this.videoService = videoserviceImp;
     }
 
     @PostMapping("/presign-upload")

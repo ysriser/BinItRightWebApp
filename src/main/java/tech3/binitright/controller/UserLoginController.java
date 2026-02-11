@@ -1,5 +1,6 @@
 package tech3.binitright.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -17,17 +18,14 @@ import java.util.List;
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "*")
 public class UserLoginController {
-    private final UserInterface userService;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
+    @Autowired
+    private UserInterface userService;
 
-    public UserLoginController(UserInterface userService,
-                         PasswordEncoder passwordEncoder,
-                         JwtUtil jwtUtil) {
-        this.userService = userService;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtUtil = jwtUtil;
-    }
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
 
     @PostMapping("/login")

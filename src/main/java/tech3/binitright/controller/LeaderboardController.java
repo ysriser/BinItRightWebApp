@@ -2,6 +2,7 @@ package tech3.binitright.controller;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,7 +15,8 @@ import tech3.binitright.interfacemethods.CheckInInterface;
 @RequestMapping("/api/leaderboard")
 public class LeaderboardController {
 
-    private final CheckInInterface checkInService;
+    @Autowired
+    private CheckInInterface checkInService;
 
     public LeaderboardController(CheckInInterface checkInService) {
         this.checkInService = checkInService;
