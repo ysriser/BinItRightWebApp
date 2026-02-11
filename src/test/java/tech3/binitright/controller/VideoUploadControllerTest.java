@@ -1,4 +1,4 @@
-package tech3.binitright.service;
+package tech3.binitright.controller;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
@@ -8,6 +8,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 import tech3.binitright.response.PresignedUploadResponse;
+import tech3.binitright.service.VideoUploadImplementation;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -17,7 +18,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class VideoUploadImplementationTest {
+class VideoUploadControllerTest {
 
     private VideoUploadImplementation service;
     private AmazonS3 s3Client;

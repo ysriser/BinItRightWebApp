@@ -40,7 +40,14 @@ class UserSeederTest {
         dropOffRepo = Mockito.mock(DropOffLocationRepository.class);
         checkInRepo = Mockito.mock(CheckInRepository.class);
 
-        userSeeder = new UserSeeder(userService, wasteRepo, dropOffRepo, checkInRepo);
+        userSeeder = new UserSeeder(userService,
+                wasteRepo,
+                dropOffRepo,
+                checkInRepo,
+                accessoriesService,
+                issueService,
+                userAccessoriesService,
+                adminService);
 
         accessoriesService = Mockito.mock(AccessoriesInterface.class);
         userAccessoriesService = Mockito.mock(UserAccessoriesInterface.class);
