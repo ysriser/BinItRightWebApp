@@ -1,6 +1,5 @@
 package tech3.binitright.controller;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import tech3.binitright.interfacemethods.VideoUploadInterface;
@@ -19,7 +18,6 @@ public class VideoUploadController {
     public void setVideoService(VideoUploadImplementation videoserviceImp) {
         this.videoService = videoserviceImp;
     }
-
 
     @PostMapping("/presign-upload")
     public PresignedUploadResponse presignUpload(

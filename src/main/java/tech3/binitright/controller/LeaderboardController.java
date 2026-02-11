@@ -18,6 +18,10 @@ public class LeaderboardController {
     @Autowired
     private CheckInInterface checkInService;
 
+    public LeaderboardController(CheckInInterface checkInService) {
+        this.checkInService = checkInService;
+    }
+
     @GetMapping
     public ResponseEntity<List<LeaderboardDTO>> getMonthlyLeaderboard() {
         final List<LeaderboardDTO> leaderboard = checkInService.getMonthlyLeaderboard();

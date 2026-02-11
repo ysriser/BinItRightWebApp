@@ -148,6 +148,4 @@ public class Issue {
 		this.resolvedBy = resolvedBy;
 	}
 
-
-    
 }

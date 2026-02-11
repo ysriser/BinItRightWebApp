@@ -1,6 +1,5 @@
 package tech3.binitright.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -26,10 +25,17 @@ import java.util.zip.ZipOutputStream;
 @RequestMapping("/admin/report")
 public class ReportController {
 
-    @Autowired private ReportInterface reportService;
-    @Autowired private ReportRepository reportRepository;
-    @Autowired private AdminRepository adminRepository;
+    private final ReportInterface reportService;
+    private final ReportRepository reportRepository;
+    private final AdminRepository adminRepository;
 
+    public ReportController(ReportInterface reportService,
+                            ReportRepository reportRepository,
+                            AdminRepository adminRepository) {
+        this.reportService = reportService;
+        this.reportRepository = reportRepository;
+        this.adminRepository = adminRepository;
+    }
 
     @PostMapping("/generate")
     public String generateNewReport(@RequestParam("month") int month,

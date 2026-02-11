@@ -85,7 +85,6 @@ public class UserSeeder {
             for (SeedUser su : usersToSeed) {
 
                 if (!userService.findByUsername(su.username()).isEmpty()){
-                    System.out.println(">>> UserSeeder: " + su.username() + " already exists, skipping.");
                     continue;
                 }
 
@@ -133,7 +132,6 @@ public class UserSeeder {
 
             // Skip if already seeded
             if (wasteRepo.count() > 0) {
-                System.out.println(">>> Waste categories already exist, skipping");
                 return;
             }
 
@@ -224,7 +222,6 @@ public class UserSeeder {
             DropOffLocation d1 = dropOffRepo.findById("06383D31CA5CC778").orElseThrow();
             DropOffLocation d2 = dropOffRepo.findById("06193A57B84223C5").orElseThrow();
             DropOffLocation d3 = dropOffRepo.findById("2485B751C8B77474").orElseThrow();
-
             CheckIn c1 = new CheckIn();
             c1.setUser(user);
             c1.setDropOffLocation(d1);
@@ -268,7 +265,6 @@ public class UserSeeder {
     public CommandLineRunner seedIssues() {
         return args -> {
             if (!issueService.findAll().isEmpty()) {
-                System.out.println(">>> Issues already exist, skipping.");
                 return;
             }
 
