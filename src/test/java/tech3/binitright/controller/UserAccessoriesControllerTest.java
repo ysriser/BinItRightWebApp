@@ -10,6 +10,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import tech3.binitright.interfacemethods.UserAccessoriesInterface;
 import tech3.binitright.interfacemethods.UserInterface;
 import tech3.binitright.model.UserAccessories;
+import tech3.binitright.service.UserAccessoriesImplementation;
 
 import java.util.List;
 
@@ -21,15 +22,13 @@ class UserAccessoriesRestControllerTest {
 
     private UserAccessoriesRestController controller;
     private UserAccessoriesInterface userAccessoriesService;
-    private UserInterface userService;
 
     @BeforeEach
     void setUp() {
         controller = new UserAccessoriesRestController();
         userAccessoriesService = Mockito.mock(UserAccessoriesInterface.class);
-        userService = Mockito.mock(UserInterface.class);
-        ReflectionTestUtils.setField(controller, "userAccessoriesService", userAccessoriesService);
-        ReflectionTestUtils.setField(controller, "userService", userService);
+
+        controller.setUserAccessoriesService(userAccessoriesService);
     }
 
     @Test

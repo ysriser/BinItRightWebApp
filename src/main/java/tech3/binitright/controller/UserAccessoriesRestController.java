@@ -18,7 +18,7 @@ public class UserAccessoriesRestController {
     private UserAccessoriesInterface userAccessoriesService;
 
     @Autowired
-    public void setUserAccessoriesService(UserAccessoriesImplementation userAccessoriesImplementation) {
+    public void setUserAccessoriesService(UserAccessoriesInterface userAccessoriesImplementation) {
         this.userAccessoriesService = userAccessoriesImplementation;
     }
 
