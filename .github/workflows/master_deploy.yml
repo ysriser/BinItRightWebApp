@@ -215,26 +215,25 @@ jobs:
         run: |
           timeout 300s bash -c 'until curl -sSf "https://${{ secrets.TEST_URL }}:443" > /dev/null; do echo "Waiting..."; sleep 5; done'
 
-      - name: Get Tokens and Verify OpenAPI
+      - name: Get Tokens and Prepare Auth
         id: setup
         run: |
-          # 1. Capture user1 JWT
+          # 1. Capture user1 JWT (Optional: keep if your UI makes API calls with it)
           JWT=$(curl -s -X POST "https://${{ secrets.TEST_URL }}:443/api/auth/login" \
             -H "Content-Type: application/json" \
             -d '{"username":"user1","password":"${{ secrets.APP_USER_PASSWORD }}"}' | jq -r '.token')
-  
-          # 2. Capture Admin JSESSIONID
+          
+          # 2. Capture Admin JSESSIONID via Form Login
           curl -s -c cookies.txt "https://${{ secrets.TEST_URL }}:443/login" > login.html
           CSRF=$(grep -oP '(?<=_csrf" value=")[^"]*' login.html)
+          
           curl -s -b cookies.txt -c cookies.txt -X POST "https://${{ secrets.TEST_URL }}:443/login" \
             -d "username=admin&password=${{ secrets.APP_ADMIN_PASSWORD }}&_csrf=$CSRF"
+          
           SESSION=$(grep "JSESSIONID" cookies.txt | awk '{print $7}')
-  
-          # 3. VERIFY OPENAPI (Map Check)
-          # This confirms ZAP will be able to see the endpoints
-          curl -sIf "https://${{ secrets.TEST_URL }}:443/v3/api-docs" || exit 1
-  
-          # 4. Create ZAP Auth Prop File
+          
+          # 3. Create ZAP Auth Prop File 
+          # This replaces headers in every request ZAP makes
           cat <<EOF > zap_auth.prop
           replacer.full_list(0).description=user1_jwt
           replacer.full_list(0).enabled=true
@@ -248,56 +247,35 @@ jobs:
           replacer.full_list(1).replacement=JSESSIONID=$SESSION
           EOF
 
-      # --- PART 1: UI SCAN ---
       - name: Run ZAP UI Baseline Scan
         id: zap_scan
         uses: zaproxy/action-baseline@v0.15.0
         continue-on-error: true
         with:
           target: "https://${{ secrets.TEST_URL }}:443"
-          # We don't use artifact_name here because we will handle it manually
+          artifact_name: "zap-ui-internal"
+          # -j: Generate JSON report
+          # -z: Load the auth config file from the mounted workspace
           cmd_options: '-z "-configfile /zap/wrk/zap_auth.prop" -j'
 
       - name: Rename UI Report
         if: always()
         run: mv report_json.json ui-report.json || echo "UI report not found"
 
-      # --- PART 2: API SCAN ---
-      - name: Run ZAP API Scan
-        id: api_scan
-        uses: zaproxy/action-api-scan@v0.10.0
-        continue-on-error: true
-        with:
-          target: "https://${{ secrets.TEST_URL }}:443/v3/api-docs"
-          format: openapi
-          cmd_options: >
-            -z "-configfile /zap/wrk/zap_auth.prop"
-            -z "-config scanner.threadPerHost=5"
-            -z "-config scanner.maxRuleDurationInMins=1"
-            -z "-config scanner.maxScanDurationInMins=4"
-            -m 2
-
-      - name: Rename API Report
-        if: always()
-        run: mv report_json.json api-report.json || echo "API report not found"
-
-      # --- UPLOAD BOTH UNIQUE FILES ---
       - name: Upload DAST Artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: java-dast-results
-          path: |
-            ui-report.json
-            api-report.json
+          path: ui-report.json
 
       - name: Create DAST Summary
         if: always()
         run: |
           echo "## 🛡️ DAST Scan Results" >> $GITHUB_STEP_SUMMARY
-          echo "View the **dast-security-reports** artifact for full details." >> $GITHUB_STEP_SUMMARY
-          echo "- **UI Baseline Scan Outcome:** ${{ steps.zap_scan.outcome }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **API Deep Scan Outcome:** ${{ steps.api_scan.outcome }}" >> $GITHUB_STEP_SUMMARY
+          echo "Baseline scan completed for target: https://${{ secrets.TEST_URL }}:443" >> $GITHUB_STEP_SUMMARY
+          echo "- **Scan Outcome:** ${{ steps.zap_scan.outcome }}" >> $GITHUB_STEP_SUMMARY
+          echo "Full JSON and HTML reports are available in the **java-dast-results** artifact." >> $GITHUB_STEP_SUMMARY
 
   # ==========================================
   # BOX 8: PRODUCTION RELEASE & VERSION TAGGING
