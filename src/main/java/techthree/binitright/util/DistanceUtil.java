@@ -2,6 +2,8 @@ package techthree.binitright.util;
 
 public class DistanceUtil {
 
+    private DistanceUtil() {}
+
     private static final double EARTH_RADIUS = 6371000; // meters
 
     public static double distanceInMeters(
