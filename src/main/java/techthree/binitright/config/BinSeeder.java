@@ -7,9 +7,12 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import techthree.binitright.service.BinDataImporter;
 
+import java.util.logging.Logger;
+
 @Configuration
 public class BinSeeder {
 
+    Logger logger = Logger.getLogger(getClass().getName());
     private final BinDataImporter importer;
 
     public BinSeeder(BinDataImporter importer) {
@@ -21,9 +24,9 @@ public class BinSeeder {
     @Profile({"default", "prod", "test"})
     public CommandLineRunner seedBinsOnStartup() {
         return args -> {
-            System.out.println(">>> Bin Seeding started");
+            logger.info(">>> Bin Seeding started");
             importer.importData();
-            System.out.println(">>> Bin Seeding completed");
+            logger.info(">>> Bin Seeding completed");
         };
     }
 }
