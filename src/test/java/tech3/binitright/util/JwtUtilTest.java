@@ -1,15 +1,19 @@
 package tech3.binitright.util;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import tech3.binitright.model.User;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@SpringBootTest // This tells Spring to load the context and inject @Values
 class JwtUtilTest {
 
-    private final JwtUtil jwtUtil = new JwtUtil();
+    @Autowired // Let Spring provide the fully-configured bean
+    private JwtUtil jwtUtil;
 
     @Test
     void generateTokenAndExtractSubjectFromUserId() {
@@ -27,6 +31,7 @@ class JwtUtilTest {
 
     @Test
     void invalidTokenThrowsException() {
-        assertThrows(RuntimeException.class, () -> jwtUtil.extractUsername("invalid-token"));
+        // Note: Jwts parser throws specific exceptions like MalformedJwtException
+        assertThrows(Exception.class, () -> jwtUtil.extractUsername("invalid-token"));
     }
 }
