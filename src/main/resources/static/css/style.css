@@ -23,24 +23,15 @@ body.login-page {
 }
 
 .logo-circle {
-    background-color: #00A643; /* The green from your image */
+    background-color: #00A643;
     width: 60px;
     height: 60px;
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
+    /* This survives because it wasn't overridden by the second block */
     margin: 0 auto 20px;
-}
-
-.logo-circle {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #00A643; /* Your green background */
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
 }
 
 /* This targets the Font Awesome icon specifically */
@@ -90,8 +81,8 @@ h1 {
 
 .login-btn {
     width: 100%;
-    background-color: #00A643;
-    color: white;
+    background-color: #00A643; /* Your Original Green */
+    color: #00220d;
     padding: 14px;
     border: none;
     border-radius: 8px;
@@ -106,7 +97,7 @@ h1 {
 }
 
 .error-msg {
-    color: #d9534f;
+    color: #a31d1d;
     background: #fdf7f7;
     padding: 10px;
     border-radius: 5px;

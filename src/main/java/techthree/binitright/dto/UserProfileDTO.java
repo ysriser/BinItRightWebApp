@@ -42,5 +42,5 @@ public class UserProfileDTO {
     public void setTotalAchievements(int totalAchievements) { this.totalAchievements = totalAchievements; }
 
     public float getCarbonEmissionSaved() { return carbonEmissionSaved; }
-    public void setCarbonEmissionSaved() { this.carbonEmissionSaved = carbonEmissionSaved; }
+    public void setCarbonEmissionSaved(float carbonEmissionSaved) { this.carbonEmissionSaved = carbonEmissionSaved; }
 }
