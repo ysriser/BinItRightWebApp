@@ -75,6 +75,8 @@ import java.util.Map;
 public class OpenAIClient implements LlmClient {
 
     private final WebClient webClient;
+    private static final String CONTENT_KEY = "content";
+
 
     public OpenAIClient(
             @Value("${openai.base-url}") String baseUrl,
@@ -93,8 +95,8 @@ public class OpenAIClient implements LlmClient {
         Map<String, Object> body = Map.of(
                 "model", model,
                 "messages", List.of(
-                        Map.of("role", "system", "content", systemPrompt),
-                        Map.of("role", "user", "content", userMessage)
+                        Map.of("role", "system", CONTENT_KEY, systemPrompt),
+                        Map.of("role", "user", CONTENT_KEY, userMessage)
                 )
         );
 
@@ -114,7 +116,7 @@ public class OpenAIClient implements LlmClient {
             Map<String, Object> choice0 = (Map<String, Object>) choices.get(0);
             Map<String, Object> message = (Map<String, Object>) choice0.get("message");
 
-            Object content = (message != null) ? message.get("content") : null;
+            Object content = (message != null) ? message.get(CONTENT_KEY) : null;
             return content != null ? content.toString() : fallback();
 
         } catch (Exception e) {
