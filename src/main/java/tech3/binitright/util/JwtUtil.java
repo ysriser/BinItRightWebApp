@@ -3,6 +3,7 @@ package tech3.binitright.util;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import tech3.binitright.model.User;
 import java.nio.charset.StandardCharsets;
@@ -10,8 +11,9 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-    private static final String SECRET =
-            "binitright-super-secret-key-32-chars-min";
+
+    @Value("${JWT_SECRET}")
+    private String jwtSecret;
 
     private static final long EXPIRY_MS =
             24 * 60 * 60 * 1000; // 1 day
@@ -24,7 +26,7 @@ public class JwtUtil {
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRY_MS))
                 .signWith(
-                        Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8)),
+                        Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8)),
                         SignatureAlgorithm.HS256
                 )
                 .compact();
@@ -32,7 +34,7 @@ public class JwtUtil {
 
     public String extractUsername(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(SECRET.getBytes(StandardCharsets.UTF_8))
+                .setSigningKey(jwtSecret.getBytes(StandardCharsets.UTF_8))
                 .build()
                 .parseClaimsJws(token)
                 .getBody()

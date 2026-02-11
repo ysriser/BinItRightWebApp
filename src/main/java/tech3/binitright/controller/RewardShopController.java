@@ -3,6 +3,7 @@ package tech3.binitright.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tech3.binitright.dto.ShopItemDTO;
+import tech3.binitright.interfacemethods.RewardShopInterface;
 import tech3.binitright.response.RedeemResponse;
 import tech3.binitright.service.RewardShopService;
 import tech3.binitright.util.JwtUtil;
@@ -14,10 +15,10 @@ import java.util.List;
 @RequestMapping("/api/reward-shop")
 @CrossOrigin(origins = "*")
 public class RewardShopController {
-    private final RewardShopService rewardShopService;
+    private final RewardShopInterface rewardShopService;
 
     public RewardShopController(
-            RewardShopService rewardShopService
+            RewardShopInterface rewardShopService
     ) {
         this.rewardShopService = rewardShopService;
     }

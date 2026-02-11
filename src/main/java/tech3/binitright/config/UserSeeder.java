@@ -1,6 +1,7 @@
 package tech3.binitright.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,33 +20,37 @@ import java.util.List;
 @Configuration
 public class UserSeeder {
 
+    @Value("${APP_USER_PASSWORD}")
+    private String userPassword;
+
     private final UserInterface userService;
     private final WasteCategoryRepository wasteRepo;
     private final DropOffLocationRepository dropOffRepo;
     private final CheckInRepository checkInRepo;
+    private final AccessoriesInterface accessoriesService;
+    private final IssueInterface issueService;
+    private final UserAccessoriesInterface userAccessoriesService;
+    private final AdminInterface adminService;
 
-    @Autowired
-    private AccessoriesInterface accessoriesService;
-
-    @Autowired
-    private IssueInterface issueService;
-
-    @Autowired
-    private UserAccessoriesInterface userAccessoriesService;
-
-    @Autowired
-    private AdminInterface adminService;
-
-    public UserSeeder(final UserInterface userService,
-                      final WasteCategoryRepository wasteRepo,
-                      final DropOffLocationRepository dropOffRepo,
-                      final CheckInRepository checkInRepo) {
+    public UserSeeder(
+            UserInterface userService,
+            WasteCategoryRepository wasteRepo,
+            DropOffLocationRepository dropOffRepo,
+            CheckInRepository checkInRepo,
+            AccessoriesInterface accessoriesService,
+            IssueInterface issueService,
+            UserAccessoriesInterface userAccessoriesService,
+            AdminInterface adminService
+    ) {
         this.userService = userService;
         this.wasteRepo = wasteRepo;
         this.dropOffRepo = dropOffRepo;
         this.checkInRepo = checkInRepo;
+        this.accessoriesService = accessoriesService;
+        this.issueService = issueService;
+        this.userAccessoriesService = userAccessoriesService;
+        this.adminService = adminService;
     }
-
     @Bean
     @Order(5)
     @Profile({"test", "prod", "default"}) // Avoid running this in "prod" to keep the DB clean
@@ -75,7 +80,7 @@ public class UserSeeder {
                 user.setEmailAddress(su.email());
                 user.setName(su.name());
                 user.setRole("USER");
-                user.setPassword_hash(passwordEncoder.encode("password"));
+                user.setPassword_hash(passwordEncoder.encode(userPassword));
 
                 user.setPointBalance(1000);
                 user.setCurrentRank(1);

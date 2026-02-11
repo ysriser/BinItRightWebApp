@@ -3,6 +3,7 @@ package tech3.binitright.service;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import tech3.binitright.dto.ShopItemDTO;
+import tech3.binitright.interfacemethods.RewardShopInterface;
 import tech3.binitright.response.RedeemResponse;
 import tech3.binitright.model.Accessories;
 import tech3.binitright.model.User;
@@ -14,7 +15,7 @@ import tech3.binitright.repository.UserRepository;
 import java.util.List;
 
 @Service
-public class RewardShopService {
+public class RewardShopService implements RewardShopInterface {
     private final UserRepository userRepository;
     private final AccessoriesRepository accessoryRepository;
     private final UserAccessoriesRepository userAccessoriesRepository;

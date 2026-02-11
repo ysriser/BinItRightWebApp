@@ -41,7 +41,7 @@ public class Report {
 		return reportId;
 	}
 
-	public void setReportId(Long reportIdId) {
+	public void setReportId(Long reportId) {
 		this.reportId = reportId;
 	}
 

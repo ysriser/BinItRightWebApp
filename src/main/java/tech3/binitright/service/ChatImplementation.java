@@ -5,18 +5,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tech3.binitright.ai.OpenAIClient;
 import tech3.binitright.interfacemethods.ChatInterface;
+import tech3.binitright.interfacemethods.LlmClient;
 
 @Service
 @Transactional
 public class ChatImplementation implements ChatInterface{
 
-    private final OpenAIClient openAIClient;
+    private final LlmClient llmClient;
 
     @Value("${openai.model}")
     private String model;
 
-    public ChatImplementation(OpenAIClient openAIClient) {
-        this.openAIClient = openAIClient;
+    public ChatImplementation(LlmClient llmClient) {
+        this.llmClient = llmClient;
     }
 
     public String askRecyclingAssistant(String userMessage) {
@@ -52,7 +53,7 @@ Tone and style:
 Always focus on helping the user dispose of the detected item correctly in Singapore.
 """;
 
-            return openAIClient.chat(model, systemPrompt, userMessage);
+            return llmClient.chat(model, systemPrompt, userMessage);
 
         } catch (Exception ex) {
             return "Recycling assistant is temporarily unavailable. Please try again later.";
@@ -93,13 +94,12 @@ Write the dashboard AI progress summary.
                     totalRecycledItems
             );
 
-            return openAIClient.chat(model, systemPrompt, userPrompt);
+            return llmClient.chat(model, systemPrompt, userPrompt);
 
         } catch (Exception ex) {
             // graceful fallback if OpenAI fails
             return "You're making a real environmental impact 🌱 Keep recycling to climb higher and save more CO₂!";
         }
     }
-
 
 }
