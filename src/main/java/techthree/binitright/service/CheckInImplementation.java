@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -26,7 +27,9 @@ import techthree.binitright.request.CheckInDataReq;
 @Transactional
 public class CheckInImplementation implements CheckInInterface {
 
-	@Autowired
+    Logger logger = Logger.getLogger(getClass().getName());
+
+    @Autowired
 	private CheckInRepository checkInRepository;
 	
 	@Autowired
@@ -115,7 +118,7 @@ public class CheckInImplementation implements CheckInInterface {
 				achievementImplementation.unlockAchievement(user.getId(), 8L);
 			}
 		} catch (final Exception e) {
-			System.err.println("Error unlocking achievements: " + e.getMessage());
+			logger.info("Error unlocking achievements: " + e.getMessage());
 		}
 	}
 
