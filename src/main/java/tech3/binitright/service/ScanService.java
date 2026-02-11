@@ -63,6 +63,26 @@ public class ScanService implements ScanInterface {
     @Value("${scan.tier2.openai.verbosity:low}")
     private String openAiVerbosity;
 
+    private static final String OPENAI_REQUEST_FAILED = "OpenAI request failed";
+
+    private static final String CONTENT_KEY = "content";
+
+    private static final String TYPE_STRING = "string";
+
+    private static final String MAX_LENGTH = "maxLength";
+
+    private static final String MIN_LENGTH = "minLength";
+
+    private static final String UNKNOWN = "unknown";
+
+    private static final String ERROR_MESSAGE = "message";
+
+    private static final String KEY_INSTRUCTIONS = "instructions";
+
+    private static final String KEY_INSTRUCTION = "instruction";
+
+    private static final String KEY_RECYCLABLE = "recyclable";
+
     public ScanService(final ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
@@ -394,10 +414,10 @@ public class ScanService implements ScanInterface {
 
         final Map<String, Object> result = new HashMap<>();
         result.put("category", category);
-        result.put("recyclable", recyclable);
+        result.put(KEY_RECYCLABLE, recyclable);
         result.put("confidence", clampConfidence(confidence));
-        result.put("instruction", safeInstruction);
-        result.put("instructions", safeInstructions);
+        result.put(KEY_INSTRUCTION, safeInstruction);
+        result.put(KEY_INSTRUCTIONS, safeInstructions);
         return result;
     }
 
@@ -431,7 +451,7 @@ public class ScanService implements ScanInterface {
             final Map<String, Object> error = new HashMap<>();
             error.put("type", "auth");
             error.put("code", "missing_api_key");
-            error.put("message", "OPENAI_API_KEY or LLM_API_KEY is not set");
+            error.put(ERROR_MESSAGE, "OPENAI_API_KEY or LLM_API_KEY is not set");
             throw new OpenAiCallException(error);
         }
 
@@ -468,14 +488,14 @@ public class ScanService implements ScanInterface {
             final Map<String, Object> error = new HashMap<>();
             error.put("type", "timeout");
             error.put("code", "timeout");
-            error.put("message", "OpenAI request timeout or network error");
+            error.put(ERROR_MESSAGE, "OpenAI request timeout or network error");
             throw new OpenAiCallException(error);
         } catch (IOException ex) {
             throw unknownOpenAiError("Failed to read image bytes");
         } catch (OpenAiCallException ex) {
             throw ex;
         } catch (Exception ex) {
-            throw unknownOpenAiError(ex.getMessage() == null ? "unknown" : ex.getMessage());
+            throw unknownOpenAiError(ex.getMessage() == null ? UNKNOWN : ex.getMessage());
         }
     }
 
@@ -493,18 +513,18 @@ public class ScanService implements ScanInterface {
         final Map<String, Object> schema = new HashMap<>();
         schema.put("type", "object");
         schema.put("additionalProperties", false);
-        schema.put("required", List.of("category", "recyclable", "confidence", "instruction", "instructions"));
+        schema.put("required", List.of("category", KEY_RECYCLABLE, "confidence", KEY_INSTRUCTION, KEY_INSTRUCTIONS));
 
         final Map<String, Object> properties = new HashMap<>();
-        properties.put("category", Map.of("type", "string", "minLength", 1, "maxLength", 80));
-        properties.put("recyclable", Map.of("type", "boolean"));
+        properties.put("category", Map.of("type", TYPE_STRING, MIN_LENGTH, 1, MAX_LENGTH, 80));
+        properties.put(KEY_RECYCLABLE, Map.of("type", "boolean"));
         properties.put("confidence", Map.of("type", "number", "minimum", 0, "maximum", 1));
-        properties.put("instruction", Map.of("type", "string", "minLength", 1, "maxLength", 140));
-        properties.put("instructions", Map.of(
+        properties.put(KEY_INSTRUCTION, Map.of("type", TYPE_STRING, MIN_LENGTH, 1, MAX_LENGTH, 140));
+        properties.put(KEY_INSTRUCTIONS , Map.of(
                 "type", "array",
                 "minItems", 2,
                 "maxItems", 8,
-                "items", Map.of("type", "string", "minLength", 1, "maxLength", 180)
+                "items", Map.of("type", TYPE_STRING, MIN_LENGTH, 1, MAX_LENGTH, 180)
         ));
         schema.put("properties", properties);
 
@@ -526,7 +546,7 @@ public class ScanService implements ScanInterface {
         final double tier1Confidence = toDouble(tier1.get("confidence"));
         final boolean tier1HighlyUncertain = "other_uncertain".equals(tier1Category)
                 || "uncertain".equals(tier1Category)
-                || "unknown".equals(tier1Category)
+                || UNKNOWN.equals(tier1Category)
                 || tier1Confidence < confThreshold;
 
         final String tier1Hint;
@@ -567,11 +587,11 @@ public class ScanService implements ScanInterface {
         final List<Map<String, Object>> input = new ArrayList<>();
         input.add(Map.of(
                 "role", "system",
-                "content", List.of(Map.of("type", "input_text", "text", systemPrompt))
+                CONTENT_KEY, List.of(Map.of("type", "input_text", "text", systemPrompt))
         ));
         input.add(Map.of(
                 "role", "user",
-                "content", List.of(
+                CONTENT_KEY, List.of(
                         Map.of("type", "input_text", "text", tier1Hint),
                         Map.of("type", "input_image", "image_url", dataUrl)
                 )
@@ -622,15 +642,15 @@ public class ScanService implements ScanInterface {
         if ("other_uncertain".equalsIgnoreCase(category)
                 || "uncertain".equalsIgnoreCase(category)
                 || "not sure".equalsIgnoreCase(category)
-                || "unknown".equalsIgnoreCase(category)) {
+                || UNKNOWN.equalsIgnoreCase(category)) {
             category = "Not sure";
         }
-        final String instruction = finalNode.path("instruction").asText("").trim();
-        final boolean recyclable = finalNode.path("recyclable").asBoolean(false);
+        final String instruction = finalNode.path(KEY_INSTRUCTION).asText("").trim();
+        final boolean recyclable = finalNode.path(KEY_RECYCLABLE).asBoolean(false);
         final double confidence = clampConfidence(finalNode.path("confidence").asDouble(0.0));
 
         final List<String> instructions = new ArrayList<>();
-        for (JsonNode step : finalNode.path("instructions")) {
+        for (JsonNode step : finalNode.path(KEY_INSTRUCTIONS)) {
             final String text = step.asText("").trim();
             if (!text.isBlank()) {
                 instructions.add(text);
@@ -649,9 +669,9 @@ public class ScanService implements ScanInterface {
 
     private OpenAiCallException unknownOpenAiError(final String message) {
         final Map<String, Object> error = new HashMap<>();
-        error.put("type", "unknown");
-        error.put("code", "unknown");
-        error.put("message", message);
+        error.put("type", UNKNOWN);
+        error.put("code", UNKNOWN);
+        error.put(ERROR_MESSAGE, message);
         return new OpenAiCallException(error);
     }
 
@@ -661,22 +681,22 @@ public class ScanService implements ScanInterface {
 
         final String body = ex.getResponseBodyAsString(StandardCharsets.UTF_8);
         if (body == null || body.isBlank()) {
-            error.put("type", "unknown");
-            error.put("code", "unknown");
-            error.put("message", "OpenAI request failed");
+            error.put("type", UNKNOWN);
+            error.put("code", UNKNOWN);
+            error.put(ERROR_MESSAGE, OPENAI_REQUEST_FAILED);
             return error;
         }
 
         try {
             final JsonNode root = objectMapper.readTree(body);
             final JsonNode err = root.path("error");
-            error.put("type", err.path("type").asText("unknown"));
-            error.put("code", err.path("code").asText("unknown"));
-            error.put("message", err.path("message").asText("OpenAI request failed"));
+            error.put("type", err.path("type").asText(UNKNOWN));
+            error.put("code", err.path("code").asText(UNKNOWN));
+            error.put(ERROR_MESSAGE, err.path(ERROR_MESSAGE).asText(OPENAI_REQUEST_FAILED));
         } catch (Exception parseEx) {
-            error.put("type", "unknown");
-            error.put("code", "unknown");
-            error.put("message", "OpenAI request failed");
+            error.put("type", UNKNOWN);
+            error.put("code", UNKNOWN);
+            error.put(ERROR_MESSAGE, OPENAI_REQUEST_FAILED);
         }
 
         return error;
@@ -695,7 +715,7 @@ public class ScanService implements ScanInterface {
     }
 
     private static final class OpenAiCallException extends RuntimeException {
-        private final Map<String, Object> error;
+        private final transient Map<String, Object> error;
 
         private OpenAiCallException(final Map<String, Object> error) {
             this.error = error;
