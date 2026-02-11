@@ -10,12 +10,17 @@ import tech3.binitright.model.DropOffLocation;
 import tech3.binitright.repository.DropOffLocationRepository;
 import tech3.binitright.request.NearByBinDto;
 import tech3.binitright.util.DistanceUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 @Service
 @Transactional
 public class DropOffLocationImplementation implements DropOffLocationInterface{
-	
-	@Autowired
+    private static final Logger logger = LoggerFactory.getLogger(DropOffLocation.class);
+
+
+    @Autowired
 	private DropOffLocationRepository repository;
 
     public List<DropOffLocation> getAllBins() {
@@ -24,7 +29,8 @@ public class DropOffLocationImplementation implements DropOffLocationInterface{
 
     public List<NearByBinDto> getNearbyBins(
             double userLat, double userLng, double radiusMeters) {
-    	System.out.println("###getNearbyBins"+userLat);
+        logger.info("getNearbyBins called with userLat={}", userLat);
+
 
         List<DropOffLocation> allBins = repository.findAll();
 
@@ -44,7 +50,8 @@ public class DropOffLocationImplementation implements DropOffLocationInterface{
                     DropOffLocation bin = (DropOffLocation) obj[0];
                     double distance = (double) obj[1];
 
-                    System.out.println("BinSize"+allBins.size());
+                    logger.info("Bin size: {}", allBins.size());
+
 
                     return new NearByBinDto(
                             bin.getId(),
@@ -68,7 +75,8 @@ public class DropOffLocationImplementation implements DropOffLocationInterface{
             String type
     ) {
         List<DropOffLocation> allBins = repository.findAll();
-        System.out.println("AllBins size"+allBins.size());
+        logger.debug("AllBins size: {}", allBins.size());
+
 
         return allBins.stream()
 
@@ -96,8 +104,9 @@ public class DropOffLocationImplementation implements DropOffLocationInterface{
                 .map(obj -> {
                     DropOffLocation bin = (DropOffLocation) obj[0];
                     double distance = (double) obj[1];
-                    
-                    System.out.println("Return from search bins");
+
+                    logger.info("Return from search bins");
+
 
                     return new NearByBinDto(
                             bin.getId(),
