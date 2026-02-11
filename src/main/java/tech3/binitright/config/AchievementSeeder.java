@@ -9,11 +9,14 @@ import tech3.binitright.repository.AchievementRepository;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Configuration
 public class AchievementSeeder {
 
     private static final AtomicBoolean seedingComplete = new AtomicBoolean(false);
+    private static final Logger log = LoggerFactory.getLogger(AchievementSeeder.class);
 
     @Bean
     @Profile({"test", "default", "prod"})
@@ -21,7 +24,7 @@ public class AchievementSeeder {
         return args -> {
             if (repo.count() > 0) {
                 seedingComplete.set(true);
-                System.out.println(">>> Achievements already seeded, skipping.");
+                log.info("Achievements already seeded, skipping.");
                 return;
             }
 
@@ -39,10 +42,10 @@ public class AchievementSeeder {
             );
 
             repo.saveAll(list);
-            System.out.println(">>> 10 Achievements seeded successfully.");
+            log.info(">>> 10 Achievements seeded successfully.");
 
             seedingComplete.set(true);
-            System.out.println(">>> ALL SEEDING OPERATIONS COMPLETE.");
+            log.info(">>> ALL SEEDING OPERATIONS COMPLETE.");
         };
     }
 

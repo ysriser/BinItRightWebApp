@@ -28,6 +28,8 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private static final String API_PATTERN = "/api/**";
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -41,7 +43,7 @@ public class SecurityConfig {
     ) throws Exception {
         applyGlobalSecurityHeaders(http); // Apply shared headers
         http
-                .securityMatcher("/api/**", "/error", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+                .securityMatcher(API_PATTERN, "/error", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -89,8 +91,8 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
         applyGlobalSecurityHeaders(http); // Apply shared headers
         http
-                .securityMatcher(new NegatedRequestMatcher(new AntPathRequestMatcher("/api/**")))
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
+                .securityMatcher(new NegatedRequestMatcher(new AntPathRequestMatcher(API_PATTERN)))
+                .csrf(csrf -> csrf.ignoringRequestMatchers(API_PATTERN))
                 .headers(headers -> headers
                         .frameOptions(frame -> frame.deny())
                         .contentTypeOptions(withDefaults())

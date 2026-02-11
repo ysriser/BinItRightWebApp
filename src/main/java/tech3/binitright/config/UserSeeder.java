@@ -1,6 +1,7 @@
 package tech3.binitright.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -13,10 +14,18 @@ import tech3.binitright.model.*;
 import tech3.binitright.repository.CheckInRepository;
 import tech3.binitright.repository.DropOffLocationRepository;
 import tech3.binitright.repository.WasteCategoryRepository;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import tech3.binitright.service.AccessoriesImplementation;
+import tech3.binitright.service.AdminImplementation;
+import tech3.binitright.service.IssueImplementation;
+import tech3.binitright.service.UserAccessoriesImplementation;
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 @Configuration
 public class UserSeeder {
 
@@ -32,6 +41,9 @@ public class UserSeeder {
     private final UserAccessoriesInterface userAccessoriesService;
     private final AdminInterface adminService;
 
+    private static final String USER1 = "User1";
+    private static final Logger log = LoggerFactory.getLogger(UserSeeder.class);
+
     public UserSeeder(
             UserInterface userService,
             WasteCategoryRepository wasteRepo,
@@ -42,6 +54,7 @@ public class UserSeeder {
             UserAccessoriesInterface userAccessoriesService,
             AdminInterface adminService
     ) {
+
         this.userService = userService;
         this.wasteRepo = wasteRepo;
         this.dropOffRepo = dropOffRepo;
@@ -51,16 +64,17 @@ public class UserSeeder {
         this.userAccessoriesService = userAccessoriesService;
         this.adminService = adminService;
     }
+
     @Bean
     @Order(5)
     @Profile({"test", "prod", "default"}) // Avoid running this in "prod" to keep the DB clean
-    public CommandLineRunner seedUsers(final PasswordEncoder passwordEncoder) {
+    public CommandLineRunner seedUsers(PasswordEncoder passwordEncoder) {
         return args -> {
 
             record SeedUser(String username, String email, String name, int accessoriesToAssign) {}
 
             List<SeedUser> usersToSeed = List.of(
-                    new SeedUser("User1", "tester1@binitright.com", "Default Tester 1", 2),
+                    new SeedUser(USER1, "tester1@binitright.com", "Default Tester 1", 2),
                     new SeedUser("User2", "tester2@binitright.com", "Default Tester 2", 4),
                     new SeedUser("User3", "tester3@binitright.com", "Default Tester 3", 3),
                     new SeedUser("User4", "tester4@binitright.com", "Default Tester 4", 1)
@@ -89,6 +103,8 @@ public class UserSeeder {
 
                 User savedUser = userService.saveUser(user);
 
+                log.info(">>> UserSeeder: Created " + su.username());
+
                 // Assign accessories
                 for (int i = 0; i < su.accessoriesToAssign() && i < availableAccs.size(); i++) {
                     Accessories acc = availableAccs.get(i);
@@ -100,6 +116,7 @@ public class UserSeeder {
 
                     userAccessoriesService.save(ua);
 
+                    log.info(">>> Assigned " + acc.getName() + " to " + su.username());
                 }
             }
         };
@@ -177,6 +194,7 @@ public class UserSeeder {
                     paper
             ));
 
+            log.info(">>> Waste categories seeded (6 types)");
         };
     }
 
@@ -187,28 +205,19 @@ public class UserSeeder {
         return args -> {
 
             // Ensure user exists
-            User user = userService.findByUsername("User1")
+            User user = userService.findByUsername(USER1)
                     .stream()
                     .findFirst()
-                    .orElseThrow(() -> new RuntimeException(
-                            "User1 must exist before seeding CheckIns"));
+                    .orElseThrow(() -> new RuntimeException(USER1 + " must exist before seeding CheckIns"));
 
             if (checkInRepo.count() > 0) {
+                log.info(">>> Check-ins already exist, skipping");
                 return;
             }
 
-            WasteCategories plastic = wasteRepo
-                    .findByNameIgnoreCase("Plastic")
-                    .orElseThrow(() -> new RuntimeException(
-                            "Plastic category missing"));
-            WasteCategories ewaste = wasteRepo
-                    .findByNameIgnoreCase("E-Waste")
-                    .orElseThrow(() -> new RuntimeException(
-                            "E-Waste category missing"));
-            WasteCategories glass = wasteRepo
-                    .findByNameIgnoreCase("Glass")
-                    .orElseThrow(() -> new RuntimeException(
-                            "Glass category missing"));
+            WasteCategories plastic = wasteRepo.findByNameIgnoreCase("Plastic").orElseThrow(() -> new RuntimeException("Plastic category missing"));
+            WasteCategories ewaste = wasteRepo.findByNameIgnoreCase("E-Waste").orElseThrow(() -> new RuntimeException("E-Waste category missing"));
+            WasteCategories glass = wasteRepo.findByNameIgnoreCase("Glass").orElseThrow(() -> new RuntimeException("Glass category missing"));
 
             DropOffLocation d1 = dropOffRepo.findById("06383D31CA5CC778").orElseThrow();
             DropOffLocation d2 = dropOffRepo.findById("06193A57B84223C5").orElseThrow();
@@ -245,6 +254,8 @@ public class UserSeeder {
 
             checkInRepo.saveAll(List.of(c1, c2, c3));
 
+            log.info(">>> Check-ins seeded");
+
         };
     }
 
@@ -258,7 +269,7 @@ public class UserSeeder {
             }
 
             // Retrieve users seeded in Order 5
-            User u1 = userService.findByUsername("User1").getFirst();
+            User u1 = userService.findByUsername(USER1).getFirst();
             User u2 = userService.findByUsername("User2").getFirst();
             User u3 = userService.findByUsername("User3").getFirst();
             User u4 = userService.findByUsername("User4").getFirst();
@@ -267,32 +278,22 @@ public class UserSeeder {
             Admin admin1 = adminService.findById(1L).orElse(null);
 
             // Issue 1: Login crash
-            Issue i1 = new Issue(
-                    Issue.IssueCategory.AppProblems,
-                    "App crashes immediately after tapping the login button.",
-                    Issue.IssueStatus.NEW, u1, null);
+            Issue i1 = new Issue(Issue.IssueCategory.AppProblems, "App crashes immediately after tapping the login button.", Issue.IssueStatus.NEW, u1, null);
 
             // Issue 2: Overflowing bin
-            Issue i2 = new Issue(
-                    Issue.IssueCategory.BinIssues,
-                    "Recycling bin near Block 512 is overflowing and needs collection.",
-                    Issue.IssueStatus.IN_PROGRESS, u2, admin1);
+            Issue i2 = new Issue(Issue.IssueCategory.BinIssues, "Recycling bin near Block 512 is overflowing and needs collection.", Issue.IssueStatus.IN_PROGRESS, u2, admin1);
 
             // Issue 3: Incorrect map location (Resolved)
-            Issue i3 = new Issue(
-                    Issue.IssueCategory.LocationErrors,
-                    "GPS location for Jurong recycling point is incorrect on the map.",
-                    Issue.IssueStatus.RESOLVED, u3, admin1);
+            // Note: We use the constructor and then manually set dates to match your SQL '2026-02-01' requirement
+            Issue i3 = new Issue(Issue.IssueCategory.LocationErrors, "GPS location for Jurong recycling point is incorrect on the map.", Issue.IssueStatus.RESOLVED, u3, admin1);
             i3.setCreatedAt(LocalDateTime.of(2026, 2, 1, 9, 10));
             i3.setResolvedAt(LocalDateTime.of(2026, 2, 3, 15, 25));
 
             // Issue 4: Slow dashboard
-            Issue i4 = new Issue(
-                    Issue.IssueCategory.AppProblems,
-                    "User dashboard takes more than 10 seconds to load history.",
-                    Issue.IssueStatus.NEW, u4, null);
+            Issue i4 = new Issue(Issue.IssueCategory.AppProblems, "User dashboard takes more than 10 seconds to load history.", Issue.IssueStatus.NEW, u4, null);
 
             issueService.saveAll(List.of(i1, i2, i3, i4));
+            log.info(">>> Issues seeded (4 entries)");
         };
     }
 }
