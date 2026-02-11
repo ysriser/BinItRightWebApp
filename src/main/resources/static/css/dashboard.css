@@ -257,8 +257,10 @@ body {
 .metric-icon.green  { background: var(--green-pale); color: var(--green-primary); }
 .metric-icon.blue   { background: #e3f2fd;          color: #1565c0; }
 .metric-icon.purple { background: #ede7f6;          color: #6a1b9a; }
-.metric-icon.orange { background: #fff3e0;          color: #e65100; }
-
+.metric-icon.orange {
+    background: #fffbf0;
+    color: #a82900;
+}
 
 /* ═══════════════════════════════════════════════════
    SECTION CARDS (chart wrapper / table wrapper)
@@ -294,8 +296,8 @@ body {
 }
 
 .badge-custom {
-    background: #fff3e0;
-    color: #e65100;
+    background: #fffbf0;
+    color: #a82900;
     padding: .3rem .65rem;
     border-radius: 12px;
     font-size: .72rem;
@@ -429,8 +431,8 @@ body {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .3px;
-    background: #fff3e0;
-    color: #e65100;
+    background: #fffbf0;
+    color: #a82900;
     border: 1px solid #ffe0b2;
 }
 
@@ -564,8 +566,8 @@ body {
 
 /* Status pills */
 .status-new {
-    background: #fff3e0;
-    color: #e65100;
+    background: #fffbf0;
+    color: #a82900;
     padding: 2px 10px;
     border-radius: 12px;
     font-size: .7rem;
@@ -685,7 +687,7 @@ body {
     width: 40px;
     height: 40px;
     border-radius: 10px;
-    background: rgba(255, 255, 255, .15);
+    background: rgba(255, 255, 255, .25);
     display: flex;
     align-items: center;
     justify-content: center;
