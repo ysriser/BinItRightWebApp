@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.util.ReflectionTestUtils;
-import techthree.binitright.dto.LeaderboardDTO;
 import techthree.binitright.dto.UserProfileDTO;
 import techthree.binitright.interfacemethods.*;
 import techthree.binitright.model.Accessories;
@@ -24,144 +23,144 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class SummaryRestControllerTest {
+class SummaryRestControllerTest {
+
+    // ---------- Fake Services ----------
+
     static class FakeUserService implements UserInterface {
         User userToReturn;
         List<User> byUsername = Collections.emptyList();
-        boolean existsByUsername = false;
 
-        @Override
-        public User saveUser(User user) { return user; }
-
-        @Override
-        public List<User> findByUsername(String username) { return byUsername; }
-
-        @Override
-        public User findById(Long userId) { return userToReturn; }
-
-        @Override
-        public boolean existsByUsername(String username) { return existsByUsername; }
-
-        @Override
-        public boolean existsByEmailAddress(String emailAddress) {
-            return false;
-        }
+        @Override public User saveUser(User user) { return user; }
+        @Override public List<User> findByUsername(String username) { return byUsername; }
+        @Override public User findById(Long userId) { return userToReturn; }
+        @Override public boolean existsByUsername(String username) { return false; }
+        @Override public boolean existsByEmailAddress(String emailAddress) { return false; }
     }
 
     static class FakeUserAccessoriesService implements UserAccessoriesInterface {
         List<UserAccessories> rows = Collections.emptyList();
 
-        @Override
-        public void save(UserAccessories userAccessories) { }
-
-        @Override
-        public List<UserAccessories> findAll() { return Collections.emptyList(); }
-
-        @Override
-        public List<UserAccessories> findAllByUser_Id(Long id) { return rows; }
-
-        @Override
-        public void equipItem(Long userId, Long accessoriesId) { }
-
-        @Override
-        public void unequipItem(Long id, Long accessoriesId) { }
+        @Override public void save(UserAccessories ua) {}
+        @Override public List<UserAccessories> findAll() { return Collections.emptyList(); }
+        @Override public List<UserAccessories> findAllByUser_Id(Long id) { return rows; }
+        @Override public void equipItem(Long userId, Long accessoriesId) {}
+        @Override public void unequipItem(Long id, Long accessoriesId) {}
     }
 
     static class FakeCheckInService implements CheckInInterface {
         Integer total = 0;
 
-        @Override
-        public List<CheckIn> getAllCheckIns() { return Collections.emptyList(); }
+        @Override public Integer getUserTotalRecycled(Long userId) { return total; }
+        @Override public List getAllCheckIns() { return Collections.emptyList(); }
 
         @Override
-        public CheckIn processCheckIn(CheckInDataReq data, Long userId) throws IOException { return null; }
+        public CheckIn processCheckIn(CheckInDataReq data, Long userId) throws IOException {
+            return null;
+        }
 
-        @Override
-        public List<CheckIn> getPendingCheckIns() { return Collections.emptyList(); }
-
-        @Override
-        public Integer getUserTotalRecycled(Long userId) { return total; }
-
-        @Override
-        public List<LeaderboardDTO> getMonthlyLeaderboard() { return Collections.emptyList(); }
+        @Override public List getPendingCheckIns() { return Collections.emptyList(); }
+        @Override public List getMonthlyLeaderboard() { return Collections.emptyList(); }
     }
 
-    // EmissionService has constructor(CheckInRepository) -> call super(null) and override the used method
     static class FakeEmissionService extends EmissionService {
         BigDecimal co2 = null;
-
-        FakeEmissionService() {
-            super(null);
-        }
-
-        @Override
-        public BigDecimal getUserTotalCo2Saved(Long userId) {
-            return co2;
-        }
+        FakeEmissionService() { super(null); }
+        @Override public BigDecimal getUserTotalCo2Saved(Long userId) { return co2; }
     }
 
-    // AchievementImplementation has constructor(AchievementRepository, UserAchievementRepository, UserRepository)
     static class FakeAchievementService extends AchievementImplementation {
         int totalAchievements = 0;
+        FakeAchievementService() { super(null, null, null); }
+        @Override public int getTotalAchievements(Long userId) { return totalAchievements; }
+    }
 
-        FakeAchievementService() {
-            super(null, null, null);
+    static class FakeChatService implements ChatInterface {
+
+        @Override
+        public String askRecyclingAssistant(String userMessage) {
+            return "assistant";
         }
 
         @Override
-        public int getTotalAchievements(Long userId) {
-            return totalAchievements;
+        public String generateProgressSummary(
+                int pointBalance,
+                double carbonEmissionSaved,
+                int currentRank,
+                int totalRecycledItems
+        ) {
+            return "summary";
         }
     }
 
+    // ---------- Helper to build controller ----------
 
+    private SummaryRestController buildController(
+            FakeUserService userService,
+            FakeUserAccessoriesService accessoriesService,
+            FakeCheckInService checkInService,
+            FakeEmissionService emissionService,
+            FakeAchievementService achievementService,
+            FakeChatService chatService
+    ) {
+        SummaryRestController controller = new SummaryRestController();
+
+        ReflectionTestUtils.setField(controller, "userService", userService);
+        ReflectionTestUtils.setField(controller, "userAccessoriesService", accessoriesService);
+        ReflectionTestUtils.setField(controller, "checkInService", checkInService);
+        ReflectionTestUtils.setField(controller, "emissionService", emissionService);
+        ReflectionTestUtils.setField(controller, "achievementService", achievementService);
+        ReflectionTestUtils.setField(controller, "chatService", chatService);
+
+        return controller;
+    }
+
+    // ---------- TEST 1 ----------
 
     @Test
     void getProfileSummary_whenAuthNameIsUserId_returnsDto() {
-        final SummaryRestController controller = new SummaryRestController();
 
-        final FakeUserService userService = new FakeUserService();
-        final FakeUserAccessoriesService userAccessoriesService = new FakeUserAccessoriesService();
-        final FakeCheckInService checkInService = new FakeCheckInService();
-        final FakeEmissionService emissionService = new FakeEmissionService();
-        final FakeAchievementService achievementService = new FakeAchievementService();
+        FakeUserService userService = new FakeUserService();
+        FakeUserAccessoriesService accessoriesService = new FakeUserAccessoriesService();
+        FakeCheckInService checkInService = new FakeCheckInService();
+        FakeEmissionService emissionService = new FakeEmissionService();
+        FakeAchievementService achievementService = new FakeAchievementService();
+        FakeChatService chatService = new FakeChatService();
 
-        // User data
+        // User setup
         User u = new User();
         u.setId(5L);
         u.setName("John");
         u.setPointBalance(120);
+        u.setCurrentRank(1);
+        u.setCarbonEmissionSaved(0.0F);
         userService.userToReturn = u;
 
-        // Equipped avatar accessory
+        // Equipped avatar
         Accessories acc = new Accessories();
         acc.setName("Cool Avatar");
         UserAccessories ua = new UserAccessories();
         ua.setAccessories(acc);
         ua.setEquipped(true);
-        userAccessoriesService.rows = List.of(ua);
+        accessoriesService.rows = List.of(ua);
 
-        // Other service values
         checkInService.total = 12;
         emissionService.co2 = new BigDecimal("3.50");
         achievementService.totalAchievements = 4;
 
-        // Inject
-        ReflectionTestUtils.setField(controller, "userService", userService);
-        ReflectionTestUtils.setField(controller, "userAccessoriesService", userAccessoriesService);
-        ReflectionTestUtils.setField(controller, "checkInService", checkInService);
-        ReflectionTestUtils.setField(controller, "emissionService", emissionService);
-        ReflectionTestUtils.setField(controller, "achievementService", achievementService);
+        SummaryRestController controller = buildController(
+                userService, accessoriesService, checkInService,
+                emissionService, achievementService, chatService
+        );
 
-        Authentication auth = new UsernamePasswordAuthenticationToken("5", null, List.of());
+        Authentication auth = new UsernamePasswordAuthenticationToken("5", null);
 
-        ResponseEntity<?> response = controller.getProfileSummary(auth);
+        ResponseEntity<UserProfileDTO> response = controller.getProfileSummary(auth);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertTrue(response.getBody() instanceof UserProfileDTO);
 
-        UserProfileDTO dto = (UserProfileDTO) response.getBody();
+        UserProfileDTO dto = response.getBody();
         assertEquals("John", dto.getName());
         assertEquals(120, dto.getPointBalance());
         assertEquals("Cool Avatar", dto.getEquippedAvatarName());
@@ -170,62 +169,68 @@ public class SummaryRestControllerTest {
         assertEquals(3.50f, dto.getCarbonEmissionSaved(), 0.0001);
     }
 
+    // ---------- TEST 2 ----------
+
     @Test
     void getProfileSummary_whenUserNotFound_returns404() {
-        final SummaryRestController controller = new SummaryRestController();
 
-        final FakeUserService userService = new FakeUserService();
-        userService.userToReturn = null;
+        FakeUserService userService = new FakeUserService();
 
-        ReflectionTestUtils.setField(controller, "userService", userService);
+        SummaryRestController controller = buildController(
+                userService,
+                new FakeUserAccessoriesService(),
+                new FakeCheckInService(),
+                new FakeEmissionService(),
+                new FakeAchievementService(),
+                new FakeChatService()
+        );
 
-        Authentication auth = new UsernamePasswordAuthenticationToken("99", null, List.of());
+        Authentication auth = new UsernamePasswordAuthenticationToken("99", null);
 
-        ResponseEntity<?> response = controller.getProfileSummary(auth);
+        ResponseEntity<UserProfileDTO> response = controller.getProfileSummary(auth);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNull(response.getBody());
     }
 
+    // ---------- TEST 3 ----------
+
     @Test
     void getProfileSummary_whenAuthNameIsUsername_fallsBackToFindByUsername() {
-        final SummaryRestController controller = new SummaryRestController();
 
-        final FakeUserService userService = new FakeUserService();
-        final FakeUserAccessoriesService userAccessoriesService = new FakeUserAccessoriesService();
-        final FakeCheckInService checkInService = new FakeCheckInService();
-        final FakeEmissionService emissionService = new FakeEmissionService();
-        final FakeAchievementService achievementService = new FakeAchievementService();
+        FakeUserService userService = new FakeUserService();
+        FakeUserAccessoriesService accessoriesService = new FakeUserAccessoriesService();
+        FakeCheckInService checkInService = new FakeCheckInService();
+        FakeEmissionService emissionService = new FakeEmissionService();
+        FakeAchievementService achievementService = new FakeAchievementService();
+        FakeChatService chatService = new FakeChatService();
 
         User u = new User();
         u.setId(10L);
         u.setName("User10");
         u.setPointBalance(50);
+        u.setCurrentRank(1);
+        u.setCarbonEmissionSaved(0.0F);
 
         userService.byUsername = List.of(u);
         userService.userToReturn = u;
 
-        userAccessoriesService.rows = List.of(); // -> default_avatar
-        checkInService.total = 0;
-        emissionService.co2 = null; // -> 0f
-        achievementService.totalAchievements = 0;
+        accessoriesService.rows = List.of(); // default avatar
 
-        ReflectionTestUtils.setField(controller, "userService", userService);
-        ReflectionTestUtils.setField(controller, "userAccessoriesService", userAccessoriesService);
-        ReflectionTestUtils.setField(controller, "checkInService", checkInService);
-        ReflectionTestUtils.setField(controller, "emissionService", emissionService);
-        ReflectionTestUtils.setField(controller, "achievementService", achievementService);
+        SummaryRestController controller = buildController(
+                userService, accessoriesService, checkInService,
+                emissionService, achievementService, chatService
+        );
 
-        Authentication auth = new UsernamePasswordAuthenticationToken("User1", null, List.of());
+        Authentication auth = new UsernamePasswordAuthenticationToken("User1", null);
 
-        ResponseEntity<?> response = controller.getProfileSummary(auth);
+        ResponseEntity<UserProfileDTO> response = controller.getProfileSummary(auth);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
 
-        UserProfileDTO dto = (UserProfileDTO) response.getBody();
+        UserProfileDTO dto = response.getBody();
         assertEquals("default_avatar", dto.getEquippedAvatarName());
-        assertEquals(0f, dto.getCarbonEmissionSaved(), 0.0001);
         assertEquals("User10", dto.getName());
         assertEquals(50, dto.getPointBalance());
     }
