@@ -84,14 +84,12 @@ public class SummaryRestController {
 
         Integer totalRecycled = checkInService.getUserTotalRecycled(userId);
 
-//        String aiSummary = chatService.generateProgressSummary(
-//                user.getPointBalance(),
-//                user.getCarbonEmissionSaved(),
-//                user.getCurrentRank(),
-//                totalRecycled
-//        );
-
-        String aiSummary = "You're making a real environmental impact 🌱 Keep recycling to climb higher and save more CO₂!";
+        String aiSummary = chatService.generateProgressSummary(
+                user.getPointBalance(),
+                user.getCarbonEmissionSaved(),
+                user.getCurrentRank(),
+                totalRecycled
+        );
 
         int totalAchievements = achievementService.getTotalAchievements(userId);
         BigDecimal co2SavedBD = emissionService.getUserTotalCo2Saved(userId);

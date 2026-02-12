@@ -78,10 +78,10 @@ public class AdminController {
         model.addAttribute("totalDropOffs", dropOffLocationRepository.count());
         model.addAttribute("totalIssues", issueService.getTotalIssueCount());
 
-//        model.addAttribute(
-//                "forecastData",
-//                forecastService.getForecastData()
-//        );
+        model.addAttribute(
+                "forecastData",
+                forecastService.getForecastData()
+        );
 
         return "admin-dashboard";
     }
