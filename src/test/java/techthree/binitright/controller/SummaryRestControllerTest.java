@@ -41,6 +41,11 @@ public class SummaryRestControllerTest {
 
         @Override
         public boolean existsByUsername(String username) { return existsByUsername; }
+
+        @Override
+        public boolean existsByEmailAddress(String emailAddress) {
+            return false;
+        }
     }
 
     static class FakeUserAccessoriesService implements UserAccessoriesInterface {
@@ -109,7 +114,7 @@ public class SummaryRestControllerTest {
         }
     }
 
-    // -------------------- TESTS --------------------
+
 
     @Test
     void getProfileSummary_whenAuthNameIsUserId_returnsDto() {
