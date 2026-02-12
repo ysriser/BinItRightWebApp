@@ -38,12 +38,7 @@
         <a th:href="@{/admin/issues}" class="active">
             <i class="bi bi-exclamation-circle"></i> Issue Management
         </a>
-        <a href="#" id="importBinsBtn">
-            <i class="bi bi-arrow-repeat"></i> Import Bins
-        </a>
 
-        <form id="importBinsForm" th:action="@{/admin/import/bins}" method="post" style="display:none;">
-        </form>
     </nav>
 
     <div class="sidebar-footer mt-auto p-3">
@@ -66,7 +61,7 @@
         </div>
         <div class="topbar-right">
             <span class="me-3" style="color:#6c757d;">
-                Welcome, <strong th:text="${adminUsername}">root</strong>
+                Welcome
             </span>
             <div class="avatar-top">
                 <i class="bi bi-recycle" style="font-size:1.2rem;"></i>
