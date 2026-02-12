@@ -22,11 +22,13 @@ public class RegisterRequestTest {
     void gettersAndSetters_shouldWork() {
         RegisterRequest request = new RegisterRequest();
 
-        request.setUsername("sujitha");
+        request.setUsername("user1");
         request.setPassword("password123");
+        request.setEmailAddress("test1@test.com");
 
-        assertEquals("sujitha", request.getUsername());
+        assertEquals("user1", request.getUsername());
         assertEquals("password123", request.getPassword());
+        assertEquals("test1@test.com", request.getEmailAddress());
     }
 
     @Test
@@ -34,6 +36,7 @@ public class RegisterRequestTest {
         RegisterRequest request = new RegisterRequest();
         request.setUsername("user1");
         request.setPassword("password123");
+        request.setEmailAddress("user1@test.com");
 
         Set violations = validator.validate(request);
 
@@ -45,6 +48,7 @@ public class RegisterRequestTest {
         RegisterRequest request = new RegisterRequest();
         request.setUsername("");
         request.setPassword("password123");
+        request.setEmailAddress("user1@test.com");
 
         Set violations = validator.validate(request);
 
@@ -56,10 +60,23 @@ public class RegisterRequestTest {
         RegisterRequest request = new RegisterRequest();
         request.setUsername("user1");
         request.setPassword("123"); // less than 6 chars
+        request.setEmailAddress("user1@test.com");
+
+        Set violations = validator.validate(request);
+
+        assertFalse(violations.isEmpty());
+    }
+
+    // (Optional but recommended)
+    @Test
+    void validation_shouldFail_whenEmailInvalid() {
+        RegisterRequest request = new RegisterRequest();
+        request.setUsername("user1");
+        request.setPassword("password123");
+        request.setEmailAddress("not-an-email");
 
         Set violations = validator.validate(request);
 
         assertFalse(violations.isEmpty());
     }
 }
-
