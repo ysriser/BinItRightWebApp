@@ -1,5 +1,6 @@
 package techthree.binitright.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -59,16 +60,21 @@ public class UserLoginController {
         return new LoginResponse(true, "Login success", token);
     }
     @PostMapping("/register")
-    public ResponseEntity<RegisterResponse> register(@RequestBody RegisterRequest req) {
+    public ResponseEntity<RegisterResponse> register(@Valid @RequestBody RegisterRequest req) {
 
         if (userService.existsByUsername(req.getUsername())) {
             return ResponseEntity.badRequest()
                     .body(new RegisterResponse(false, "Username already exists"));
         }
+        if (userService.existsByEmailAddress(req.getEmailAddress())) {
+            return ResponseEntity.badRequest()
+                    .body(new RegisterResponse(false, "Email already exists"));
+        }
 
         User user = new User();
         user.setUsername(req.getUsername());
         user.setPassword_hash(passwordEncoder.encode(req.getPassword()));
+        user.setEmailAddress(req.getEmailAddress());
         user.setRole("USER");
         userService.saveUser(user);
 
