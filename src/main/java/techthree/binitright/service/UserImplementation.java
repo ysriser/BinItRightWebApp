@@ -39,4 +39,8 @@ public class UserImplementation implements UserInterface {
     public User findById(Long userId) {
         return userRepo.findById(userId).orElse(null);
     }
+
+    public boolean existsByEmailAddress(String emailAddress) {
+        return userRepo.existsByEmailAddress(emailAddress);
+    }
 }

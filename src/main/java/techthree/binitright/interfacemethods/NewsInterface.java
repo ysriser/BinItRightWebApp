@@ -4,7 +4,6 @@ import techthree.binitright.model.News;
 
 import java.util.List;
 
-;
 
 public interface NewsInterface {
 

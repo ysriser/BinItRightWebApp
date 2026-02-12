@@ -19,11 +19,17 @@ public class ReportServiceImpl implements ReportInterface {
 
         // 1. Calculate weight for the selected month/year
         Object rawTotalWeight = checkinRepository.calculateWeightByMonth(month, year);
-        Double totalWeight = (rawTotalWeight instanceof Number) ? ((Number) rawTotalWeight).doubleValue() : 0.0;
+
+        Double totalWeight = (rawTotalWeight instanceof Number number)
+                ? number.doubleValue()
+                : 0.0;
 
         // 2. Calculate CO2 for the selected month/year
         Object rawCO2 = checkinRepository.calculateCO2ByMonth(month, year);
-        Double co2Saved = (rawCO2 instanceof Number) ? ((Number) rawCO2).doubleValue() : 0.0;
+
+        Double co2Saved = (rawCO2 instanceof Number number)
+                ? number.doubleValue()
+                : 0.0;
 
         // 3. Count unique users for the selected month/year
         Long activeParticipants = checkinRepository.countParticipantsByMonth(month, year);

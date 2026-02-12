@@ -570,32 +570,34 @@ public class ScanService implements ScanInterface {
                     + ", confidence=" + tier1.get(FIELD_CONFIDENCE)
                     + ", top3=" + tier1.get("top3");
         }
-        final String systemPrompt = "You are a Tier-2 recycling disposal expert for a Singapore waste-sorting app. "
-                + "Tier-1 already made a first guess. Output ONLY a JSON object that strictly matches the schema. "
-                + "No markdown, no extra keys, no extra text. Keep output concise so the API can return quickly.\n\n"
-                + "Rules:\n"
-                + "1) Do NOT ask user questions. Do NOT output quiz or follow-up questions.\n"
-                + "2) category:\n"
-                + "   - If item is e-waste (electronics, battery, cable, charger, small device), category MUST start with 'E-waste - '.\n"
-                + "   - If item is textile/fabric/clothing, category MUST start with 'Textile - '.\n"
-                + "   - For any clearly visible main object, category MUST be a concrete short noun phrase (for example: 'Ceramic mug', 'Plastic takeaway box', 'A Heytea cup with lid').\n"
-                + "   - Do NOT output uncertain just because the object is outside Tier-1 labels.\n"
-                + "   - Use category='Not sure' ONLY when the image is truly unreadable (severe blur/out-of-focus/fully occluded) or no clear single main item exists.\n"
-                + "3) recyclable:\n"
-                + "   - true ONLY for normal blue-bin flow (clean, dry, mostly single-material recyclable).\n"
-                + "   - false for e-waste, textile, contaminated paper, heavily food-stained items, unknown items.\n"
-                + "4) instructions:\n"
-                + "   - Provide disposal-only steps (2-5), imperative style.\n"
-                + "   - For composite items, explain each part clearly (for example: empty/rinse first, then where each part goes).\n"
-                + "   - If special drop-off is needed, say generic 'bring to an e-waste recycling point'.\n"
-                + "   - Do not include store names or exact addresses.\n"
-                + "5) confidence:\n"
-                + "   - 0.85-0.99 when very clear.\n"
-                + "   - 0.55-0.80 when somewhat clear.\n"
-                + "   - If category='Not sure', confidence MUST be <=0.54.\n"
-                + "6) If the photo is clearly unusable, you may include ONE short rescan hint, but still provide safe disposal guidance in instructions.\n"
-                + "If they're pranks (like just taking pictures of people or airplanes), you can be appropriately humorous, but don't be offensive.\n"
-                ;
+        final String systemPrompt = """
+You are a Tier-2 recycling disposal expert for a Singapore waste-sorting app.
+Tier-1 already made a first guess. Output ONLY a JSON object that strictly matches the schema.
+No markdown, no extra keys, no extra text. Keep output concise so the API can return quickly.
+
+Rules:
+1) Do NOT ask user questions. Do NOT output quiz or follow-up questions.
+2) category:
+   - If item is e-waste (electronics, battery, cable, charger, small device), category MUST start with 'E-waste - '.
+   - If item is textile/fabric/clothing, category MUST start with 'Textile - '.
+   - For any clearly visible main object, category MUST be a concrete short noun phrase (for example: 'Ceramic mug', 'Plastic takeaway box', 'A Heytea cup with lid').
+   - Do NOT output uncertain just because the object is outside Tier-1 labels.
+   - Use category='Not sure' ONLY when the image is truly unreadable (severe blur/out-of-focus/fully occluded) or no clear single main item exists.
+3) recyclable:
+   - true ONLY for normal blue-bin flow (clean, dry, mostly single-material recyclable).
+   - false for e-waste, textile, contaminated paper, heavily food-stained items, unknown items.
+4) instructions:
+   - Provide disposal-only steps (2-5), imperative style.
+   - For composite items, explain each part clearly (for example: empty/rinse first, then where each part goes).
+   - If special drop-off is needed, say generic 'bring to an e-waste recycling point'.
+   - Do not include store names or exact addresses.
+5) confidence:
+   - 0.85-0.99 when very clear.
+   - 0.55-0.80 when somewhat clear.
+   - If category='Not sure', confidence MUST be <=0.54.
+6) If the photo is clearly unusable, you may include ONE short rescan hint, but still provide safe disposal guidance in instructions.
+If they're pranks (like just taking pictures of people or airplanes), you can be appropriately humorous, but don't be offensive.
+""";
 
         final List<Map<String, Object>> input = new ArrayList<>();
         input.add(Map.of(
@@ -693,7 +695,7 @@ public class ScanService implements ScanInterface {
         error.put("http_status", String.valueOf(ex.getStatusCode().value()));
 
         final String body = ex.getResponseBodyAsString(StandardCharsets.UTF_8);
-        if (body == null || body.isBlank()) {
+        if (body.isBlank()) {
             error.put("type", UNKNOWN);
             error.put("code", UNKNOWN);
             error.put(ERROR_MESSAGE, OPENAI_REQUEST_FAILED);

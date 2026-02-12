@@ -58,9 +58,9 @@ public class DropOffLocationTest {
                 "E-waste",
                 new BigDecimal("1.0000"),
                 new BigDecimal("103.0000"),
-                DropOffLocation.Status.OPEN,
-                checkIns,
-                "ignoredParam"
+                DropOffLocation.Status.OPEN,checkIns
+
+
         );
 
         assertEquals("DO-999", loc.getId());

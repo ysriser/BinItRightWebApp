@@ -41,6 +41,11 @@ public class SummaryRestControllerTest {
 
         @Override
         public boolean existsByUsername(String username) { return existsByUsername; }
+
+        @Override
+        public boolean existsByEmailAddress(String emailAddress) {
+            return false;
+        }
     }
 
     static class FakeUserAccessoriesService implements UserAccessoriesInterface {
@@ -109,7 +114,7 @@ public class SummaryRestControllerTest {
         }
     }
 
-    // -------------------- TESTS --------------------
+
 
     @Test
     void getProfileSummary_whenAuthNameIsUserId_returnsDto() {
@@ -124,7 +129,7 @@ public class SummaryRestControllerTest {
         // User data
         User u = new User();
         u.setId(5L);
-        u.setName("Sujitha");
+        u.setName("John");
         u.setPointBalance(120);
         userService.userToReturn = u;
 
@@ -157,7 +162,7 @@ public class SummaryRestControllerTest {
         assertTrue(response.getBody() instanceof UserProfileDTO);
 
         UserProfileDTO dto = (UserProfileDTO) response.getBody();
-        assertEquals("Sujitha", dto.getName());
+        assertEquals("John", dto.getName());
         assertEquals(120, dto.getPointBalance());
         assertEquals("Cool Avatar", dto.getEquippedAvatarName());
         assertEquals(12, dto.getTotalRecycled());
@@ -178,8 +183,8 @@ public class SummaryRestControllerTest {
 
         ResponseEntity<?> response = controller.getProfileSummary(auth);
 
-        assertEquals(404, response.getStatusCodeValue());
-        assertEquals("User not found", response.getBody());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNull(response.getBody());
     }
 
     @Test

@@ -1,5 +1,7 @@
 package techthree.binitright.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,11 +18,13 @@ public class AdminImportController {
         this.importer = importer;
     }
 
+    private static final Logger log = LoggerFactory.getLogger(AdminImportController.class);
+
     @GetMapping("/bins")
     public String importBins() {
-    	System.out.println("=== Starting import ===");
+        log.info("Starting bin data import");
         importer.importData();
-        System.out.println("=== Import completed ===");
+        log.info("Bin data import completed successfully");
         return "Bin data import completed successfully!";
     }
     
