@@ -79,6 +79,8 @@ jobs:
             docker image prune -a -f --filter "until=1h"
             
             # Define and Export all variables first
+            export TZ='Asia/Singapore'
+            export JAVA_OPTS="-Duser.timezone=Asia/Singapore"
             export JAVA_IMAGE='registry.digitalocean.com/binitright/binitright-app:${{ github.sha }}'
             export MYSQL_ROOT_PASSWORD='${{ secrets.TEST_DB_PASSWORD }}'
             export DATA_GOV_API_KEY='${{ secrets.DATA_GOV_API_KEY }}'
@@ -357,6 +359,8 @@ jobs:
             docker image prune -a -f --filter "until=1h"
             
             # Define and Export
+            export TZ='Asia/Singapore'
+            export JAVA_OPTS="-Duser.timezone=Asia/Singapore"
             export JAVA_IMAGE='registry.digitalocean.com/binitright/binitright-app:${{ env.NEW_TAG }}'
             export MYSQL_ROOT_PASSWORD='${{ secrets.DB_PASSWORD }}'
             export DATA_GOV_API_KEY='${{ secrets.DATA_GOV_API_KEY }}'

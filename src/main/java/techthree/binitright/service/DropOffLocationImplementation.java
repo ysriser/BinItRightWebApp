@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 @Service
 @Transactional
 public class DropOffLocationImplementation implements DropOffLocationInterface{
-    private static final Logger logger = LoggerFactory.getLogger(DropOffLocation.class);
+    private static final Logger logger = LoggerFactory.getLogger(DropOffLocationImplementation.class);
 
     @Autowired
 	private DropOffLocationRepository repository;

@@ -74,9 +74,9 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint((request, response, authException) -> {
-                            response.sendError(401, "Unauthorized");
-                        })
+                        .authenticationEntryPoint((request, response, authException) ->
+                            response.sendError(401, "Unauthorized")
+                        )
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(ex -> ex
