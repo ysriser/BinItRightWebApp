@@ -22,8 +22,11 @@ public abstract class BinItRightUser {
     @Column(name = "password_hash")
     private String passwordHash;
 
-	private String locale;
-	private String emailAddress;
+    @Column(name = "email_address", unique = true, nullable = false)
+    private String emailAddress;
+
+    private String locale;
+
 	private String role;
 
     @Column(name = "created_at")

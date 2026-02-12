@@ -13,6 +13,6 @@ public interface UserInterface {
     User findById(Long userId);
 
     boolean existsByUsername(String username);
-
+    boolean existsByEmailAddress(String emailAddress);
 
 }
