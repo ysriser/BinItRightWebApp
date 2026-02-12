@@ -20,7 +20,7 @@
 <aside class="sidebar">
     <div class="sidebar-brand">
         <h4><i class="bi bi-arrow-repeat me-1"></i>Bin It Right</h4>
-        <p>Admin Portal<br>Welcome, root</p>
+        <p>Admin Portal<br>Welcome, <span th:text="${adminUsername}">root</span></p>
     </div>
     <nav>
         <a th:href="@{/admin/dashboard}"
@@ -40,12 +40,12 @@
         <a th:href="@{/admin/issues}">
             <i class="bi bi-exclamation-circle"></i> Issue Management
         </a>
-        <a href="#">
-            <i class="bi bi-people"></i> Users
+        <a href="#" id="importBinsBtn">
+            <i class="bi bi-arrow-repeat"></i> Import Bins
         </a>
-        <a href="#">
-            <i class="bi bi-gear"></i> Settings
-        </a>
+
+        <form id="importBinsForm" th:action="@{/admin/import/bins}" method="post" style="display:none;">
+        </form>
     </nav>
     <div class="sidebar-footer mt-auto p-3">
         <form th:action="@{/logout}" method="post">
@@ -69,86 +69,59 @@
             <p>Overview & real-time metrics</p>
         </div>
         <div class="topbar-right">
-            <div class="topbar-notif">
-                <i class="bi bi-bell"></i>
-                <span class="notif-dot"></span>
+            <span class="me-3" style="color:#6c757d;">
+                Welcome, <strong th:text="${adminUsername}">root</strong>
+            </span>
+            <div class="avatar-top">
+                <i class="bi bi-recycle" style="font-size:1.2rem;"></i>
             </div>
-            <div class="topbar-notif">
-                <i class="bi bi-chat-dots"></i>
-            </div>
-            <div class="avatar-top">RO</div>
         </div>
     </header>
 
     <!-- ─── SCROLLABLE BODY ─── -->
     <div class="content-body">
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show">
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show">
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
 
         <!-- ════════════════════════════════════════
              METRIC CARDS ROW
         ════════════════════════════════════════ -->
         <div class="row g-3 mb-section">
-
-            <!-- Total Users -->
-            <div class="col-lg-3 col-md-6">
-                <div class="metric-card">
-                    <div>
-                        <div class="metric-label">Total Users</div>
-                        <div class="metric-value">2,847</div>
-                        <div class="metric-sub green">
-                            <i class="bi bi-arrow-up"></i> 12% this month
-                        </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="m-card green">
+                    <div class="m-info">
+                        <div class="m-label">Total Users</div>
+                        <div class="m-value" th:text="${totalUsers}">4</div>
+                        <span class="m-tag"><i class="bi bi-person-check-fill"></i> Registered accounts</span>
                     </div>
-                    <div class="metric-icon green">
-                        <i class="bi bi-people"></i>
-                    </div>
+                    <div class="m-icon green"><i class="bi bi-people-fill"></i></div>
                 </div>
             </div>
-
-            <!-- Waste Diverted -->
-            <div class="col-lg-3 col-md-6">
-                <div class="metric-card">
-                    <div>
-                        <div class="metric-label">Waste Diverted</div>
-                        <div class="metric-value">45,678 kg</div>
-                        <div class="metric-sub blue">
-                            <i class="bi bi-bullseye"></i> 91.4% of monthly goal
-                        </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="m-card purple">
+                    <div class="m-info">
+                        <div class="m-label">Drop-Off Locations</div>
+                        <div class="m-value" th:text="${#numbers.formatInteger(totalDropOffs, 1, 'COMMA')}">13,120</div>
+                        <span class="m-tag"><i class="bi bi-pin-map-fill"></i> Active collection points</span>
                     </div>
-                    <div class="metric-icon blue">
-                        <i class="bi bi-bullseye"></i>
-                    </div>
+                    <div class="m-icon purple"><i class="bi bi-geo-alt-fill"></i></div>
                 </div>
             </div>
-
-            <!-- Active Bins -->
-            <div class="col-lg-3 col-md-6">
-                <div class="metric-card">
-                    <div>
-                        <div class="metric-label">Active Bins</div>
-                        <div class="metric-value">87</div>
-                        <div class="metric-sub purple">
-                            <i class="bi bi-geo-alt"></i> 5 need attention
-                        </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="m-card amber">
+                    <div class="m-info">
+                        <div class="m-label">Open Issues</div>
+                        <div class="m-value" th:text="${totalIssues}">4</div>
+                        <span class="m-tag"><i class="bi bi-clock-fill"></i> Pending resolution</span>
                     </div>
-                    <div class="metric-icon purple">
-                        <i class="bi bi-geo-alt"></i>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Open Issues -->
-            <div class="col-lg-3 col-md-6">
-                <div class="metric-card">
-                    <div>
-                        <div class="metric-label">Open Issues</div>
-                        <div class="metric-value">12</div>
-                        <div class="metric-sub orange">
-                            <i class="bi bi-exclamation-triangle"></i> 4 high priority
-                        </div>
-                    </div>
-                    <div class="metric-icon orange">
-                        <i class="bi bi-exclamation-triangle"></i>
-                    </div>
+                    <div class="m-icon amber"><i class="bi bi-exclamation-triangle-fill"></i></div>
                 </div>
             </div>
         </div>
@@ -328,10 +301,18 @@
     </div><!-- end content-body -->
 </div><!-- end main -->
 
-
+<div id="loadingOverlay" style="display:none;">
+    <div class="loading-content">
+        <div class="spinner-border text-light" role="status"></div>
+        <p>Importing bin data... Please wait</p>
+    </div>
+</div>
 
 <!-- Chart.js (load once) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<!-- THIS LINE FIXES THE DIM ISSUE -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 
 <script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", function () {
@@ -402,6 +383,18 @@
         });
       }
 
+    });
+</script>
+
+<script>
+    document.getElementById("importBinsBtn").addEventListener("click", function(e) {
+        e.preventDefault();
+
+        // Show loading overlay
+        document.getElementById("loadingOverlay").style.display = "flex";
+
+        // Submit hidden form
+        document.getElementById("importBinsForm").submit();
     });
 </script>
 </body>

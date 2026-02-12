@@ -24,7 +24,9 @@ import techthree.binitright.interfacemethods.AdminInterface;
 import techthree.binitright.interfacemethods.CheckInInterface;
 import techthree.binitright.interfacemethods.IssueInterface;
 import techthree.binitright.model.*;
+import techthree.binitright.repository.DropOffLocationRepository;
 import techthree.binitright.repository.ReportRepository;
+import techthree.binitright.repository.UserRepository;
 import techthree.binitright.service.DigitalOceanStorageService;
 import techthree.binitright.service.ForecastService;
 
@@ -50,8 +52,8 @@ class AdminControllerTest {
     @MockitoBean private ForecastService forecastService;
     @MockitoBean private DigitalOceanStorageService digitalOceanStorageService;
     @MockitoBean private ReportRepository reportRepository;
-
-
+    @MockitoBean private UserRepository userRepository;
+    @MockitoBean private DropOffLocationRepository dropOffLocationRepository;
 
     /* --------------------------------
        REVIEW CHECK-IN (GET)

@@ -22,10 +22,7 @@
 <aside class="sidebar">
     <div class="sidebar-brand">
         <h4><i class="bi bi-arrow-repeat me-1"></i>Bin It Right</h4>
-        <p>
-            Admin Portal<br>
-            Welcome, <span th:text="${adminUsername}">admin</span>
-        </p>
+        <p>Admin Portal<br>Welcome, <span th:text="${adminUsername}">root</span></p>
     </div>
 
     <nav>
@@ -42,8 +39,12 @@
         <a th:href="@{/admin/issues}">
             <i class="bi bi-exclamation-circle"></i> Issue Management
         </a>
-        <a href="#"><i class="bi bi-people"></i> Users</a>
-        <a href="#"><i class="bi bi-gear"></i> Settings</a>
+        <a href="#" id="importBinsBtn">
+            <i class="bi bi-arrow-repeat"></i> Import Bins
+        </a>
+
+        <form id="importBinsForm" th:action="@{/admin/import/bins}" method="post" style="display:none;">
+        </form>
     </nav>
 
     <div class="sidebar-footer mt-auto p-3">
@@ -65,11 +66,11 @@
             <p>Approve or reject a pending submission</p>
         </div>
         <div class="topbar-right">
-            <i class="bi bi-bell"></i>
-            <i class="bi bi-chat-dots"></i>
-            <div class="avatar-top"
-                 th:text="${#strings.substring(adminUsername,0,2).toUpperCase()}">
-                AD
+            <span class="me-3" style="color:#6c757d;">
+                Welcome, <strong th:text="${adminUsername}">root</strong>
+            </span>
+            <div class="avatar-top">
+                <i class="bi bi-recycle" style="font-size:1.2rem;"></i>
             </div>
         </div>
     </header>
@@ -295,6 +296,29 @@
         });
     });
 </script>
+
+<div id="loadingOverlay" style="display:none;">
+    <div class="loading-content">
+        <div class="spinner-border text-light" role="status"></div>
+        <p>Importing bin data... Please wait</p>
+    </div>
+</div>
+
+<!-- THIS LINE FIXES THE DIM ISSUE -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.getElementById("importBinsBtn").addEventListener("click", function(e) {
+        e.preventDefault();
+
+        // Show loading overlay
+        document.getElementById("loadingOverlay").style.display = "flex";
+
+        // Submit hidden form
+        document.getElementById("importBinsForm").submit();
+    });
+</script>
+
 
 </body>
 </html>

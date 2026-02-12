@@ -26,6 +26,7 @@ import techthree.binitright.model.Admin;
 import techthree.binitright.model.Report;
 import techthree.binitright.repository.AdminRepository;
 import techthree.binitright.repository.ReportRepository;
+import techthree.binitright.service.AdminImplementation;
 
 @WebMvcTest(
         controllers = ReportController.class,
@@ -42,7 +43,7 @@ class ReportControllerTest {
 
     @MockitoBean private ReportInterface reportService;
     @MockitoBean private ReportRepository reportRepository;
-    @MockitoBean private AdminRepository adminRepository;
+    @MockitoBean private AdminImplementation adminImplementation;
 
     private Report mockReport;
 
@@ -54,9 +55,12 @@ class ReportControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "admin", roles = "ADMIN")
     void generateNewReport_ShouldRedirect() throws Exception {
-        when(adminRepository.findById(1L)).thenReturn(Optional.of(new Admin()));
+        Admin mockAdmin = new Admin();
+        mockAdmin.setUsername("admin");
 
+        when(adminImplementation.getSingleAdminByUsername("admin")).thenReturn(mockAdmin);
         mockMvc.perform(post("/admin/report/generate")
                         .param("month", "2")
                         .param("year", "2026")

@@ -1,6 +1,8 @@
 package techthree.binitright.controller;
 
 import org.junit.jupiter.api.Test;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.ComponentScan;
@@ -14,9 +16,7 @@ import techthree.binitright.util.JwtUtil;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(
         controllers = AdminImportController.class,
@@ -41,9 +41,10 @@ class AdminImportControllerTest {
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     void importBins_ShouldReturnSuccessMessage() throws Exception {
         // Act & Assert
-        mockMvc.perform(get("/admin/import/bins"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Bin data import completed successfully!"));
+        mockMvc.perform(post("/admin/import/bins")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/admin/dashboard"));
 
         // Verify the service method was actually called
         verify(binDataImporter, times(1)).importData();

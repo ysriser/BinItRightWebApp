@@ -1,9 +1,12 @@
 package techthree.binitright.controller;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +19,9 @@ import techthree.binitright.interfacemethods.CheckInInterface;
 import techthree.binitright.interfacemethods.IssueInterface;
 import techthree.binitright.model.CheckIn;
 import techthree.binitright.model.Report;
+import techthree.binitright.repository.DropOffLocationRepository;
 import techthree.binitright.repository.ReportRepository;
+import techthree.binitright.repository.UserRepository;
 import techthree.binitright.service.*;
 
 @Controller
@@ -31,23 +36,31 @@ public class AdminController {
     private final ReportRepository reportRepository;
     private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
     private static final String CURRENT_PATH = "currentPath";
+    private final UserRepository userRepository;
+    private final DropOffLocationRepository dropOffLocationRepository;
 
     public AdminController(AdminInterface adminService,
                            CheckInInterface checkInService,
                            ForecastService forecastService,
                            IssueInterface issueService,
                            DigitalOceanStorageService digitalOceanStorageService,
-                           ReportRepository reportRepository) {
+                           ReportRepository reportRepository,
+                           UserRepository userRepository,
+                           DropOffLocationRepository dropOffLocationRepository ) {
         this.adminService = adminService;
         this.checkInService = checkInService;
         this.forecastService = forecastService;
         this.issueService = issueService;
         this.digitalOceanStorageService = digitalOceanStorageService;
         this.reportRepository = reportRepository;
+        this.userRepository = userRepository;
+        this.dropOffLocationRepository = dropOffLocationRepository;
     }
 
     @GetMapping("/dashboard")
-    public String dashboard(Model model) {
+    public String dashboard(Model model, Principal principal) {
+
+        model.addAttribute("adminUsername", principal.getName());
 
         model.addAttribute(CURRENT_PATH, "/admin/dashboard");
         model.addAttribute("issues",
@@ -59,6 +72,11 @@ public class AdminController {
                 "pendingCheckIns",
                 checkInService.getPendingCheckIns()
         );
+        model.addAttribute("adminUsername", principal.getName());
+
+        model.addAttribute("totalUsers", userRepository.count());
+        model.addAttribute("totalDropOffs", dropOffLocationRepository.count());
+        model.addAttribute("totalIssues", issueService.getTotalIssueCount());
 
         model.addAttribute(
                 "forecastData",
@@ -109,18 +127,19 @@ public class AdminController {
 
     @GetMapping("/checkin")
     @Transactional(readOnly = true)
-    public String checkinReviewList(Model model) {
+    public String checkinReviewList(Model model, Principal principal) {
         // Get all check-ins (you may want to filter by status)
         List<CheckIn> allCheckIns = checkInService.getAllCheckIns();
         model.addAttribute(CURRENT_PATH, "/admin/checkin");
         model.addAttribute("checkIns", allCheckIns);
+        model.addAttribute("adminUsername", principal.getName());
         return "checkin-list";
     }
     @GetMapping("/sustainability-reports")
     public String showSustainabilityReports(
             @RequestParam(value = "month", required = false) Integer month,
             @RequestParam(value = "year", required = false) Integer year,
-            Model model) {
+            Model model, Principal principal) {
 
         List<Report> reports;
         if (month != null && year != null) {
@@ -130,6 +149,7 @@ public class AdminController {
         }
         model.addAttribute("allReports", reports);
         model.addAttribute(CURRENT_PATH, "/admin/sustainability-reports");
+        model.addAttribute("adminUsername", principal.getName());
 
         return "sustainability-reports";
     }

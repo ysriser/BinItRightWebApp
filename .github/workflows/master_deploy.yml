@@ -128,8 +128,8 @@ jobs:
       - name: Wait for Seeders to Finish
         run: |
           echo "Waiting for app readiness and data seeding at http://${{ secrets.TEST_URL }}:443/api/ready..."
-          # Increase timeout to 420s (7 mins) to give API calls time to finish
-          timeout 420s bash -c 'until curl -sSf https://${{ secrets.TEST_URL }}/api/ready | grep "READY"; do 
+          # Increase timeout to 600s (10 mins) to give API calls time to finish
+          timeout 600s bash -c 'until curl -sSf https://${{ secrets.TEST_URL }}/api/ready | grep "READY"; do 
             echo "Seeding data from APIs... please wait..."
             sleep 10
           done'
