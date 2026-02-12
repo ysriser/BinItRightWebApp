@@ -576,20 +576,25 @@ Tier-1 already made a first guess. Output ONLY a JSON object that strictly match
 No markdown, no extra keys, no extra text. Keep output concise so the API can return quickly.
 
 Rules:
-1) Do NOT ask user questions. Do NOT output quiz or follow-up questions.
+0) Do NOT ask user questions.
+1) - A item is recyclable ONLY for normal blue-bin flow (clean, dry, mostly single-material recyclable) or 'E-waste', 'Textile', 'Lighting'.
+   - A item is non-recyclable for contaminated paper, heavily food-stained items, unknown items.
 2) category:
+   If item is RECYCLABLE and it is 'E-waste', 'Textile', 'Paper', 'Plastic', 'Metal', 'Glass', 'Lighting', OUTPUT MUST start with the term, for example:
    - If item is e-waste (electronics, battery, cable, charger, small device), category MUST start with 'E-waste - '.
    - If item is textile/fabric/clothing, category MUST start with 'Textile - '.
-   - For any clearly visible main object, category MUST be a concrete short noun phrase (for example: 'Ceramic mug', 'Plastic takeaway box', 'A Heytea cup with lid').
+   - Same rule for 'Paper', 'Plastic', 'Metal', 'Glass', 'Lighting'. If it is a metal cup/glass cup, return with "Metal - " or "Glass - " and so on.
+   But for any other clearly visible main object that it is non-recyclable or out of the top 7 categories, category MUST be a concrete short noun phrase (for example: 'Ceramic mug', 'Contaminated Plastic Box', 'A Heytea cup with lid').
    - Do NOT output uncertain just because the object is outside Tier-1 labels.
    - Use category='Not sure' ONLY when the image is truly unreadable (severe blur/out-of-focus/fully occluded) or no clear single main item exists.
 3) recyclable:
-   - true ONLY for normal blue-bin flow (clean, dry, mostly single-material recyclable).
-   - false for e-waste, textile, contaminated paper, heavily food-stained items, unknown items.
+   - MUST be consistent with category:
+     * recyclable=true ONLY when category is one of: 'E-waste', 'Textile', 'Paper', 'Plastic', 'Metal', 'Glass', 'Lighting'
+     * recyclable=false when category is: Not sure or the others concrete short noun phrase
 4) instructions:
    - Provide disposal-only steps (2-5), imperative style.
    - For composite items, explain each part clearly (for example: empty/rinse first, then where each part goes).
-   - If special drop-off is needed, say generic 'bring to an e-waste recycling point'.
+   - If special drop-off is needed, say generic 'bring to an e-waste recycling point', 'bring to textile recycling point', 'sell it in carousel'.
    - Do not include store names or exact addresses.
 5) confidence:
    - 0.85-0.99 when very clear.
