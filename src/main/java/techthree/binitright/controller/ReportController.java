@@ -1,5 +1,6 @@
 package techthree.binitright.controller;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -9,6 +10,8 @@ import techthree.binitright.model.Report;
 import techthree.binitright.repository.AdminRepository;
 import techthree.binitright.repository.ReportRepository;
 import jakarta.servlet.http.HttpServletResponse;
+import techthree.binitright.service.AdminImplementation;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map;
@@ -27,22 +30,23 @@ public class ReportController {
 
     private final ReportInterface reportService;
     private final ReportRepository reportRepository;
-    private final AdminRepository adminRepository;
+    private final AdminImplementation adminImplementation;
 
     public ReportController(ReportInterface reportService,
                             ReportRepository reportRepository,
-                            AdminRepository adminRepository) {
+                            AdminImplementation adminImplementation) {
         this.reportService = reportService;
         this.reportRepository = reportRepository;
-        this.adminRepository = adminRepository;
+        this.adminImplementation = adminImplementation;
     }
 
     @PostMapping("/generate")
     public String generateNewReport(@RequestParam("month") int month,
-                                    @RequestParam("year") int year) {
+                                    @RequestParam("year") int year, Authentication authentication) {
+        String userName = authentication.getName();
+        Admin admin = adminImplementation.getSingleAdminByUsername(userName);
         Report log = new Report();
         log.setGeneratedAt(LocalDateTime.now());
-        Admin admin = adminRepository.findById(1L).orElse(null);
         log.setAdmin(admin);
         reportRepository.save(log);
         return "redirect:/admin/sustainability-reports";

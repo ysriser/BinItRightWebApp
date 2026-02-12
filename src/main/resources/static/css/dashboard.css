@@ -199,21 +199,21 @@ body {
    METRIC CARDS
 ═══════════════════════════════════════════════════ */
 .metric-card {
-    background: #fff;
-    border-radius: var(--card-radius);
-    padding: 1.1rem 1.2rem;
-    box-shadow: var(--card-shadow);
-    border: 1px solid rgba(0, 0, 0, .05);
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    transition: box-shadow .2s, transform .2s;
-    height: 100%;
+  position: relative;
+  background: #fff;
+  border-radius: 20px;
+  padding: 28px 30px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+  transition: transform 0.3s cubic-bezier(.4,0,.2,1), box-shadow 0.3s cubic-bezier(.4,0,.2,1);
+  border: 1px solid rgba(0,0,0,0.04);
 }
-
 .metric-card:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, .1);
-    transform: translateY(-2px);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
 }
 
 .metric-label {
@@ -262,6 +262,76 @@ body {
     color: #a82900;
 }
 
+/* ── METRIC CARDS ── */
+.m-card {
+  position: relative;
+  background: #fff;
+  border-radius: 18px;
+  padding: 26px 28px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  transition: all 0.35s cubic-bezier(.25,.46,.45,.94);
+  animation: cardSlideUp 0.5s cubic-bezier(.25,.46,.45,.94) backwards;
+}
+.m-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px -12px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.03);
+}
+
+/* Animated bottom border */
+.m-card::before {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(.25,.46,.45,.94);
+}
+.m-card:hover::before { transform: scaleX(1); }
+.m-card.green::before  { background: linear-gradient(90deg, #16a34a, #22c55e, #86efac); }
+.m-card.purple::before { background: linear-gradient(90deg, #7c3aed, #a78bfa, #ddd6fe); }
+.m-card.amber::before  { background: linear-gradient(90deg, #d97706, #fbbf24, #fde68a); }
+
+/* Background glow */
+.m-card::after {
+  content: '';
+  position: absolute;
+  top: -30px; right: -30px;
+  width: 140px; height: 140px;
+  border-radius: 50%;
+  opacity: 0.04;
+  transition: all 0.4s ease;
+}
+.m-card:hover::after { opacity: 0.08; transform: scale(1.15); }
+.m-card.green::after  { background: radial-gradient(circle, #16a34a, transparent 70%); }
+.m-card.purple::after { background: radial-gradient(circle, #7c3aed, transparent 70%); }
+.m-card.amber::after  { background: radial-gradient(circle, #d97706, transparent 70%); }
+
+.m-info { position: relative; z-index: 1; }
+.m-label { font-size: 11px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: #94a3b8; margin-bottom: 10px; }
+.m-value { font-size: 42px; font-weight: 800; color: #0f172a; line-height: 1; margin-bottom: 12px; letter-spacing: -1px; }
+
+.m-tag { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; padding: 5px 12px; border-radius: 20px; transition: all 0.3s ease; }
+.m-card:hover .m-tag { transform: translateX(3px); }
+.m-card.green .m-tag  { color: #16a34a; background: #f0fdf4; }
+.m-card.purple .m-tag { color: #7c3aed; background: #f5f3ff; }
+.m-card.amber .m-tag  { color: #d97706; background: #fffbeb; }
+
+.m-icon { position: relative; z-index: 1; width: 54px; height: 54px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; transition: all 0.35s cubic-bezier(.25,.46,.45,.94); }
+.m-card:hover .m-icon { transform: scale(1.1) rotate(-5deg); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+.m-icon.green  { background: linear-gradient(145deg, #dcfce7, #bbf7d0); color: #16a34a; }
+.m-icon.purple { background: linear-gradient(145deg, #ede9fe, #ddd6fe); color: #7c3aed; }
+.m-icon.amber  { background: linear-gradient(145deg, #fef3c7, #fde68a); color: #d97706; }
+
+@keyframes cardSlideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+.m-card:nth-child(1) { animation-delay: 0.05s; }
+.m-card:nth-child(2) { animation-delay: 0.15s; }
+.m-card:nth-child(3) { animation-delay: 0.25s; }
 /* ═══════════════════════════════════════════════════
    SECTION CARDS (chart wrapper / table wrapper)
 ═══════════════════════════════════════════════════ */
@@ -889,4 +959,23 @@ body {
     flex-direction: column;
 
 
+}
+
+#loadingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.55);
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.loading-content {
+    text-align: center;
+    color: white;
+    font-weight: 600;
 }

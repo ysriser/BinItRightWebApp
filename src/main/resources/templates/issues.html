@@ -19,8 +19,7 @@
 <aside class="sidebar">
     <div class="sidebar-brand">
         <h4><i class="bi bi-arrow-repeat me-1"></i>Bin It Right</h4>
-        <p>Admin Portal<br>Welcome, root</p>
-    </div>
+        <p>Admin Portal<br>Welcome, <span th:text="${adminUsername}">root</span></p>    </div>
     <nav>
         <a th:href="@{/admin/dashboard}"
            th:classappend="${currentPath != null and currentPath.startsWith('/admin/dashboard')} ? 'active' : ''">
@@ -39,12 +38,12 @@
         <a th:href="@{/admin/issues}" class="active">
             <i class="bi bi-exclamation-circle"></i> Issue Management
         </a>
-        <a href="#">
-            <i class="bi bi-people"></i> Users
+        <a href="#" id="importBinsBtn">
+            <i class="bi bi-arrow-repeat"></i> Import Bins
         </a>
-        <a href="#">
-            <i class="bi bi-gear"></i> Settings
-        </a>
+
+        <form id="importBinsForm" th:action="@{/admin/import/bins}" method="post" style="display:none;">
+        </form>
     </nav>
 
     <div class="sidebar-footer mt-auto p-3">
@@ -65,98 +64,130 @@
             <h2>Issue Management</h2>
             <p>Review and resolve reported issues</p>
         </div>
+        <div class="topbar-right">
+            <span class="me-3" style="color:#6c757d;">
+                Welcome, <strong th:text="${adminUsername}">root</strong>
+            </span>
+            <div class="avatar-top">
+                <i class="bi bi-recycle" style="font-size:1.2rem;"></i>
+            </div>
+        </div>
     </header>
 
     <!-- BODY -->
     <div class="content-body">
-        <div class="review-wrap">
 
-            <!-- COUNTERS -->
-            <div class="mb-section">
-                <span class="badge bg-secondary me-2">
-                    Total <span th:text="${totalCount}">0</span>
-                </span>
-                <span class="badge bg-warning text-dark me-2">
-                    New <span th:text="${newCount}">0</span>
-                </span>
-                <span class="badge bg-info text-dark me-2">
-                    In Progress <span th:text="${inProgressCount}">0</span>
-                </span>
-                <span class="badge bg-success">
-                    Resolved <span th:text="${resolvedCount}">0</span>
+        <!-- STATUS COUNTERS -->
+        <div class="mb-3">
+            <span class="badge bg-secondary me-2">
+                Total <span th:text="${totalCount}">0</span>
+            </span>
+            <span class="badge bg-warning text-dark me-2">
+                New <span th:text="${newCount}">0</span>
+            </span>
+            <span class="badge bg-info text-dark me-2">
+                In Progress <span th:text="${inProgressCount}">0</span>
+            </span>
+            <span class="badge bg-success">
+                Resolved <span th:text="${resolvedCount}">0</span>
+            </span>
+        </div>
+
+        <!-- ISSUES TABLE -->
+        <div class="section-card">
+            <div class="section-header">
+                <h5><i class="bi bi-exclamation-circle"></i> All Issues</h5>
+                <span class="badge-custom">
+                    <i class="bi bi-circle-fill" style="font-size:.5rem; vertical-align:middle;"></i>
+                    <span th:text="${totalCount} + ' Total'"></span>
                 </span>
             </div>
 
-            <!-- EMPTY -->
-            <div th:if="${#lists.isEmpty(issues)}"
-                 class="review-card text-center py-5 text-muted">
-                <i class="bi bi-inbox fs-2"></i>
-                <p class="mt-2">No issues reported</p>
-            </div>
+            <div class="table-responsive">
+                <table class="tbl">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Reported</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <!-- Empty state -->
+                    <tr th:if="${issues == null or #lists.isEmpty(issues)}">
+                        <td colspan="7" class="text-center py-4 text-muted">
+                            <i class="bi bi-inbox" style="font-size:1.8rem; display:block; margin-bottom:6px;"></i>
+                            No issues reported
+                        </td>
+                    </tr>
 
-            <!-- ISSUE CARDS -->
-            <div th:each="issue : ${issues}" class="review-card mb-3">
-
-                <!-- HEADER -->
-                <div class="review-card-header">
-                    <div class="hdr-icon">
-                        <i class="bi bi-exclamation-circle"></i>
-                    </div>
-                    <div>
-                        <h4 th:text="${issue.raisedBy.name}">User</h4>
-                        <p th:text="${issue.description}">
-                            Issue description
-                        </p>
-                    </div>
-                </div>
-
-                <!-- DETAILS -->
-                <div class="detail-row">
-                    <div class="detail-label">Category</div>
-                    <div class="detail-value">
-                        <span class="badge bg-light text-dark"
-                              th:text="${issue.issueCategory}">
-                        </span>
-                    </div>
-                </div>
-
-                <div class="detail-row">
-                    <div class="detail-label">Status</div>
-                    <div class="detail-value">
-                        <span class="status-badge"
-                              th:classappend="
-                                ${issue.status.name() == 'NEW'} ? '' :
-                                (${issue.status.name() == 'IN_PROGRESS'} ? ' approved' : ' denied')">
-                            <span class="dot"></span>
-                            <span th:text="${issue.status}">NEW</span>
-                        </span>
-                    </div>
-                </div>
-
-                <div class="detail-row">
-                    <div class="detail-label">Reported</div>
-                    <div class="detail-value"
-                         th:text="${#temporals.format(issue.createdAt,'dd MMM yyyy HH:mm')}">
-                        04 Feb 2026 10:47
-                    </div>
-                </div>
-
-                <!-- ACTION -->
-                <div class="d-flex justify-content-end mt-3">
-                    <a th:href="@{/admin/issues/{id}(id=${issue.issueId})}"
-                       class="btn btn-outline-secondary">
-                        <i class="bi bi-eye"></i> View Issue
-                    </a>
-                </div>
-
-                <div class="review-card-footer">
-                    <i class="bi bi-shield-check me-1"></i> Admin Issue Panel
-                </div>
-
+                    <!-- Data rows -->
+                    <tr th:each="issue : ${issues}">
+                        <td>
+                            <span class="cell-id" th:text="'#' + ${issue.issueId}"></span>
+                        </td>
+                        <td>
+                            <div class="cell-user">
+                                <div class="avatar-sm" th:text="${issue.raisedBy.name.substring(0,2).toUpperCase()}"></div>
+                                <span class="user-name" th:text="${issue.raisedBy.name}"></span>
+                            </div>
+                        </td>
+                        <td>
+                            <span th:text="${#strings.abbreviate(issue.description, 50)}"></span>
+                        </td>
+                        <td>
+                            <span class="item-tag" th:text="${issue.issueCategory}"></span>
+                        </td>
+                        <td>
+                            <span class="status-badge"
+                                  th:classappend="
+                                    ${issue.status.name() == 'NEW'} ? '' :
+                                    (${issue.status.name() == 'IN_PROGRESS'} ? ' approved' : ' denied')">
+                                <span class="dot"></span>
+                                <span th:text="${issue.status}"></span>
+                            </span>
+                        </td>
+                        <td th:text="${#temporals.format(issue.createdAt, 'dd-MM-yyyy HH:mm')}"></td>
+                        <td class="text-end">
+                            <a th:href="@{/admin/issues/{id}(id=${issue.issueId})}" class="btn-review">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
+
     </div>
 </div>
+
+<div id="loadingOverlay" style="display:none;">
+    <div class="loading-content">
+        <div class="spinner-border text-light" role="status"></div>
+        <p>Importing bin data... Please wait</p>
+    </div>
+</div>
+
+<!-- THIS LINE FIXES THE DIM ISSUE -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.getElementById("importBinsBtn").addEventListener("click", function(e) {
+        e.preventDefault();
+
+        // Show loading overlay
+        document.getElementById("loadingOverlay").style.display = "flex";
+
+        // Submit hidden form
+        document.getElementById("importBinsForm").submit();
+    });
+</script>
+
 
 </body>
 </html>
