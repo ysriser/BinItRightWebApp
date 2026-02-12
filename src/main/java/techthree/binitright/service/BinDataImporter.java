@@ -87,8 +87,8 @@ public class BinDataImporter {
             JsonNode pollResp = response.getBody();
             String s3Url = pollResp.path("data").path("url").asText();
 
-            if (s3Url == null || s3Url.isEmpty() || s3Url.equals("null")) {
-                throw new RuntimeException("Error: 'data.url' not found for " + binType);
+            if (s3Url == null || s3Url.isBlank() || "null".equals(s3Url)) {
+                throw new IllegalStateException("S3 URL not found for binType: " + binType);
             }
 
             URI signed = new URI(s3Url);
@@ -100,6 +100,7 @@ public class BinDataImporter {
             pause(30000);
             importFromApi(pollUrl, binType); // Recursive retry once
         } catch (Exception ex) {
+            // Intentionally empty - swallow other exceptions to prevent import failure
         }
     }
 
@@ -177,8 +178,12 @@ public class BinDataImporter {
         String street = meta.getOrDefault("ADDRESSSTREETNAME", "");
         String building = meta.getOrDefault("ADDRESSBUILDINGNAME", "");
 
-        String fullAddress = (!block.isEmpty() && !street.isEmpty()) ? block + " " + street :
-                (!building.isEmpty() ? building : street);
+        String fullAddress;
+        if (!block.isEmpty() && !street.isEmpty()) {
+            fullAddress = block + " " + street;
+        } else {
+            fullAddress = !building.isEmpty() ? building : street;
+        }
 
         DropOffLocation bin = new DropOffLocation();
         bin.setName(props.has("Name") ? props.get("Name").asText() : binType);

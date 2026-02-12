@@ -55,7 +55,7 @@ public class DropOffLocation {
     public DropOffLocation() {}
 
 	public DropOffLocation(String id, String name, String address, String postalCode, String description,
-			String binType, BigDecimal latitude, BigDecimal longitude, Status status, List<CheckIn> checkIn, String incCrc) {
+			String binType, BigDecimal latitude, BigDecimal longitude, Status status, List<CheckIn> checkIn) {
 		super();
         this.id = id;
 		this.name = name;
