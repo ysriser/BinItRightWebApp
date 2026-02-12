@@ -40,12 +40,6 @@
         <a th:href="@{/admin/issues}">
             <i class="bi bi-exclamation-circle"></i> Issue Management
         </a>
-        <a href="#" id="importBinsBtn">
-            <i class="bi bi-arrow-repeat"></i> Import Bins
-        </a>
-
-        <form id="importBinsForm" th:action="@{/admin/import/bins}" method="post" style="display:none;">
-        </form>
     </nav>
     <div class="sidebar-footer mt-auto p-3">
         <form th:action="@{/logout}" method="post">
@@ -70,7 +64,7 @@
         </div>
         <div class="topbar-right">
             <span class="me-3" style="color:#6c757d;">
-                Welcome, <strong th:text="${adminUsername}">root</strong>
+                Welcome
             </span>
             <div class="avatar-top">
                 <i class="bi bi-recycle" style="font-size:1.2rem;"></i>
@@ -311,7 +305,6 @@
 <!-- Chart.js (load once) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
-<!-- THIS LINE FIXES THE DIM ISSUE -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 
 <script th:inline="javascript">
@@ -376,25 +369,13 @@
             labels: [CURRENT_YEAR],
             datasets: [
               { label: "Target", data: toMillion([data.forecasts.SES[CURRENT_YEAR]]), backgroundColor: "#e0e0e0" },
-              { label: "Observed (Total disposed)", data: toMillion([data.calculated_total_generated_tonnes]), backgroundColor: "#673ab7" }
+              { label: "Observed (Total Generated)", data: toMillion([data.calculated_total_generated_tonnes]), backgroundColor: "#673ab7" }
             ]
           },
           options: { responsive: true, maintainAspectRatio: false }
         });
       }
 
-    });
-</script>
-
-<script>
-    document.getElementById("importBinsBtn").addEventListener("click", function(e) {
-        e.preventDefault();
-
-        // Show loading overlay
-        document.getElementById("loadingOverlay").style.display = "flex";
-
-        // Submit hidden form
-        document.getElementById("importBinsForm").submit();
     });
 </script>
 </body>

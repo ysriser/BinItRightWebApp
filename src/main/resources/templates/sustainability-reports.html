@@ -35,12 +35,7 @@
            th:classappend="${currentPath != null and currentPath.startsWith('/admin/issues') ? 'active' : ''}">
             <i class="bi bi-exclamation-circle"></i> Issue Management
         </a>
-        <a href="#" id="importBinsBtn">
-            <i class="bi bi-arrow-repeat"></i> Import Bins
-        </a>
 
-        <form id="importBinsForm" th:action="@{/admin/import/bins}" method="post" style="display:none;">
-        </form>
     </nav>
 
     <div class="sidebar-footer mt-auto p-3">
@@ -79,7 +74,14 @@
     <header class="topbar">
         <div class="topbar-left">
             <h2>Sustainability Reports</h2>
-            <p>Generate and view time-based sustainability metrics</p>
+        </div>
+        <div class="topbar-right">
+            <span class="me-3" style="color:#6c757d;">
+                Welcome
+            </span>
+            <div class="avatar-top">
+                <i class="bi bi-recycle" style="font-size:1.2rem;"></i>
+            </div>
         </div>
     </header>
 
